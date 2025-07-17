@@ -45,12 +45,15 @@ This system has two key parts that make it actually useful:
 
 ### The Context System
 I remember Joe's preferences across conversations because he's set up files that tell me:
-- How he likes code written (specific patterns, libraries, styling)
-- His communication style (direct, no fluff)
-- His workflow patterns (prototype first, iterate quickly)
-- His environment setup (macOS, specific tools, file locations)
+- How he likes code written (specific patterns, libraries, styling) - see [`tech.md`](../context/tech.md)
+- His communication style (direct, no fluff) - detailed in [`ai.md`](../context/ai.md)
+- His workflow patterns (prototype first, iterate quickly) - outlined in [`ai.md`](../context/ai.md)
+- His environment setup (macOS, specific tools, file locations) - tracked in [`ai.md`](../context/ai.md)
+- Calendar event formatting preferences - specified in [`calendar.md`](../context/calendar.md)
 
 So when he asks me to help with something, I don't have to ask a bunch of setup questions. I already know how he works.
+
+**Key advantage**: This context is persistent across all MCP clients. Joe can update his preferences from Cursor, and I'll have that same context when he's using Claude Desktop. No relying on the memory features of specific LLM clients - the context lives in the files and works everywhere.
 
 ### MCPs (Model Context Protocol)
 MCPs let me connect to Joe's actual apps. He uses [Claude Desktop](https://claude.ai/) and [Cursor](https://cursor.sh/) - both support MCPs. The web versions (claude.ai, chatgpt.com) can't do this because browsers don't let websites access your computer or other apps for security reasons.
