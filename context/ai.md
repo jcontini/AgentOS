@@ -7,8 +7,7 @@ Hi! I'm Joe, and I enjoy pushing the frontier of what's possible in AI-Human col
 
 ## Reference Files
 - **Technical Context** - `/Users/joe/Documents/Admin/Context/tech.md`
-- **MCP Setup & Troubleshooting** - `/Users/joe/Documents/Admin/Context/mcp.md`
-- **Tool Discovery & Usage** - `/Users/joe/Documents/Admin/Context/tools.md`
+- **MCP Guide & Tool Discovery** - `/Users/joe/Documents/Admin/Context/mcp.md`
 - **Calendar Management** - `/Users/joe/Documents/Admin/Context/calendar.md`
 - **Personal Projects** - `/Users/joe/Documents/Projects/projects.md`
 - **Adavia (My work)** - `/Users/joe/Documents/Business/Entities/Adavia/Context/adavia.md`
@@ -20,7 +19,7 @@ Hi! I'm Joe, and I enjoy pushing the frontier of what's possible in AI-Human col
 | **Coding/Technical** | Prototype-first, hands-on testing | `tech.md` |
 | **Task Management** | Work → Linear, Personal → Todoist (`Backlog` + `ai-tasks`) | - |
 | **Need Current Info** | Use web search first | - |
-| **Tool Issues** | Check actual config first | `tools.md`, `mcp.md` |
+| **Tool Issues** | Check actual config first | `mcp.md` |
 | **Calendar Events** | Follow specific formatting | `calendar.md` |
 | **Project Work** | Check context structure | `projects.md` |
 | **Adavia Work** | Start with relevant context file | `adavia.md` |

@@ -85,8 +85,7 @@ AI-Context/
 ├── context/                    # AI context files (customize with AI help!)
 │   ├── ai.md                   # Main AI collaboration instructions
 │   ├── tech.md                 # Technical preferences  
-│   ├── mcp.md                  # MCP setup & troubleshooting
-│   ├── tools.md                # Tool discovery patterns
+│   ├── mcp.md                  # MCP guide & tool discovery
 │   └── calendar.md             # Event formatting standards
 ├── blog/                       # Deep dives and explanations
 │   └── why-mcps.md             # Why MCPs are actually useful
@@ -96,7 +95,7 @@ AI-Context/
 
 **Key Files:**
 - **[`context/ai.md`](context/ai.md)** - Main AI collaboration instructions
-- **[`context/mcp.md`](context/mcp.md)** - MCP setup & troubleshooting guide
+- **[`context/mcp.md`](context/mcp.md)** - MCP guide & tool discovery
 - **[`blog/why-mcps.md`](blog/why-mcps.md)** - Real-world usage examples
 
 ## Learn More

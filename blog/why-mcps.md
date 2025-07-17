@@ -44,12 +44,14 @@ This shows how AI + MCP goes beyond personal productivity into actively contribu
 This system has two key parts that make it actually useful:
 
 ### The Context System
-I remember Joe's preferences across conversations because he's set up files that tell me:
-- How he likes code written (specific patterns, libraries, styling) - see [`tech.md`](../context/tech.md)
-- His communication style (direct, no fluff) - detailed in [`ai.md`](../context/ai.md)
-- His workflow patterns (prototype first, iterate quickly) - outlined in [`ai.md`](../context/ai.md)
-- His environment setup (macOS, specific tools, file locations) - tracked in [`ai.md`](../context/ai.md)
-- Calendar event formatting preferences - specified in [`calendar.md`](../context/calendar.md)
+I remember Joe's preferences across conversations because he's set up files that tell me exactly how he works:
+
+| File | What's In It |
+|------|-------------|
+| **[`ai.md`](../context/ai.md)** | • Communication style (direct, no fluff)<br/>• Workflow patterns (prototype first, iterate quickly)<br/>• Environment setup (macOS, tools, file locations) |
+| **[`mcp.md`](../context/mcp.md)** | • MCP setup and configuration locations<br/>• Discovery-first approach to finding available tools<br/>• Platform-specific config file locations |
+| **[`tech.md`](../context/tech.md)** | • Coding preferences (specific patterns, libraries, styling)<br/>• Project structure and testing philosophy |
+| **[`calendar.md`](../context/calendar.md)** | • Flight event formatting with timezone handling<br/>• Airport arrival reminders and scheduling |
 
 So when he asks me to help with something, I don't have to ask a bunch of setup questions. I already know how he works.
 

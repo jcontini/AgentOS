@@ -1,100 +1,76 @@
-# MCP (Model Context Protocol) Setup & Troubleshooting Guide
+# MCP (Model Context Protocol) Guide
 
-## Universal Quick Reference
+This file contains information about discovering and using MCPs (Model Context Protocol) in your current environment.
 
-**Core Debugging Commands (All Platforms):**
-```bash
-node --version              # Check Node.js version
-which npx                   # Check npx location
-tail -f ~/Library/Logs/Claude/mcp*.log  # View logs
-npx @modelcontextprotocol/inspector [server-path-or-url]  # Test server
-```
+## What are MCPs?
 
-**Platform Config Locations:**
+**Model Context Protocol (MCP)** is a standardized way for AI applications to connect to external tools and data sources. Think of it as "USB-C for AI" - a universal plug-and-play system that lets LLMs securely access databases, APIs, files, and services.
+
+*For practical examples of how MCPs work in real workflows, see [`../blog/why-mcps.md`](../blog/why-mcps.md)*
+
+## Platform Config Locations
+
 | Platform | Config File | Extensions/Additional |
 |----------|-------------|----------------------|
 | **Cursor** | `~/.cursor/mcp.json` (global)<br/>`.cursor/mcp.json` (project) | - |
 | **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` | `~/Library/Application Support/Claude/extensions-installations.json`<br/>`~/Library/Application Support/Claude/Claude Extensions/` |
 | **OpenWebUI** | `~/.local/openwebui/mcp-config.json` | - |
 
-## Debugging Workflow (Universal)
+## Discovery-First Approach 🔍
 
-1. **Check current state**:
+**Important**: Tool availability is dynamic and context-dependent. Rather than maintaining static lists, **always check the actual configuration** for your current environment.
+
+### How to Discover Your Current Tools
+
+1. **Identify your client** from system prompts:
+   - "You operate in Cursor" → Cursor
+   - Desktop Commander available → Claude Desktop
+   - Other indicators in your system prompt
+
+2. **Check the actual config file**:
    ```bash
-   cat [relevant config file from table above]
-   node --version
-   tail ~/Library/Logs/Claude/mcp.log
+   # Cursor (check both global and project-specific)
+   cat ~/.cursor/mcp.json
+   cat .cursor/mcp.json  # Project-specific supplements
+   
+   # Claude Desktop
+   cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   
+   # OpenWebUI
+   cat ~/.local/openwebui/mcp-config.json
    ```
 
-2. **Search for latest info**: Use web search for current solutions
+3. **Explore tool capabilities**:
+   - Try calling tools to understand their actual capabilities
+   - Use `--help` flags where available
+   - Check web documentation for the latest features
 
-3. **Test incrementally**: Disable all MCPs except one, add back gradually
+## Living in Fast-Moving Times 🚀
 
-4. **Experiment**: Try variations based on error messages
+We're in an era where AI capabilities evolve faster than documentation. Embrace this by:
 
-## Common Issues & Quick Fixes
+1. **Using web search** for the latest information on tools, APIs, and best practices
+2. **Experimenting freely** - try first, adjust based on results (Adam Grant style 😜)
+3. **Reading actual configs** over static documentation
+4. **Checking tool versions** and updating as needed
 
-| Issue | Symptoms | First Try | Then Search For |
-|-------|----------|-----------|-----------------|
-| **Node.js compatibility** | "symbol to string" errors | Check `node --version` | "MCP node version requirements [current year]" |
-| **PATH problems** | "spawn ENOENT" | Add full PATH to env | "MCP PATH configuration" |
-| **Auth failures** | HTTP 401 | Add `--debug` flag | "[MCP name] authentication setup" |
-| **Server disconnects** | Process exits | Check logs, restart client | "MCP server timeout issues" |
+## Key Tool Usage Patterns
 
-## Config Patterns (Verify with Latest Docs!)
+While specific tools vary, common patterns include:
 
-**Universal Environment Setup:**
-- Store API keys in `env` section
-- Use absolute paths for Node/NPX when possible
-- Include comprehensive PATH in env variables
+- **Web Search (Exa)**: Use whenever current information would help
+- **Task Management**: Work tasks → Linear | Personal → Todoist (when configured)
+- **Documentation (Context7)**: Latest library docs for development
+- **Database Access**: Check for postgres or other DB tools in your config
 
-**Common Command Patterns:**
-- **Remote SSE**: `["npx", "-y", "mcp-remote", "https://endpoint/sse", "--debug"]`
-- **Local scripts**: `["node", "/absolute/path/to/script.js"]`
-- **NPX packages**: `["npx", "-y", "package-name"]`
+## Troubleshooting Approach
 
-## Platform-Specific Commands
+If I ask you to do something that seems impossible:
 
-### Claude Desktop
-```bash
-# List traditional MCP servers
-jq '.mcpServers | keys' ~/Library/Application\ Support/Claude/claude_desktop_config.json
+1. **Check available tools** in your current environment
+2. **Read the actual config** to see what's configured
+3. **Try calling the tool** to test capabilities
+4. **Search the web** for latest documentation
+5. **Experiment** with different approaches
 
-# List DXT extensions
-jq '.extensions | keys' ~/Library/Application\ Support/Claude/extensions-installations.json
-jq -r '.extensions[] | "\(.id // "N/A") - v\(.version // "N/A")"' ~/Library/Application\ Support/Claude/extensions-installations.json
-
-# Extension directories
-ls ~/Library/Application\ Support/Claude/Claude\ Extensions/
-```
-
-### DXT Extensions Overview
-**What**: One-click packaged MCP servers (.dxt files) with bundled dependencies
-**vs Traditional**: No manual JSON config or Node.js setup required
-**Coexistence**: Both DXT and traditional MCP servers can run simultaneously
-
-## Recovery Procedure
-
-**When MCPs break:**
-1. **Check what changed** - OS update? Node version? Config edit?
-2. **Read actual error** - Often contains the fix
-3. **Search for solution** - Use web search + error message + "MCP" + current year
-4. **Test one MCP** - Isolate the problem
-5. **Try alternatives** - Different Node version, different approach
-
-## Living Documentation 🚀
-
-**Important**: This guide contains patterns that worked at time of writing. Always:
-1. **Search the web** for latest MCP documentation and best practices
-2. **Check actual versions** - Requirements change frequently
-3. **Read error messages carefully** - They often contain the solution
-4. **Experiment with solutions** - The ecosystem evolves rapidly
-
-## Resources
-
-- **Search terms**: "MCP setup latest", "MCP debugging current", "[specific MCP] configuration [current year]"
-- **Official docs**: https://modelcontextprotocol.io
-- **DXT Documentation**: https://github.com/anthropics/dxt
-- **Node.js management**: `nvm` for version switching
-
-**Best troubleshooting resource**: Web search for your specific error message + "MCP" + current year!
+Remember: Your training data might be outdated - the tools and their capabilities have likely evolved! 
