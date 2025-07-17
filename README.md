@@ -9,14 +9,14 @@
 Turn your AI assistant from an isolated chatbot into an integrated part of your workflow:
 
 ```
-You: "Add 'follow up with Sarah' to my ai-tasks list"
+You: "Add 'follow up with Ryan' to my Todoist"
 AI: ✅ Actually adds it to your Todoist
 
-You: "My network seems slow, can you check?"  
-AI: *Reads your actual network config and diagnoses the issue*
+You: "My computer fan is really loud"
+AI: *Checks running processes, finds memory hog, kills it safely*
 
-You: "Create a Linear issue for refactoring auth"
-AI: ✅ Creates the issue with proper labeling and assignment
+You: "Create flight events for my trip to New York"
+AI: ✅ Creates properly formatted flight + airport arrival events
 ```
 
 **Key insight**: MCPs + persistent context = AI that takes action in your actual systems, not just gives advice.
@@ -43,13 +43,40 @@ AI: ✅ Creates the issue with proper labeling and assignment
    - Ask your AI: "Help me customize this file with my own preferences, environment, and workflow details"
    - 💡 **Pro tip**: Use voice-to-text tools like [SuperWhisper](https://superwhisper.com/) to talk through your preferences instead of typing
 
-3. **Configure MCPs**: 
-   - Follow [`context/mcp.md`](context/mcp.md) for step-by-step MCP setup
-   - Install the specific MCPs for tools you use
-
-4. **Start collaborating**: 
+3. **Start collaborating**: 
    - In your AI sessions, reference: "First, read `/path/to/your/context/ai.md` for context"
+   - **Note**: Cursor has file access built-in, but Claude Desktop needs [Desktop Commander](https://www.npmjs.com/package/@wonderwhy-er/desktop-commander) for file operations
    - Watch your AI become an integrated teammate instead of isolated chatbot
+
+## Key Components
+
+**Context Files**: Persistent AI memory of your preferences, workflows, and environment
+
+**MCP Integration**: Let AI actually take actions (add tasks, create calendar events, read files, run commands)
+
+**Discovery-First**: Always check current configs and search for latest info rather than relying on static docs
+
+## Joe's Favorite MCPs
+
+### For Everyone
+
+| MCP | What it does |
+|-----|-------------|
+| **[Exa Web Search](https://www.npmjs.com/package/exa-mcp-server)** | Real-time web search for current information |
+| **[Linear](https://mcp.linear.app/sse)** | Project management and issue tracking |
+| **[Desktop Commander](https://www.npmjs.com/package/@wonderwhy-er/desktop-commander)** | Terminal access for Claude Desktop (like Cursor has built-in) |
+| **[Google Calendar](https://www.npmjs.com/package/@cocal/google-calendar-mcp)** | Calendar management and event creation |
+
+### For Developers
+
+| MCP | What it does |
+|-----|-------------|
+| **[Context7](https://www.npmjs.com/package/@upstash/context7-mcp)** | Gives coding LLMs access to latest docs for APIs and SDKs |
+
+**Find more MCPs:**
+- [Official MCP Servers](https://github.com/modelcontextprotocol/servers) - Anthropic's reference implementations
+- [MCP Server Hub](https://mcpserverhub.com/) - Community directory
+- [MCP Registry](https://github.com/modelcontextprotocol/registry) - Searchable catalog
 
 ## Repository Structure
 
@@ -71,29 +98,6 @@ AI-Context/
 - **[`context/ai.md`](context/ai.md)** - Main AI collaboration instructions
 - **[`context/mcp.md`](context/mcp.md)** - MCP setup & troubleshooting guide
 - **[`blog/why-mcps.md`](blog/why-mcps.md)** - Real-world usage examples
-
-## Key Components
-
-**Context Files**: Persistent AI memory of your preferences, workflows, and environment
-
-**MCP Integration**: Let AI actually take actions (add tasks, create calendar events, read files, run commands)
-
-**Discovery-First**: Always check current configs and search for latest info rather than relying on static docs
-
-## Joe's Favorite MCPs
-
-| MCP | What it does | Link |
-|-----|-------------|------|
-| **Exa Web Search** | Real-time web search for current information | [NPM](https://www.npmjs.com/package/exa-mcp-server) |
-| **Context7** | Access to library documentation and API references | [NPM](https://www.npmjs.com/package/@upstash/context7-mcp) |
-| **Linear** | Project management and issue tracking | [Official MCP](https://mcp.linear.app/sse) |
-| **Desktop Commander** | Terminal access for Claude Desktop (like Cursor has built-in) | [NPM](https://www.npmjs.com/package/@wonderwhy-er/desktop-commander) |
-| **Google Calendar** | Calendar management and event creation | [NPM](https://www.npmjs.com/package/@cocal/google-calendar-mcp) |
-
-**Find more MCPs:**
-- [Official MCP Servers](https://github.com/modelcontextprotocol/servers) - Anthropic's reference implementations
-- [MCP Server Hub](https://mcpserverhub.com/) - Community directory
-- [MCP Registry](https://github.com/modelcontextprotocol/registry) - Searchable catalog
 
 ## Learn More
 
