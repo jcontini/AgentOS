@@ -34,17 +34,17 @@ AI: ✅ Creates the issue with proper labeling and assignment
 
 1. **Clone this repository**: 
    ```bash
-   git clone https://github.com/your-username/ai-context
+   git clone https://github.com/jcontini/ai-context
    cd ai-context
    ```
 
 2. **Customize your context**: 
-   - Open `context/ai.md` in Claude Desktop, Cursor, or similar AI-powered editor
+   - Open [`context/ai.md`](context/ai.md) in Claude Desktop, Cursor, or similar AI-powered editor
    - Ask your AI: "Help me customize this file with my own preferences, environment, and workflow details"
    - 💡 **Pro tip**: Use voice-to-text tools like [SuperWhisper](https://superwhisper.com/) to talk through your preferences instead of typing
 
 3. **Configure MCPs**: 
-   - Follow `context/mcp.md` for step-by-step MCP setup
+   - Follow [`context/mcp.md`](context/mcp.md) for step-by-step MCP setup
    - Install the specific MCPs for tools you use
 
 4. **Start collaborating**: 
@@ -55,17 +55,22 @@ AI: ✅ Creates the issue with proper labeling and assignment
 
 ```
 AI-Context/
-├── context/        # AI context files (customize with AI help!)
-│   ├── ai.md       # Main AI collaboration instructions
-│   ├── tech.md     # Technical preferences  
-│   ├── mcp.md      # MCP setup & troubleshooting
-│   ├── tools.md    # Tool discovery patterns
-│   └── calendar.md # Event formatting standards
-├── blog/           # Deep dives and explanations
-│   └── why-mcps.md # Why MCPs are actually useful
-├── LICENSE         # MIT License
-└── README.md       # This file
+├── context/                    # AI context files (customize with AI help!)
+│   ├── ai.md                   # Main AI collaboration instructions
+│   ├── tech.md                 # Technical preferences  
+│   ├── mcp.md                  # MCP setup & troubleshooting
+│   ├── tools.md                # Tool discovery patterns
+│   └── calendar.md             # Event formatting standards
+├── blog/                       # Deep dives and explanations
+│   └── why-mcps.md             # Why MCPs are actually useful
+├── LICENSE                     # MIT License
+└── README.md                   # This file
 ```
+
+**Key Files:**
+- **[`context/ai.md`](context/ai.md)** - Main AI collaboration instructions
+- **[`context/mcp.md`](context/mcp.md)** - MCP setup & troubleshooting guide
+- **[`blog/why-mcps.md`](blog/why-mcps.md)** - Real-world usage examples
 
 ## Key Components
 
