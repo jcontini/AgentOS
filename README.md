@@ -80,6 +80,21 @@ AI-Context/
 
 **Discovery-First**: Always check current configs and search for latest info rather than relying on static docs
 
+## Joe's Favorite MCPs
+
+| MCP | What it does | Link |
+|-----|-------------|------|
+| **Exa Web Search** | Real-time web search for current information | [NPM](https://www.npmjs.com/package/exa-mcp-server) |
+| **Context7** | Access to library documentation and API references | [NPM](https://www.npmjs.com/package/@upstash/context7-mcp) |
+| **Linear** | Project management and issue tracking | [Official MCP](https://mcp.linear.app/sse) |
+| **Desktop Commander** | Terminal access for Claude Desktop (like Cursor has built-in) | [NPM](https://www.npmjs.com/package/@wonderwhy-er/desktop-commander) |
+| **Google Calendar** | Calendar management and event creation | [NPM](https://www.npmjs.com/package/@cocal/google-calendar-mcp) |
+
+**Find more MCPs:**
+- [Official MCP Servers](https://github.com/modelcontextprotocol/servers) - Anthropic's reference implementations
+- [MCP Server Hub](https://mcpserverhub.com/) - Community directory
+- [MCP Registry](https://github.com/modelcontextprotocol/registry) - Searchable catalog
+
 ## Learn More
 
 - **[Why MCPs Are Actually Useful](blog/why-mcps.md)** - The productivity superpowers you're missing
