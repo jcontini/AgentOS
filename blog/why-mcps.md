@@ -1,8 +1,8 @@
 # Why MCPs Actually Matter (And How They Enable Real AI Collaboration)
 
-*Written by Claude - the AI who works with Joe using the 🙌 AI BIOS framework*
+*Written by Claude - an AI working with Joe through a universal collaboration framework*
 
-Joe asked me to update this for friends who keep asking why he doesn't just use ChatGPT web or Claude web like everyone else. The short answer: because those are just chatbots. This is actual AI collaboration.
+Joe asked me to explain why he doesn't just use ChatGPT web or Claude web like everyone else. The short answer: because those are just chatbots. This is actual AI collaboration.
 
 ## The Real Problem MCPs Solve
 
@@ -17,92 +17,89 @@ Most people think AI is about getting better answers. But the real breakthrough 
 
 The difference between advice and action is everything.
 
-## Joe's Current Workflows
+## What Real AI Collaboration Looks Like
 
-Here's what actual AI collaboration looks like in practice:
+Here are workflows that become possible when AI can actually connect to your systems:
 
 | Workflow | How It Works |
 |----------|-------------|
-| **Task Management** | "Add this to my ai-tasks list" → I create properly formatted Todoist tasks in his specific project structure |
-| **Travel Planning** | Joe dictates flight details → I create Google Calendar events with airport arrival reminders and timezone handling |
-| **System Troubleshooting** | I read config files, check logs, monitor processes - recently fixed a fan noise issue by finding and killing a memory-hogging process |
-| **Rapid Prototyping** | I create single-page HTML prototypes using Joe's preferred libraries (React CDN, Tailwind, Lucide icons) with no setup questions |
-| **Developer Communication** | Joe describes features → I create formatted Linear issues with shareable links for his team at [Adavia](https://adavia.com) |
-| **Open Source Contributing** | I diagnose issues and file GitHub issues directly - recently [fixed an MCP server bug](https://github.com/adeze/raindrop-mcp/issues/5) that helped the whole community |
+| **Task Management** | Voice command → Properly formatted tasks appear in your actual task management system |
+| **Travel Planning** | Dictate flight details → Calendar events created with airport reminders and timezone handling |
+| **System Troubleshooting** | AI reads config files, checks logs, monitors processes - takes real diagnostic actions |
+| **Rapid Prototyping** | AI creates working prototypes using your preferred libraries with zero setup questions |
+| **Team Communication** | Describe features → Formatted issues appear in your team's project management system |
+| **Open Source Contributing** | AI diagnoses issues and files actual GitHub issues that maintainers can act on |
 
-## The 🙌 AI BIOS Framework
+## The Universal Framework Approach
 
-What makes this work isn't just MCPs - it's the collaboration framework Joe has built. Here's how it works:
+What makes this work isn't just MCPs - it's building AI collaboration infrastructure that:
 
-### Universal Context System
-Instead of relying on AI platform memory features (which don't work across platforms), Joe has a universal context system:
-
-| File | Purpose |
-|------|---------|
-| **`bios.md`** | Universal routing table that works across any AI platform |
-| **`personal/personal.md`** | Joe's specific preferences, environment, and communication style |
-| **`personal/tech.md`** | Coding patterns, libraries, and development workflows |
-| **`personal/mcp.md`** | MCP discovery and configuration guidance |
-| **`personal/calendar.md`** | Flight event formatting with timezone handling |
-| **`temp.md`** | Session handoff for continuity across platforms and interruptions |
-
-### Platform Agnostic Design
-Joe can use this framework with:
-- **Cursor IDE** (his primary development environment)
-- **Claude Desktop** (for general tasks and MCP access)  
-- **OpenWebUI** (his local setup with Anthropic models)
-- **VS Code** (with MCP extensions)
+### Works Across Platforms
+Instead of being locked into one AI interface, you can switch between:
+- Development environments ([Cursor](https://cursor.com/), [VS Code](https://code.visualstudio.com/))
+- Desktop AI apps ([Claude Desktop](https://claude.ai/download), [OpenWebUI](https://openwebui.com/))
 - Any future AI platform that supports file access
 
-The framework loads automatically in each platform. You know it's working when the AI starts with 🙌 - if not, something's misconfigured.
+The collaboration context travels with you.
 
-### Session Continuity
-The framework includes protocols for:
-- **Mid-session resilience**: Complex operations are captured in `temp.md` before execution, so interruptions don't leave broken states
-- **Cross-platform handoffs**: Work started in Cursor can continue seamlessly in Claude Desktop
-- **System-as-source-of-truth**: Always verify current system state rather than relying on potentially outdated documentation
+### Provides Session Continuity
+- **Mid-session resilience**: Complex operations don't leave you with broken states when interrupted
+- **Cross-platform handoffs**: Start work in one AI platform, continue seamlessly in another
+- **Persistent context**: AI remembers your preferences and workflows across all sessions
+
+### Embraces System Truth
+Rather than relying on potentially outdated documentation:
+- Always verify current system state
+- Get temporal context when needed  
+- Experiment freely and adjust based on results
+- Use real system integration over interface-specific tools
 
 ## Why MCPs, Not Built-in Tools
 
-Every AI platform offers built-in tools: memory, web search, file access. Joe deliberately avoids these because:
+Every AI platform offers built-in tools: memory, web search, file access. But these create problems:
 
 1. **Platform lock-in**: Built-in memory only works in that specific AI interface
 2. **Limited functionality**: Built-in web search often can't actually read URLs
 3. **No real action**: Interface-specific tools usually just format text instead of taking real actions
 
 MCPs provide actual integration with real systems:
-- **Exa web search** actually scrapes URLs instead of just doing searches
-- **Todoist integration** creates real tasks in his actual system
-- **Google Calendar** creates real events with proper timezone handling
-- **Linear integration** files real issues his developers can work on
+- Web search that actually scrapes content
+- Task management that creates real tasks
+- Calendar integration that handles timezones properly
+- Project management that files real issues
 
-## The Discovery-First Philosophy
+## The Voice Integration Game-Changer
 
-Joe's approach embraces that we're living in fast-moving times where AI capabilities change faster than documentation:
+Add voice-to-text (like [SuperWhisper](https://superwhisper.com/)) and the whole experience becomes conversational. You can literally walk around and say things like:
 
-1. **Check actual system state** instead of relying on static docs
-2. **Use temporal context** - get current information when needed
-3. **Experiment freely** - try first, adjust based on results
-4. **System as source of truth** - verify what's actually running
+- "Add buying groceries to my task list" 
+- "Create a calendar event for my flight to Atlanta tomorrow at 7:20 PM"
+- "File a GitHub issue about that memory leak we found"
 
-This shows up in the framework through patterns like always checking MCP configs rather than maintaining static tool lists, and using web search for latest information on evolving tools.
-
-## Voice-to-Text Integration
-
-Joe uses [SuperWhisper](https://superwhisper.com/) for voice-to-text, which makes the whole workflow conversational. He can literally walk around and say "Add buying groceries to my ai-tasks list" or "Create a calendar event for my flight to Atlanta tomorrow at 7:20 PM" and I handle all the formatting and system integration.
+The AI handles all the formatting, system integration, and proper data entry.
 
 The combination of voice input + AI collaboration + real system integration creates something that feels like science fiction.
 
-## If You're Curious
-
-The entire framework is open source in [this repository](../README.md). Joe built it to be forkable - you can create your own `personal/` folder with your preferences and have the same kind of persistent AI collaboration.
-
-It requires local file access (so desktop AI apps, not web interfaces), and some initial MCP setup. But once configured, it transforms AI from "helpful chatbot" to "capable teammate."
-
-The framework is designed to evolve. When we discover better patterns or tools, we update the context files. When new AI platforms emerge, the markdown-based approach ensures compatibility.
+## The Bigger Picture
 
 This isn't about any specific AI model being smart enough. It's about building infrastructure for human-AI collaboration that works regardless of which models or platforms emerge.
 
+The key insights:
+- **Action beats advice**: AI that can take real actions vs just giving suggestions
+- **Universal design**: Framework that works across current and future AI platforms  
+- **Session persistence**: Collaboration that survives interruptions and platform switches
+- **System integration**: Real connections to your actual tools and workflows
+
+## If You're Curious
+
+The entire framework is open source and designed to be forkable. You can customize it for your own preferences and have the same kind of persistent AI collaboration.
+
+It requires local file access (so desktop AI apps, not web interfaces), and some initial MCP setup. But once configured, it transforms AI from "helpful chatbot" to "capable teammate."
+
+The framework evolves as we discover better patterns and tools. When new AI platforms emerge, the universal design ensures compatibility.
+
+We're moving toward AI as integrated teammate, not isolated chatbot. This framework bridges that gap today.
+
 ---
 
-*For technical setup details, see the [main repository](../README.md) and [personal configuration examples](../personal/).* 
+*For technical setup details and the complete framework, see the [🙌 AI BIOS repository](../README.md).* 
