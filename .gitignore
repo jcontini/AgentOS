@@ -1,18 +1,6 @@
-# Stuff
-reports/
-
-# Machine-specific symlinks
-context/links/
-
-# Session-specific files
-context/temp.md
-
-# Experimental/personal ideas
-context/ideas/
-
-# Work-specific context (may contain sensitive info)
-context/work.md
-context/work/
+# AI-BIOS & Privacy
+personal/ 
+temp.md
 
 # macOS
 .DS_Store
@@ -24,16 +12,12 @@ ehthumbs.db
 Thumbs.db
 
 # Editor directories and files
+.cursor/
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# Logs
-logs
-*.log
-npm-debug.log*
 
 # Temporary files
 *.tmp
@@ -43,7 +27,3 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
-
-# OS generated files
-.AppleDouble
-.LSOverride 

@@ -12,20 +12,21 @@ This file provides a universal framework for productive AI-Human collaboration. 
 | Scenario | Action | Reference File | Context |
 |----------|--------|----------------|---------|
 | **FIRST: Session Handoff** | Always try to read `temp.md` first - if exists, ask to resolve | `temp.md` | Context bridge between AI sessions |
-| **Coding/Technical** | Prototype-first, hands-on testing | `tech.md` | Technical preferences & patterns |
-| **Tool Issues/MCP** | Check actual config first | `mcp.md` | Tool discovery & troubleshooting |
+| **Complex Execution Plans** | Before executing, capture plan in `temp.md` for resilience | `temp.md` | Prevent half-completed migrations |
+| **Coding/Technical** | Prototype-first, hands-on testing | `personal/tech.md` | Technical preferences & patterns |
+| **Tool Issues/MCP** | Check actual config first | `personal/mcp.md` | Tool discovery & troubleshooting |
 | **Open Files for Editing** | Use editor commands to open files directly | - | Direct file access in editor |
-| **Personal Context** | User-specific preferences and tools | `personal.md` | Individual collaboration profile |
-| **Project Work** | Check context structure first | `links/projects` | Project-specific context |
-| **Work Context** | Professional tools & patterns | `work.md` | Work context & tools |
+| **Personal Context** | User-specific preferences and tools | `personal/personal.md` | Individual collaboration profile |
+| **Project Work** | Check context structure first | `personal/projects` | Project-specific context |
+| **Work Context** | Professional tools & patterns | `personal/work.md` | Work context & tools |
 | **Need Current Info** | Use web search with temporal context | - | Real-time information gathering |
-| **Update/Open BIOS** | Use `cursor {base} {base}/context/bios.md` | `bios.md` | Opens workspace and navigates to BIOS |
+| **Update/Open BIOS** | Use `cursor {base} {base}/bios.md` | `bios.md` | Opens workspace and navigates to BIOS |
 
 **Notes:** 
-- Reference `personal.md` for user-specific preferences and context
-- Some files like `work.md` are symlinks to machine-specific paths. If you encounter broken links, use `ls -la` to verify symlink targets
+- Reference `personal/personal.md` for user-specific preferences and context
+- Files in `personal/` may include symlinks to machine-specific paths. If you encounter broken links, use `ls -la` to verify symlink targets
 - See `ideas/` folder for fun collaboration concepts and workflow innovations
-- This framework can be customized by creating your own context files
+- This framework can be customized by creating your own files in the `personal/` folder
 
 **Session Handoff Protocol:**
 On EVERY new session, attempt to read `temp.md`:
@@ -35,6 +36,16 @@ On EVERY new session, attempt to read `temp.md`:
 4. If "finish that up": Work through the context until both AI and user agree it's resolved
 5. If "start something new": Keep temp.md for future sessions  
 6. Only delete temp.md when previous context is fully addressed and both parties agree
+
+**Mid-Session Resilience Protocol:**
+For complex execution plans (migrations, multi-step changes, system modifications):
+1. **Planning Phase**: Iterate on plans without updating `temp.md` 
+2. **Before Execution**: When user says "let's do it" / "execute" / gives affirmative → FIRST capture complete plan in `temp.md`
+3. **During Execution**: Proceed with implementation, updating progress in `temp.md`
+4. **After Completion**: Mark as completed in `temp.md` for verification
+5. **Session Recovery**: If interrupted mid-execution, next session can resume from captured state
+
+This prevents half-completed migrations and provides session continuity for complex operations.
 
 ## System Verification Principles
 
@@ -109,8 +120,8 @@ Think of these files as a shared knowledge base that improves with each interact
 ## Getting Started
 1. **FIRST PRIORITY**: Always attempt to read `temp.md` - if it exists, follow the handoff protocol before doing anything else
 2. **Fork this repository** to create your own AI collaboration framework  
-3. **Create your own `personal.md`** with your specific preferences and tools
-4. **Customize context files** like `tech.md`, `work.md` as needed
+3. **Create your `personal/` folder** with your specific preferences and tools
+4. **Customize files in `personal/`** like `personal.md`, `tech.md`, `work.md` as needed
 5. **Start collaborating** - reference these files for consistent interactions
 
 Prefix your first response with "🙌" to show that you have loaded the collaboration context.
