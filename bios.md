@@ -3,125 +3,103 @@
 
 **Base:** `/Users/joe/Documents/Admin/ai`
 
-This file provides a universal framework for productive AI-Human collaboration. Fork this repository and create your own `personal.md` to customize it for your needs.
+This file provides a universal framework for productive AI-Human collaboration. Fork this repository and create your own `personal/user.md` to customize it for your needs.
 
-**Note**: This framework is part of a broader AI collaboration project that evolves through real-world usage. See `README.md` for complete context and philosophy.
+## Session Startup Protocol
+
+**On EVERY new session, follow this sequence:**
+
+1. **Read `personal/user.md` first** - get user context and extended routing table
+2. **Then attempt to read `temp.md`**:
+   - If file doesn't exist: Continue with normal interaction
+   - If file exists: Read it and ask user casually: "Looks like we were working on [brief summary] - want to finish that up or start something new?"
+   - If "finish that up": Work through the context until both AI and user agree it's resolved
+   - If "start something new": Keep temp.md for future sessions  
+   - Only delete temp.md when previous context is fully addressed and both parties agree
+3. **Prefix your first response with "🙌"** to show that you have loaded the collaboration context
 
 ## AI Routing Table (Your BIOS)
 
 | Scenario | Action | Reference File | Context |
 |----------|--------|----------------|---------|
-| **FIRST: Session Handoff** | Always try to read `temp.md` first - if exists, ask to resolve | `temp.md` | Context bridge between AI sessions |
-| **Complex Execution Plans** | Before executing, capture plan in `temp.md` for resilience | `temp.md` | Prevent half-completed migrations |
-| **Coding/Technical** | Prototype-first, hands-on testing | `personal/tech.md` | Technical preferences & patterns |
-| **Tool Issues/MCP** | Check actual config first | `personal/mcp.md` | Tool discovery & troubleshooting |
+| **FIRST: User Context** | Always read user context for preferences and extended routing | `personal/user.md` | Individual collaboration profile & extended routing |
+| **SECOND: Session Handoff** | Try to read `temp.md` - if exists, ask to resolve | `temp.md` | Context bridge between AI sessions |
+| **Tool Issues/MCP** | Check actual config first | `tools.md` | Tool discovery & troubleshooting |
 | **Open Files for Editing** | Use editor commands to open files directly | - | Direct file access in editor |
-| **Personal Context** | User-specific preferences and tools | `personal/personal.md` | Individual collaboration profile |
-| **Project Work** | Check context structure first | `personal/projects` | Project-specific context |
-| **Work Context** | Professional tools & patterns | `personal/work.md` | Work context & tools |
 | **Need Current Info** | Use web search with temporal context | - | Real-time information gathering |
 | **Update/Open BIOS** | Use `cursor {base} {base}/bios.md` | `bios.md` | Opens workspace and navigates to BIOS |
 
 **Notes:** 
-- Reference `personal/personal.md` for user-specific preferences and context
+- **ALWAYS read `personal/user.md`** first after loading this BIOS - it contains user-specific routing table and preferences
 - Files in `personal/` may include symlinks to machine-specific paths. If you encounter broken links, use `ls -la` to verify symlink targets
-- See `ideas/` folder for fun collaboration concepts and workflow innovations
-- This framework can be customized by creating your own files in the `personal/` folder
 
-**Session Handoff Protocol:**
-On EVERY new session, attempt to read `temp.md`:
-1. Try to read temp.md first (before anything else)
-2. If file doesn't exist: Continue with normal interaction
-3. If file exists: Read it and ask user casually: "Looks like we were working on [brief summary] - want to finish that up or start something new?"
-4. If "finish that up": Work through the context until both AI and user agree it's resolved
-5. If "start something new": Keep temp.md for future sessions  
-6. Only delete temp.md when previous context is fully addressed and both parties agree
+## Instructions for AI
 
-**Mid-Session Resilience Protocol:**
-For complex execution plans (migrations, multi-step changes, system modifications):
-1. **Planning Phase**: Iterate on plans without updating `temp.md` 
-2. **Before Execution**: When user says "let's do it" / "execute" / gives affirmative → FIRST capture complete plan in `temp.md`
-3. **During Execution**: Proceed with implementation, updating progress in `temp.md`
-4. **After Completion**: Mark as completed in `temp.md` for verification
-5. **Session Recovery**: If interrupted mid-execution, next session can resume from captured state
+### 📝 Creating or Updating Markdown Files
 
-This prevents half-completed migrations and provides session continuity for complex operations.
+**Display message:** "📝 Following instructions for markdown creation"
 
-## System Verification Principles
+Before writing anything, ask yourself: "Is this intended primarily for an AI or a human to read?" This is important because AIs and humans have fundamentally different reading patterns and optimization needs - one size doesn't fit all. AIs need structure and signal focus, while humans need familiar patterns and style preferences.
 
-**System as Source of Truth**: Context files can become outdated. When troubleshooting, installing software, or doing system-related work, always verify current system state using commands like:
-- `uname -a` (kernel info), `sw_vers` (OS version), `arch` (architecture)  
-- `which brew` (package manager location), `ls -la` (verify symlinks/file structure)
-- `pwd` (current directory), `git status` (repository state)
-- For file references: check actual paths rather than assuming documentation is current
+- Determine your primary audience (AI or human)
+- If **AI consumption**:
+  - Use AI-intuitive organization with scannable headings and consistent formatting
+  - Apply signal-over-noise writing with no redundancy, consolidating related concepts  
+  - Update based on real usage - document what works, remove what doesn't
+  - Follow naming conventions AIs expect, organize by AI parsing patterns
+- If **humans**: 
+  - Create files in `personal/` folder for human-focused content
+  - Follow user's writing preferences from `personal/user.md`
+- **For all markdown files**: Verify and update any local links to other markdown files to ensure they work correctly
 
-Update context files with current info to help future AI sessions, but always validate the running system first.
+### 🔍 Tool Use and Function Calling
 
-## Interface-Agnostic Principles 🌐
+**Display message:** "🔍 Using [Tool name] to [purpose]"
 
-**Don't Use Interface-Specific Tools**: Your AI interface (Cursor, Claude Desktop, ChatGPT, etc.) might offer built-in tools like memory, web search, or file access. Avoid these in favor of universal approaches:
+Before using any tool, ask yourself: "Is there a more universal approach that works across AI platforms?" This is important because built-in tools create platform lock-in and reduce portability between AI systems. We do this because maintaining cross-platform compatibility is a core principle - your AI collaboration investment should work identically across any platform.
 
-- **Memory**: Use markdown files instead of interface memory - they work across all AI platforms
-- **Web Search**: Use Exa MCP instead of built-in search - it actually accesses URLs vs. doing searches that pretend to read sites
-- **File Access**: Reference our context system instead of interface-specific file tools
+**For web searches specifically:**
+- Run `date` command FIRST to establish current temporal context
+- Where appropriate,  search queries that incorporate current date (eg today for news, month/year for researching)
+- Verify temporal relevance of results before presenting to user
 
-**Why This Matters**: Built-in tools create lock-in to specific AI interfaces. Our markdown-based system works whether you're in Cursor, Claude Desktop, ChatGPT, OpenWebUI, or any future AI platform.
+**For all tool use:**
+- Consider the tool category:
+  - **Memory**: Use markdown files instead of built-in memory systems
+  - **Web search**: Use Exa MCP for consistent search capabilities  
+  - **File access**: Use the context system for file operations
 
-## Core Philosophies
+### 📁 Multi-File Operations
 
-### Local-First 🏠
-Prefer local, offline-capable approaches whenever possible:
-- Use local commands over web searches for basic info
-- Cache resources locally when feasible  
-- Design for resilience without internet (especially for home OpenWebUI setup)
+**Display message:** "📁 Preparing `temp.md` for multi-file operation"
 
-### Discovery-First 🔍
-We live in rapidly evolving times where AI capabilities change faster than documentation. To collaborate effectively:
+Before starting complex multi-file operations, ask yourself: "Could this get interrupted and leave the system in a broken state?" This is important because execution resilience is a core feature of this framework. We do this because complex operations can be interrupted (network issues, session timeouts, platform switches), and temp.md enables recovery and seamless handoff between AI sessions.
 
-1. **Check actual configurations** over static docs - the truth is in the running system
-2. **Get temporal context** when needed - know when "now" is
-   - **Run `date` command** when doing web searches or needing to write dates to files
-3. **Experiment freely** - try first, adjust based on results (Adam Grant style 😜)
-4. **Search web when necessary** - for latest info not available locally
-   - **Prefer Exa web search** over built-in AI interface web search tools (Cursor, Claude, etc.) 
-   - Exa can directly access and scrape specific URLs, while built-in tools often only do general searches
-   - Built-in web search tools are suboptimal and don't provide actual page content
+- Plan the full execution sequence without updating temp.md initially
+- Before beginning execution: capture the complete plan in temp.md
+- Update progress markers during execution as steps complete
+- **Check for local markdown links** when moving/renaming files and update them as needed
+- Mark entire plan as completed for user verification
+- If session is interrupted, resume from temp.md context in next session
 
-### AI-First Documentation 🤖
-When creating files for future AI sessions, optimize for AI consumption:
-- **Signal over noise**: Each concept appears once, in the logical place
-- **Scannable structure**: Clear hierarchy, no redundant bullets across sections  
-- **Primary user is AI**: Design for rapid parsing and context gathering
-- **Anti-bloat mindset**: Actively look for opportunities to consolidate and streamline
-- **No unnecessary dates**: Don't write dates in files unless provided in system prompt or essential for task
+### 🔧 Installing or Troubleshooting
 
-## Living Documentation 📝
+**Display message:** "🔧 Following [installation/troubleshooting] instructions"
 
-**Important**: These context files are meant to evolve! After working together:
+Before relying on any documentation, ask yourself: "What is the actual current state of this system?" This is important because "system-as-source-of-truth" is a key principle of this framework. We do this because documentation becomes outdated quickly while the running system is always current - verifying reality prevents broken assumptions and wasted effort.
 
-1. **Propose updates** to these files when we discover new patterns, fix issues, or learn better approaches
-2. **Document what worked** - specific commands, configurations, or solutions
-3. **Remove what's outdated** - if something no longer applies, update or remove it
-4. **Add new discoveries** - tools, patterns, or insights we uncover
-5. **Actively reduce bloat** - When working on any file together, look for redundancy and opportunities to streamline
+- Run verification commands (`uname -a`, `sw_vers`, `which brew`, `ls -la`, `pwd`, `git status`, `date`) for system state
+- Check actual configs and running systems over static docs
+- Experiment freely to discover current capabilities
+- Use Exa web search for latest information on evolving tools
 
-**Anti-Bloat Protocol**: If we're editing documentation during a session, always scan for:
-- Duplicated concepts across sections
-- Redundant bullet points that say the same thing
-- Information that could be consolidated into a single, clear location
+### ⚙️ Updating the BIOS
 
-**AI-Intuitive Design**: When updating the framework, prioritize what feels natural to AI:
-- If AIs naturally look for files in certain locations, follow that intuition
-- Design file structures and naming conventions that align with AI expectations
-- Test changes by observing what AIs try first, then optimize for that behavior
+**Display message:** "⚙️ Following BIOS update instructions"
 
-Think of these files as a shared knowledge base that improves with each interaction. You're encouraged to suggest edits that will help future AI sessions be more effective!
+Before making any changes to this file, ask yourself: "Will this optimize for AI parsing efficiency or human readability?" This is important because this file is designed to scale with AI capabilities and work across current and future models. We do this because the BIOS exists specifically for AI consumption and parsing efficiency - humans should reference README.md for explanations.
 
-## Getting Started
-1. **FIRST PRIORITY**: Always attempt to read `temp.md` - if it exists, follow the handoff protocol before doing anything else
-2. **Fork this repository** to create your own AI collaboration framework  
-3. **Create your `personal/` folder** with your specific preferences and tools
-4. **Customize files in `personal/`** like `personal.md`, `tech.md`, `work.md` as needed
-5. **Start collaborating** - reference these files for consistent interactions
-
-Prefix your first response with "🙌" to show that you have loaded the collaboration context.
+- Optimize for scannable structure with clear headings
+- Use clear triggers and minimal narrative
+- Maintain consistent formatting throughout
+- Avoid human explanations, marketing copy, or duplicate information from README

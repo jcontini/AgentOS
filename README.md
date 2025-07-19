@@ -1,4 +1,4 @@
-# 🙌 AI BIOS
+# AI BIOS
 
 *Universal framework for AI-Human collaboration that works across any platform*
 
@@ -60,9 +60,10 @@ The framework transforms AI interaction through structured context files designe
 | Component | Purpose & Design Philosophy |
 |-----------|----------------------------|
 | **`bios.md`** | Universal routing table and collaboration principles - **scales with AI capabilities** and works across current and future models |
+| **`tools.md`** | Tool discovery and MCP troubleshooting - **universal approach** to maintaining cross-platform compatibility |
 | **`personal/` folder** | Your customizations in a gitignored folder - **prevents platform lock-in** by keeping your AI collaboration investment portable |
 | └ **`personal.md`** | Your specific preferences and environment - **enables real productivity** with persistent context |
-| └ **`tech.md`, `mcp.md`** | Domain-specific context - **adapts to your workflow** rather than forcing generic patterns |
+| └ **`tech.md`** | Technical preferences and patterns - **adapts to your workflow** rather than forcing generic patterns |
 | └ **Symlinks** | Direct links to your projects, life context, etc. - **connects existing data** without duplication |
 | **`temp.md`** | Session handoff bridge (auto-managed) - **enables continuity** across interruptions and platform switches |
 | **`ideas/`** | Experimental collaboration concepts - **community-driven evolution** that improves through real-world usage |
