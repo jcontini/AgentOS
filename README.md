@@ -1,4 +1,4 @@
-# AI Collaboration BIOS
+# 🙌 AI BIOS
 
 *Universal framework for AI-Human collaboration that works across any platform*
 
@@ -37,18 +37,21 @@ A universal framework that transforms any AI from isolated chatbot into persiste
 2. **Customize `personal/personal.md`** with your preferences and tools  
 3. **Add this line to your AI system prompt** in a supported platform:
 
+**Note**: Replace `/path/to/your/ai/bios.md` with your actual path!
 ```
 First, read my AI configuration at /path/to/your/ai/bios.md - this contains all context, preferences, and routing for how we collaborate.
 ```
 
-### Path Configuration
-
-Replace `/path/to/your/ai/bios.md` with your actual path:
-- **Absolute path**: `/Users/username/Documents/ai/bios.md` 
-- **Relative path**: `./ai/bios.md` (if AI runs from parent directory)
-- **Windows**: `C:\Users\username\Documents\ai\bios.md`
-
 Once configured, every AI session will automatically load your collaboration framework!
+
+## Verification
+
+**How to know it's working**: When you start a new AI session, if the framework is properly configured, the AI will begin its first response with the hands emoji: 🙌
+
+If you don't see the hands emoji in the AI's first response, this indicates the framework isn't loading. Common troubleshooting steps:
+- Verify the file path in your system prompt is correct and absolute (not relative)
+- Ensure the AI platform has proper file system access permissions
+- Check that `bios.md` exists at the specified path
 
 ## How It Works
 

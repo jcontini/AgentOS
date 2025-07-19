@@ -1,59 +1,108 @@
-# How Joe Uses MCPs (And Why It's Actually Useful)
+# Why MCPs Actually Matter (And How They Enable Real AI Collaboration)
 
-*Written by Claude - the AI who works with him*
+*Written by Claude - the AI who works with Joe using the 🙌 AI BIOS framework*
 
-Joe asked me to write this for his friends who keep asking what this whole "MCP thing" is about and why he doesn't just use ChatGPT or Claude.ai like everyone else.
+Joe asked me to update this for friends who keep asking why he doesn't just use ChatGPT web or Claude web like everyone else. The short answer: because those are just chatbots. This is actual AI collaboration.
 
-The short answer: because I can actually do stuff for him, not just talk about doing stuff.
+## The Real Problem MCPs Solve
 
-## Joe's Main Workflows
+Most people think AI is about getting better answers. But the real breakthrough is **AI that can take action** instead of just giving advice.
 
-| Workflow | Description |
+| Without MCPs | With MCPs |
+|--------------|-----------|
+| "Here's how you could add that to Todoist..." | *Creates the Todoist task with proper formatting* |
+| "You should check your flight status..." | *Reads flight details and creates calendar events with timezone handling* |
+| "That sounds like a memory leak, you could try..." | *Checks running processes, finds the culprit, kills it* |
+| "Here's a GitHub issue template..." | *Files the actual GitHub issue with proper formatting* |
+
+The difference between advice and action is everything.
+
+## Joe's Current Workflows
+
+Here's what actual AI collaboration looks like in practice:
+
+| Workflow | How It Works |
 |----------|-------------|
-| **Task Management** | Todoist for personal tasks, Linear for work. Joe just says "add this to my ai-tasks list" or "create a Linear issue" and I handle it with proper formatting. |
-| **Travel Planning** | Joe gives me flight details and I create properly formatted Google Calendar events with arrival reminders and timezone handling - no manual event creation needed. |
-| **Computer Troubleshooting** | I can read config files, check logs, and see running processes. Recently fixed a loud fan by finding and killing a memory-hogging process. Also help with network issues and software installs. |
-| **Rapid Prototyping** | I create single-page HTML prototypes to clarify requirements for Joe's developers. I know his preferences (libraries, themes, patterns) so no setup questions needed. |
-| **Documenting Requirements for Developers** | Joe describes features or fixes for [Adavia](https://adavia.com), I create formatted Linear issues with shareable links for his developers. No context-switching or manual formatting needed. |
-| **Contributing to Open Source** | I can diagnose issues, write detailed GitHub issues, and file them directly from the command line. Recently fixed an MCP server bug by [filing an issue](https://github.com/adeze/raindrop-mcp/issues/5) that the maintainer fixed for everyone. |
+| **Task Management** | "Add this to my ai-tasks list" → I create properly formatted Todoist tasks in his specific project structure |
+| **Travel Planning** | Joe dictates flight details → I create Google Calendar events with airport arrival reminders and timezone handling |
+| **System Troubleshooting** | I read config files, check logs, monitor processes - recently fixed a fan noise issue by finding and killing a memory-hogging process |
+| **Rapid Prototyping** | I create single-page HTML prototypes using Joe's preferred libraries (React CDN, Tailwind, Lucide icons) with no setup questions |
+| **Developer Communication** | Joe describes features → I create formatted Linear issues with shareable links for his team at [Adavia](https://adavia.com) |
+| **Open Source Contributing** | I diagnose issues and file GitHub issues directly - recently [fixed an MCP server bug](https://github.com/adeze/raindrop-mcp/issues/5) that helped the whole community |
 
-## How This Works
+## The 🙌 AI BIOS Framework
 
-This system has two key parts that make it actually useful:
+What makes this work isn't just MCPs - it's the collaboration framework Joe has built. Here's how it works:
 
-### The Context System
-I remember Joe's preferences across conversations because he's set up files that tell me exactly how he works:
+### Universal Context System
+Instead of relying on AI platform memory features (which don't work across platforms), Joe has a universal context system:
 
-| File | What's In It |
-|------|-------------|
-| **[`ai.md`](../context/ai.md)** | • Communication style (direct, no fluff)<br/>• Workflow patterns (prototype first, iterate quickly)<br/>• Environment setup (macOS, tools, file locations) |
-| **[`mcp.md`](../context/mcp.md)** | • MCP setup and configuration locations<br/>• Discovery-first approach to finding available tools<br/>• Platform-specific config file locations |
-| **[`tech.md`](../context/tech.md)** | • Coding preferences (specific patterns, libraries, styling)<br/>• Project structure and testing philosophy |
-| **[`calendar.md`](../context/calendar.md)** | • Flight event formatting with timezone handling<br/>• Airport arrival reminders and scheduling |
+| File | Purpose |
+|------|---------|
+| **`bios.md`** | Universal routing table that works across any AI platform |
+| **`personal/personal.md`** | Joe's specific preferences, environment, and communication style |
+| **`personal/tech.md`** | Coding patterns, libraries, and development workflows |
+| **`personal/mcp.md`** | MCP discovery and configuration guidance |
+| **`personal/calendar.md`** | Flight event formatting with timezone handling |
+| **`temp.md`** | Session handoff for continuity across platforms and interruptions |
 
-So when he asks me to help with something, I don't have to ask a bunch of setup questions. I already know how he works.
+### Platform Agnostic Design
+Joe can use this framework with:
+- **Cursor IDE** (his primary development environment)
+- **Claude Desktop** (for general tasks and MCP access)  
+- **OpenWebUI** (his local setup with Anthropic models)
+- **VS Code** (with MCP extensions)
+- Any future AI platform that supports file access
 
-**Key advantage**: This context is persistent across all MCP clients. Joe can update his preferences from Cursor, and I'll have that same context when he's using Claude Desktop. No relying on the memory features of specific LLM clients - the context lives in the files and works everywhere.
+The framework loads automatically in each platform. You know it's working when the AI starts with 🙌 - if not, something's misconfigured.
 
-### MCPs (Model Context Protocol)
-MCPs let me connect to Joe's actual apps. He uses [Claude Desktop](https://claude.ai/) and [Cursor](https://cursor.sh/) - both support MCPs. The web versions (claude.ai, chatgpt.com) can't do this because browsers don't let websites access your computer or other apps for security reasons.
+### Session Continuity
+The framework includes protocols for:
+- **Mid-session resilience**: Complex operations are captured in `temp.md` before execution, so interruptions don't leave broken states
+- **Cross-platform handoffs**: Work started in Cursor can continue seamlessly in Claude Desktop
+- **System-as-source-of-truth**: Always verify current system state rather than relying on potentially outdated documentation
 
-Setting up MCPs requires a bit of configuration, but it's basically:
-1. Install the desktop app ([Claude Desktop](https://claude.ai/) or [Cursor](https://cursor.sh/))
-2. Add some configuration files
-3. Connect the tools you want to use
+## Why MCPs, Not Built-in Tools
 
-The difference between "AI that gives advice" and "AI that takes action" is huge. Instead of juggling multiple productivity apps, you get one AI that can work across all of them.
+Every AI platform offers built-in tools: memory, web search, file access. Joe deliberately avoids these because:
 
-### Voice-to-Text Integration
-Joe also uses [superwhisper](https://superwhisper.com/) for voice-to-text, so he can just talk through his tasks and ideas instead of typing everything out. This makes the whole workflow even faster - he can literally walk around and dictate what he needs done.
+1. **Platform lock-in**: Built-in memory only works in that specific AI interface
+2. **Limited functionality**: Built-in web search often can't actually read URLs
+3. **No real action**: Interface-specific tools usually just format text instead of taking real actions
+
+MCPs provide actual integration with real systems:
+- **Exa web search** actually scrapes URLs instead of just doing searches
+- **Todoist integration** creates real tasks in his actual system
+- **Google Calendar** creates real events with proper timezone handling
+- **Linear integration** files real issues his developers can work on
+
+## The Discovery-First Philosophy
+
+Joe's approach embraces that we're living in fast-moving times where AI capabilities change faster than documentation:
+
+1. **Check actual system state** instead of relying on static docs
+2. **Use temporal context** - get current information when needed
+3. **Experiment freely** - try first, adjust based on results
+4. **System as source of truth** - verify what's actually running
+
+This shows up in the framework through patterns like always checking MCP configs rather than maintaining static tool lists, and using web search for latest information on evolving tools.
+
+## Voice-to-Text Integration
+
+Joe uses [SuperWhisper](https://superwhisper.com/) for voice-to-text, which makes the whole workflow conversational. He can literally walk around and say "Add buying groceries to my ai-tasks list" or "Create a calendar event for my flight to Atlanta tomorrow at 7:20 PM" and I handle all the formatting and system integration.
+
+The combination of voice input + AI collaboration + real system integration creates something that feels like science fiction.
 
 ## If You're Curious
 
-We've documented the whole setup in this repo. The context files show exactly how everything is configured, and the MCP guide walks through the technical setup.
+The entire framework is open source in [this repository](../README.md). Joe built it to be forkable - you can create your own `personal/` folder with your preferences and have the same kind of persistent AI collaboration.
 
-It's not for everyone - some people are perfectly happy with the copy/paste workflow. But if you're like Joe and get annoyed by app-switching and manual task transfer, this approach is worth checking out.
+It requires local file access (so desktop AI apps, not web interfaces), and some initial MCP setup. But once configured, it transforms AI from "helpful chatbot" to "capable teammate."
+
+The framework is designed to evolve. When we discover better patterns or tools, we update the context files. When new AI platforms emerge, the markdown-based approach ensures compatibility.
+
+This isn't about any specific AI model being smart enough. It's about building infrastructure for human-AI collaboration that works regardless of which models or platforms emerge.
 
 ---
 
-*All the technical details are in the [main repo](../README.md) and [context files](../context/) if you want to see how we set this up.* 
+*For technical setup details, see the [main repository](../README.md) and [personal configuration examples](../personal/).* 
