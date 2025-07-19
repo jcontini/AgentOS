@@ -8,10 +8,9 @@ A universal framework that transforms any AI from isolated chatbot into persiste
 
 | Problem | Solution |
 |---------|----------|
-| **🤝 No systematic AI collaboration**<br/>Everyone's just winging it with whatever their platform offers | **🧠 Universal BIOS Framework**<br/>Structured collaboration system that works across any AI platform |
-| **🔒 Platform lock-in**<br/>Cursor memory ≠ Claude memory ≠ ChatGPT memory | **🌐 Interface-Agnostic Design**<br/>Markdown-based context and routing that works identically everywhere |
-| **🔄 Memory dies between sessions**<br/>Every conversation starts from zero | **🔗 Session Continuity**<br/>`temp.md` handoff protocol seamlessly continues work across platforms |
-| **⚡ Execution gets interrupted**<br/>Complex operations fail half-way, leaving broken state | **🛡️ Mid-Session Resilience**<br/>Plans captured before execution enable recovery from any interruption |
+| **🔒 Platform lock-in**<br/>Cursor memory ≠ Claude memory ≠ ChatGPT memory | **🌐 Interface-Agnostic Design**<br/>Markdown-based context that works identically everywhere |
+| **🤷 AI doesn't have relevant context**<br/>Every conversation starts without knowledge of your environment, preferences, or workflow | **🗺️ Routing Tables**<br/>Persistent markdown files that build context over time |
+| **🎲 AI does things unpredictably**<br/>Same tasks executed differently each time, missed steps, inconsistent outcomes | **📋 BIOS Instructions**<br/>Explicit workflows with decision points and status indicators |
 | **🚫 Built-in tools don't work**<br/>"Web search" pretends to read URLs, file tools are interface-specific | **🛠️ Real Tool Integration**<br/>MCP ecosystem for actual URL reading, file access, and system actions |
 | **📚 Static documentation goes stale**<br/>Reality changes faster than docs | **⚡ System-as-Source-of-Truth**<br/>Live verification of actual system state, evolving documentation |
 
@@ -34,7 +33,7 @@ A universal framework that transforms any AI from isolated chatbot into persiste
 **⚠️ Important**: This framework requires **local file system access**. It only works with AI platforms that can read files from your computer, not web-based interfaces.
 
 1. **Fork this repository** to create your AI collaboration workspace
-2. **Customize `personal/personal.md`** with your preferences and tools  
+2. **Customize `user.md`** with your preferences and tools  
 3. **Add this line to your AI system prompt** in a supported platform:
 
 **Note**: Replace `/path/to/your/ai/bios.md` with your actual path!
@@ -61,10 +60,7 @@ The framework transforms AI interaction through structured context files designe
 |-----------|----------------------------|
 | **`bios.md`** | Universal routing table and collaboration principles - **scales with AI capabilities** and works across current and future models |
 | **`tools.md`** | Tool discovery and MCP troubleshooting - **universal approach** to maintaining cross-platform compatibility |
-| **`personal/` folder** | Your customizations in a gitignored folder - **prevents platform lock-in** by keeping your AI collaboration investment portable |
-| └ **`personal.md`** | Your specific preferences and environment - **enables real productivity** with persistent context |
-| └ **`tech.md`** | Technical preferences and patterns - **adapts to your workflow** rather than forcing generic patterns |
-| └ **Symlinks** | Direct links to your projects, life context, etc. - **connects existing data** without duplication |
+| **`user.md`** | Your specific preferences and environment - **enables real productivity** with persistent context |
 | **`temp.md`** | Session handoff bridge (auto-managed) - **enables continuity** across interruptions and platform switches |
 | **`ideas/`** | Experimental collaboration concepts - **community-driven evolution** that improves through real-world usage |
 
@@ -79,7 +75,7 @@ We're moving toward AI as integrated teammate, not isolated chatbot. This framew
 ## Learn More
 
 - **[Why MCPs?](blog/why-mcps.md)** - Deep dive into the tool integration approach
-- **[Personal Context](personal/)** - Explore your customization folder
+- **[User Profile](user.md)** - Your collaboration profile and preferences (note: this is Joe's sample file - customize for your own use)
 - **[Ideas](ideas/)** - Experimental collaboration concepts
 
 ---

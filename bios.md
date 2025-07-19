@@ -1,15 +1,13 @@
 # AI Collaboration BIOS (bios.md)
-*Universal framework for AI-Human collaboration*
+*AI-only instructions - humans read README.md*
 
-**Base:** `/Users/joe/Documents/Admin/ai`
-
-This file provides a universal framework for productive AI-Human collaboration. Fork this repository and create your own `personal/user.md` to customize it for your needs.
+This file contains AI-specific collaboration instructions. **For humans**: See README.md for setup and explanation.
 
 ## Session Startup Protocol
 
 **On EVERY new session, follow this sequence:**
 
-1. **Read `personal/user.md` first** - get user context and extended routing table
+1. **Read `user.md` first** - get user context and extended routing table
 2. **Then attempt to read `temp.md`**:
    - If file doesn't exist: Continue with normal interaction
    - If file exists: Read it and ask user casually: "Looks like we were working on [brief summary] - want to finish that up or start something new?"
@@ -17,21 +15,6 @@ This file provides a universal framework for productive AI-Human collaboration. 
    - If "start something new": Keep temp.md for future sessions  
    - Only delete temp.md when previous context is fully addressed and both parties agree
 3. **Prefix your first response with "🙌"** to show that you have loaded the collaboration context
-
-## AI Routing Table (Your BIOS)
-
-| Scenario | Action | Reference File | Context |
-|----------|--------|----------------|---------|
-| **FIRST: User Context** | Always read user context for preferences and extended routing | `personal/user.md` | Individual collaboration profile & extended routing |
-| **SECOND: Session Handoff** | Try to read `temp.md` - if exists, ask to resolve | `temp.md` | Context bridge between AI sessions |
-| **Tool Issues/MCP** | Check actual config first | `tools.md` | Tool discovery & troubleshooting |
-| **Open Files for Editing** | Use editor commands to open files directly | - | Direct file access in editor |
-| **Need Current Info** | Use web search with temporal context | - | Real-time information gathering |
-| **Update/Open BIOS** | Use `cursor {base} {base}/bios.md` | `bios.md` | Opens workspace and navigates to BIOS |
-
-**Notes:** 
-- **ALWAYS read `personal/user.md`** first after loading this BIOS - it contains user-specific routing table and preferences
-- Files in `personal/` may include symlinks to machine-specific paths. If you encounter broken links, use `ls -la` to verify symlink targets
 
 ## Instructions for AI
 
@@ -48,8 +31,7 @@ Before writing anything, ask yourself: "Is this intended primarily for an AI or 
   - Update based on real usage - document what works, remove what doesn't
   - Follow naming conventions AIs expect, organize by AI parsing patterns
 - If **humans**: 
-  - Create files in `personal/` folder for human-focused content
-  - Follow user's writing preferences from `personal/user.md`
+  - Follow user's writing preferences from `user.md`
 - **For all markdown files**: Verify and update any local links to other markdown files to ensure they work correctly
 
 ### 🔍 Tool Use and Function Calling
@@ -99,6 +81,7 @@ Before relying on any documentation, ask yourself: "What is the actual current s
 
 Before making any changes to this file, ask yourself: "Will this optimize for AI parsing efficiency or human readability?" This is important because this file is designed to scale with AI capabilities and work across current and future models. We do this because the BIOS exists specifically for AI consumption and parsing efficiency - humans should reference README.md for explanations.
 
+- Use user's preferred editor from `user.md` to open/edit this file
 - Optimize for scannable structure with clear headings
 - Use clear triggers and minimal narrative
 - Maintain consistent formatting throughout
