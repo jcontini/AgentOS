@@ -9,7 +9,6 @@ To confirm to the user that you read this file, prefix first response with "🙌
 
 - **Preferred Name:** Joe
 - **Default City:** Austin, Texas
-- **Home Airport:** AUS
 - **Device OS:** macOS 15.5 (Build 24F74)
 - **Device Architecture:** arm64
 
@@ -46,13 +45,13 @@ When presenting comparative information, use tables because the user finds struc
 | Job/Need | Tool | How AI Should Help |
 |----------|------|-------------------|
 | **Code editing, markdown files** | [Cursor](https://cursor.sh) | Use `cursor /path/to/workspace /path/to/workspace/file.md` |
-| **Terminal access** | [Desktop Commander MCP](https://github.com/wonderwhy-er/desktop-commander) | Only use MCP if you don't have native terminal support (like Cursor) |
+| **Terminal access** | Native or MCP | Use native tools if available (like Cursor) or else try [Desktop Commander MCP](https://github.com/wonderwhy-er/desktop-commander) |
 | **Work task management** | [Linear](https://linear.app) | Use [Linear MCP](https://mcp.linear.app/sse) for work/business tasks |
 | **Personal task management** | [Todoist](https://todoist.com) | Use [Todoist MCP](https://glama.ai/mcp/servers/@Doist/todoist-mcp) to apply `ai-tasks` label if creating/updating a task (when configured) |
 | **Calendar management** | [Google Calendar](https://calendar.google.com) | Use [google-calendar MCP](https://github.com/nspady/google-calendar-mcp) for scheduling and calendar events |
-| **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) via `mcp_exa_web_search_exa` function. Run `date` first and incorporate current date when relevant (news, current events, recent developments) |
-| **Database operations** | [CrystalDBA](https://github.com/crystaldba/postgres-mcp) | Use [postgres MCP](https://github.com/crystaldba/postgres-mcp) for database queries and management (configured in Adavia workspace) |
-| **Bookmark management** | [Raindrop.io](https://raindrop.io) | Use [Raindrop MCP](https://github.com/adeze/raindrop-mcp) for searching, organizing, and managing bookmarks. **Current Issue**: `bookmark_search` has 404 error - fix submitted in [PR #21](https://github.com/adeze/raindrop-mcp/pull/21). Use other tools like `collection_list`, `user_profile` until fixed. |
+| **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) for real-time web searches. Run `date` first and incorporate current date when relevant (news, current events, recent developments) |
+| **Database operations** | [CrystalDBA](https://github.com/crystaldba/postgres-mcp) | Use [postgres MCP](https://github.com/crystaldba/postgres-mcp) for database queries and management |
+| **Bookmark management** | [Raindrop.io](https://raindrop.io) | Use [Raindrop MCP](https://github.com/adeze/raindrop-mcp) for searching, organizing, and managing bookmarks. |
 
 
 **MCP Config Locations (for installing/troubleshooting):**
@@ -102,7 +101,7 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 
 **When editing this file:** Append new sections to the bottom and use the same format as existing sections.
 
-## 🔍 Research Often
+## 🔍 Searching the Web
 
 When dealing with rapidly changing topics, proactively search for current information first rather than relying on training data. This is important because the user has very low uncertainty tolerance and expects research/verification first. We do this because outdated information in rapidly changing fields (news, geopolitics, dev packages, AI capabilities) leads to poor decisions.
 
@@ -120,7 +119,7 @@ The user almost always builds quick prototypes to clarify requirements for real 
 **Single HTML Files (Preferred Starting Point):**
 - **Pattern**: Everything in one HTML file, CDN dependencies, no build process
 - **Key libraries**: [React](https://react.dev/) (unpkg CDN), [Tailwind CSS](https://tailwindcss.com/) (CDN), [Lucide icons](https://lucide.dev/), [HeadlessUI](https://headlessui.com/) (CDN), Babel standalone for JSX
-- **Design patterns**: Dark theme (`bg-black text-white`), responsive grids (`grid-cols-1 lg:grid-cols-2`), component-based architecture
+- **Design patterns**: Dark theme, responsive design, component-based architecture
 - **Target**: Single developer running on laptop, hands-on experimentation
 
 **Larger Projects:**
