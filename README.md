@@ -13,7 +13,6 @@ The [`user.md`](./user.md) file contains my complete configuration for working w
 | ✅ **[Cursor IDE](https://cursor.com/)** | Built-in file access | Settings → AI → System Prompt |
 | ✅ **[Claude Desktop](https://claude.ai/download)** | [Desktop Commander MCP](https://desktopcommander.app/) | Settings → Custom Instructions |
 | ✅ **[OpenWebUI](https://openwebui.com/)** | [MCPO proxy](https://github.com/open-webui/mcpo) + MCPs | Settings → System Prompt |
-| ✅ **[VS Code](https://code.visualstudio.com/)** | [VS Code MCP Server](https://marketplace.visualstudio.com/items?itemName=JuehangQin.vscode-mcp-server) | Custom Instructions |
 | ❌ **[ChatGPT Web](https://chatgpt.com/)** | Web-based - no file access | N/A |
 | ❌ **[Claude Web](https://claude.ai/)** | Web-based - no file access | N/A |
 ## Setup Instructions
