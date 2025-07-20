@@ -3,6 +3,7 @@
 This document is written primarily for AIs to understand preferences of the user, Joe.
 The below sections give context on the user's profile, and how to work well with them.
 When the user tells you new/updated preferences, ask them if you can update this file with the new preferences you learned about them.
+To confirm to the user that you read this file, prefix first response with "🙌"
 
 ## User's Context
 
@@ -20,12 +21,12 @@ Before starting any task, ask yourself: "What context is the user operating in?"
 |---------|----------|------|
 | **Work** | work, Adavia, business, dev team, devs, citizenship | `/Users/joe/Documents/Business/Entities/Adavia/Context/README.md` |
 | **Admin** | finance, identity, legal, residences, services, vehicle | `/Users/joe/Documents/Admin` |
-| **Life** | goals, growth, relationships, therapy*, personality | `/Users/joe/Documents/Life` |
+| **Life** | goals, growth, relationships, therapy, personality | `/Users/joe/Documents/Life` |
 | **Wellness** | dental, fitness, genetics, health records, biomarkers | `/Users/joe/Documents/Wellness` |
 | **Hobby coding** | new coding projects, experiments, hobby development | `/Users/joe/dev/hobbies` |
 | **Other projects** | product ideas, business ideas, systems to build | `/Users/joe/Documents/Projects` |
 
-*Humans: I have yet to find a therapist that's better than AI. If you can recommend one, DM me.
+*@Humans: I have yet to find a therapist that's better than AI. If you can recommend one, DM me.
 
 ## 💬 Communication Preferences
 
@@ -41,6 +42,7 @@ When presenting comparative information, use tables because the user finds struc
 
 **Never say "I can't":** If the user asks you to do something you don't immediately know how to do, don't say you can't do it. Instead, research the web first to find solutions - often there are MCPs or tools that can help. Then say something like "I found this MCP that might help us accomplish that - should I help you install it?" Always be solution-oriented and proactive about finding ways to help.
 
+
 | Job/Need | Tool | How AI Should Help |
 |----------|------|-------------------|
 | **Code editing, markdown files** | [Cursor](https://cursor.sh) | Use `cursor /path/to/workspace /path/to/workspace/file.md` |
@@ -48,8 +50,15 @@ When presenting comparative information, use tables because the user finds struc
 | **Work task management** | [Linear](https://linear.app) | Use [Linear MCP](https://mcp.linear.app/sse) for work/business tasks |
 | **Personal task management** | [Todoist](https://todoist.com) | Use [Todoist MCP](https://glama.ai/mcp/servers/@Doist/todoist-mcp) to apply `ai-tasks` label if creating/updating a task (when configured) |
 | **Calendar management** | [Google Calendar](https://calendar.google.com) | Use [google-calendar MCP](https://github.com/nspady/google-calendar-mcp) for scheduling and calendar events |
-| **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) via `mcp_exa_web_search_exa` function |
+| **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) via `mcp_exa_web_search_exa` function. Run `date` first and incorporate current date when relevant (news, current events, recent developments) |
 | **Database operations** | [CrystalDBA](https://github.com/crystaldba/postgres-mcp) | Use [postgres MCP](https://github.com/crystaldba/postgres-mcp) for database queries and management (configured in Adavia workspace) |
+| **Bookmark management** | [Raindrop.io](https://raindrop.io) | Use [Raindrop MCP](https://github.com/adeze/raindrop-mcp) for searching, organizing, and managing bookmarks. **Current Issue**: `bookmark_search` has 404 error - fix submitted in [PR #21](https://github.com/adeze/raindrop-mcp/pull/21). Use other tools like `collection_list`, `user_profile` until fixed. |
+
+
+**MCP Config Locations (for installing/troubleshooting):**
+- **Cursor:** `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
+- **Claude Desktop:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **OpenWebUI:** `~/.local/openwebui/mcp-config.json`
 
 ## 📅 Calendar & Scheduling
 
@@ -91,6 +100,8 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 - When mentioning tools/platforms/companies, link to them on first mention in a file (use web search to find appropriate links)
 - Better to over-link than under-link
 
+**When editing this file:** Append new sections to the bottom and use the same format as existing sections.
+
 ## 🔍 Research Often
 
 When dealing with rapidly changing topics, proactively search for current information first rather than relying on training data. This is important because the user has very low uncertainty tolerance and expects research/verification first. We do this because outdated information in rapidly changing fields (news, geopolitics, dev packages, AI capabilities) leads to poor decisions.
@@ -102,23 +113,20 @@ When dealing with rapidly changing topics, proactively search for current inform
 
 ## 💻 Writing Code
 
-**Display message:** "💻 Following code writing protocol"
+The user almost always builds quick prototypes to clarify requirements for real developers and test ideas, not production applications. Prototypes need speed and functionality over robustness and testing.
 
-Before starting development work, ask yourself: "Is this a quick prototype or a production application?" This is important because the user builds prototypes to clarify requirements for dev teams, not production systems. We do this because prototypes need different approaches - speed and functionality over robustness and testing.
+**Stay Current:** Always fetch latest documentation and best practices. Use Context7 MCP for library docs. Use web search for latest versions, breaking changes, and current best practices before recommending approaches.
 
-**Stay Current:** Always fetch latest documentation and best practices. Use [Context7](https://github.com/upstash/context7) via `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` MCPs for library docs. Use web search for latest versions, breaking changes, and current best practices before recommending approaches.
-
-**Quick Prototypes (Single HTML Files):**
+**Single HTML Files (Preferred Starting Point):**
 - **Pattern**: Everything in one HTML file, CDN dependencies, no build process
-- **Key libraries**: [React](https://react.dev/) (unpkg CDN), [Tailwind CSS](https://tailwindcss.com/) (CDN), [Lucide icons](https://lucide.dev/), Babel standalone for JSX
+- **Key libraries**: [React](https://react.dev/) (unpkg CDN), [Tailwind CSS](https://tailwindcss.com/) (CDN), [Lucide icons](https://lucide.dev/), [HeadlessUI](https://headlessui.com/) (CDN), Babel standalone for JSX
 - **Design patterns**: Dark theme (`bg-black text-white`), responsive grids (`grid-cols-1 lg:grid-cols-2`), component-based architecture
 - **Target**: Single developer running on laptop, hands-on experimentation
 
 **Larger Projects:**
-- **Frontend**: [Next.js](https://nextjs.org/) + [Tailwind CSS](https://tailwindcss.com/) + [HeadlessUI](https://headlessui.com/) + [Lucide React](https://lucide.dev/)
-- **Backend**: [Next.js](https://nextjs.org/) with [Prisma](https://www.prisma.io/) (simple), [Fastify](https://fastify.dev/) (real APIs)
-- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
-- **Infrastructure**: [Docker Compose](https://docs.docker.com/compose/) for local development
+- **Simple frontend/websites**: [Next.js](https://nextjs.org/) with API routes
+- **Proper backend servers**: [Fastify](https://fastify.dev/)
+- **Database**: Always [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/) in [Docker](https://docs.docker.com/compose/)
 
 **Testing Philosophy:**
 - **No unit/integration tests** for prototypes
@@ -126,4 +134,26 @@ Before starting development work, ask yourself: "Is this a quick prototype or a 
 - **Browser testing**: Open HTML, check console, verify interactions
 - **Focus**: Functionality to test hypotheses, not production robustness
 
- 
+## 🖥️ Terminal Navigation & Development Workflows
+
+**Terminal Navigation:** Use `tree` instead of `find` for directory exploration. Tree is faster and provides better visual context for understanding folder structures. Use `tree -L 2 /path` to explore with appropriate depth limits.
+
+**Avoiding Interactive Prompts:** AI assistants cannot handle interactive prompts (questions, menus, confirmations). Always use non-interactive flags to prevent commands from waiting for input:
+- **GitHub CLI:** Use `--head user:branch` instead of letting it prompt for remote selection
+- **Package managers:** Use `--yes` or `-y` flags for automatic confirmation
+- **Git operations:** Use `--no-edit` for commits, `--force` for pushes when appropriate
+- **General rule:** Research command documentation for non-interactive options before running commands that might prompt
+
+**Development Organization:** All development work should be organized in `/Users/joe/dev/` with the following structure:
+- **Work (Adavia):** `/Users/joe/dev/adavia/` 
+- **Hobby projects:** `/Users/joe/dev/hobbies/`
+- **Open source contributions:** `/Users/joe/dev/`
+
+**Open Source Contribution Workflow:**
+1. Clone repositories directly to `/Users/joe/dev/`
+2. Create feature branches with descriptive names (e.g., `fix/bookmark-search-404`)
+3. Build and test locally before submitting PRs
+4. For MCP servers: Test by temporarily pointing Cursor config to local build
+5. Always validate fixes work end-to-end before submitting pull requests
+6. Include comprehensive testing and validation in PR descriptions
+
