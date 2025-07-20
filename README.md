@@ -8,15 +8,14 @@ The [`user.md`](./user.md) file contains my complete configuration for working w
 
 ## Platform Support
 
-| Platform                                           | Prerequisites                                                                                                                                                                                         | System Prompt Location             |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| ✅ **[Cursor IDE](https://cursor.com/)**            | None - built-in file access                                                                                                                                                                           | Settings → AI → System Prompt      |
-| ✅ **[Claude Desktop](https://claude.ai/download)** | [Desktop Commander MCP](https://desktopcommander.app/)                                                                                                                                                | Settings → Custom Instructions     |
-| ✅ **[OpenWebUI](https://openwebui.com/)**          | [MCPO proxy](https://github.com/open-webui/mcpo) \+ MCP servers                                                                                                                                       | Settings → System Prompt           |
-| ✅ **[VS Code](https://code.visualstudio.com/)**    | [VS Code MCP Server](https://marketplace.visualstudio.com/items?itemName=JuehangQin.vscode-mcp-server) or [Copilot MCP](https://marketplace.visualstudio.com/items?itemName=AutomataLabs.copilot-mcp) | Custom Instructions / Rules for AI |
-| ❌ **[ChatGPT Web](https://chatgpt.com/)**          | Web-based - cannot read local files                                                                                                                                                                   |                                    |
-| ❌ **[Claude Web](https://claude.ai/)**             | Web-based - cannot read local files                                                                                                                                                                   |                                    |
-
+| Platform | Prerequisites | Setup Location |
+|----------|---------------|----------------|
+| ✅ **[Cursor IDE](https://cursor.com/)** | Built-in file access | Settings → AI → System Prompt |
+| ✅ **[Claude Desktop](https://claude.ai/download)** | [Desktop Commander MCP](https://desktopcommander.app/) | Settings → Custom Instructions |
+| ✅ **[OpenWebUI](https://openwebui.com/)** | [MCPO proxy](https://github.com/open-webui/mcpo) + MCPs | Settings → System Prompt |
+| ✅ **[VS Code](https://code.visualstudio.com/)** | [VS Code MCP Server](https://marketplace.visualstudio.com/items?itemName=JuehangQin.vscode-mcp-server) | Custom Instructions |
+| ❌ **[ChatGPT Web](https://chatgpt.com/)** | Web-based - no file access | N/A |
+| ❌ **[Claude Web](https://claude.ai/)** | Web-based - no file access | N/A |
 ## Setup Instructions
 
 Add this line to your AI system prompt:
