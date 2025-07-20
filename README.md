@@ -21,7 +21,7 @@ The [`user.md`](./user.md) file contains my complete configuration for working w
 Add this line to your AI system prompt:
 
 ```
-First, read my AI configuration at /path/to/your/ai-prompts/user.md -
+First, read my AI configuration at /path/to/your/ai-config.md -
 this contains all context, preferences, and routing for how we collaborate.
 ```
 
