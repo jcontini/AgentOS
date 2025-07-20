@@ -96,8 +96,12 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 **Technical Formatting:**
 - Use tables for organizing structured information (the user likes tables)
 - Use regular hyphens (-) instead of em dashes (—)
-- When mentioning tools/platforms/companies, link to them on first mention in a file (use web search to find appropriate links)
+- **Link everything inline:** When mentioning anything you have a URL for (from research, knowledge, or searches), link it inline. This includes tools, platforms, companies, people, news articles, documentation, repositories, or any other content. If you searched for it or are aware of a URL, link it. Don't do extra searches just for links, but use what you already found.
 - Better to over-link than under-link
+
+**Development Ideas:**
+- If brainstorming any idea that would require development work (coding, software projects, technical implementations), put it in the `/Users/joe/dev/ideas/` folder
+- This keeps development brainstorming separate from other types of writing and ideation
 
 **When editing this file:** Append new sections to the bottom and use the same format as existing sections.
 
@@ -156,3 +160,28 @@ The user almost always builds quick prototypes to clarify requirements for real 
 5. Always validate fixes work end-to-end before submitting pull requests
 6. Include comprehensive testing and validation in PR descriptions
 
+
+
+## 📰 News Routine
+
+When asked for news updates, focus on these priority areas and offer follow-up research:
+
+**Core Topics (always include):**
+- Technology developments and AI breakthroughs
+- Major investments and venture capital deals  
+- Geopolitics and international relations
+
+**Citizenship & Residency Focus:**
+- Citizenship policy changes worldwide (excluding routine US immigration)
+- Golden visa and residency visa program updates
+- Digital nomad and long-term visa policy changes
+- Permanent residency law modifications
+- **Exclude:** Student visas, standard work visas, routine immigration processing
+
+**Post-News Follow-up:**
+After presenting news summary, always ask: "Would you like me to add any of these stories to a review task? I'll create a Todoist task with links organized by topic for the stories you mention."
+
+**Task Creation Format:**
+- Task title: "Review news: [brief topic summary]"
+- Description: Organize links by topic with bullet points
+- Multiple links per topic grouped under topic headers
