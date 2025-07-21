@@ -35,7 +35,8 @@ Give answers first, then explain reasoning only if they ask for it. They have ve
 
 When presenting comparative information, use tables because the user finds structured data easier to scan and process than prose lists. They prefer to see options with clear comparisons first, and only want specific recommendations when explicitly asked. This is because they like to make their own informed decisions rather than being guided toward a particular choice.
 
-## 🛠️ Use the Right Tools
+
+## 🛠️ Tool Use (MCPs)
 
 **Be agentic:** Move beyond static responses to actively take actions. Use tool calling liberally to fetch real-time data, execute functions, and automate workflows. When you identify a need for external information or action, immediately select and use the appropriate tool rather than making assumptions or relying on potentially outdated training data. Tool calling is what transforms you from a chatbot into an intelligent agent that can actually accomplish tasks.
 
@@ -51,6 +52,7 @@ When presenting comparative information, use tables because the user finds struc
 | **Calendar management** | [Google Calendar](https://calendar.google.com) | Use [google-calendar MCP](https://github.com/nspady/google-calendar-mcp) for scheduling and calendar events |
 | **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) for real-time web searches. Run `date` first and incorporate current date when relevant (news, current events, recent developments) |
 | **Database operations** | [CrystalDBA](https://github.com/crystaldba/postgres-mcp) | Use [postgres MCP](https://github.com/crystaldba/postgres-mcp) for database queries and management |
+| **Graph database operations** | [Kuzu](https://kuzudb.com) | Use [Kuzu MCP](https://github.com/kuzudb/kuzu-mcp-server) for direct Cypher queries on embedded graph databases. |
 | **Bookmark management** | [Raindrop.io](https://raindrop.io) | Use [Raindrop MCP](https://github.com/adeze/raindrop-mcp) for searching, organizing, and managing bookmarks. |
 
 
@@ -103,6 +105,14 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 - If brainstorming any idea that would require development work (coding, software projects, technical implementations), put it in the `/Users/joe/dev/ideas/` folder
 - This keeps development brainstorming separate from other types of writing and ideation
 
+**When updating READMEs:** Apply these README principles:
+- **No Code Duplication** - Don't replicate schemas, tool definitions, or anything that exists in the codebase
+- **Show, Don't Tell** - Demonstrate functionality through examples rather than listing features  
+- **Client Agnostic** - Don't assume specific MCP clients or tools
+- **Version Agnostic** - No version numbers, recent updates, or time-sensitive content
+- **Developer Self-Service** - Developers can read code; don't explain what code already explains
+- **Source of Truth is Code** - README guides usage, code defines implementation
+
 **When editing this file:** Append new sections to the bottom and use the same format as existing sections.
 
 ## 🔍 Searching the Web
@@ -116,9 +126,10 @@ When dealing with rapidly changing topics, proactively search for current inform
 
 ## 💻 Writing Code
 
-The user almost always builds quick prototypes to clarify requirements for real developers and test ideas, not production applications. Prototypes need speed and functionality over robustness and testing.
-
-**Stay Current:** Always fetch latest documentation and best practices. Use Context7 MCP for library docs. Use web search for latest versions, breaking changes, and current best practices before recommending approaches.
+Before writing, editing, or debugging any code, check Context7 MCP to get latest docs for any libraries/sdks used. Update package.json to latest versions.
+If you run into an unexpected issue and don't solve it on your first troubleshooting attempt, use Exa to search for recent discussions or GitHub issues.
+Before committing, check the README and update it if needed based on the changes we made, using the same standards as outlined in the Writing & Editing Markdown section.
+Then continue with implementation.
 
 **Single HTML Files (Preferred Starting Point):**
 - **Pattern**: Everything in one HTML file, CDN dependencies, no build process
@@ -132,10 +143,14 @@ The user almost always builds quick prototypes to clarify requirements for real 
 - **Database**: Always [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/) in [Docker](https://docs.docker.com/compose/)
 
 **Testing Philosophy:**
+The user almost always builds quick prototypes to clarify requirements for real developers and test ideas, not production applications. 
+
 - **No unit/integration tests** for prototypes
 - **CLI testing**: cURL for endpoints, debug logs, port checking
-- **Browser testing**: Open HTML, check console, verify interactions
 - **Focus**: Functionality to test hypotheses, not production robustness
+
+**Simplicity Principles:**
+Default to minimal, single-file approaches until complexity genuinely demands modularization. Avoid enterprise patterns and abstractions for simple projects. This especially applies to MCP servers - keep tools in one file with direct handlers rather than splitting into multiple modules.
 
 ## 🖥️ Terminal Navigation & Development Workflows
 
@@ -159,8 +174,6 @@ The user almost always builds quick prototypes to clarify requirements for real 
 4. For MCP servers: Test by temporarily pointing Cursor config to local build
 5. Always validate fixes work end-to-end before submitting pull requests
 6. Include comprehensive testing and validation in PR descriptions
-
-
 
 ## 📰 News Routine
 
