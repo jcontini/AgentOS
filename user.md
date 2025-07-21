@@ -57,9 +57,11 @@ When presenting comparative information, use tables because the user finds struc
 
 
 **MCP Config Locations (for installing/troubleshooting):**
-- **Cursor:** `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project)
+- **Cursor Global:** `~/.cursor/mcp.json` (affects all Cursor sessions)
+- **Cursor Workspace:** `.cursor/mcp.json` (project-specific, takes precedence in that workspace)
 - **Claude Desktop:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **OpenWebUI:** `~/.local/openwebui/mcp-config.json`
+
+**Important**: Always check for workspace-specific `.cursor/mcp.json` files first when troubleshooting MCP issues. Workspace configs override global configs when present.
 
 ## 📅 Calendar & Scheduling
 
@@ -166,6 +168,9 @@ Default to minimal, single-file approaches until complexity genuinely demands mo
 - **Work (Adavia):** `/Users/joe/dev/adavia/` 
 - **Hobby projects:** `/Users/joe/dev/hobbies/`
 - **Open source contributions:** `/Users/joe/dev/`
+
+**Git Repository Management:**
+When looking at any repository/project for reference or troubleshooting, always git pull and switch to dev branch to make sure you're working with the most recent code/apis etc. If not a github repo that's ok, but always try just in case.
 
 **Open Source Contribution Workflow:**
 1. Clone repositories directly to `/Users/joe/dev/`
