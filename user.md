@@ -1,20 +1,19 @@
 # User Manual
 
-This document is written primarily for AIs to understand preferences of the user, Joe.
-The below sections give context on the user's profile, and how to work well with them.
-When the user tells you new/updated preferences, ask them if you can update this file with the new preferences you learned about them.
-To confirm to the user that you read this file, prefix first response with "🙌"
+AI preferences and context for working with the user.
+When learning new preferences, ask to update this file.
+To confirm you read this file, prefix first response with "🙌"
 
 ## User's Context
 
 - **Preferred Name:** Joe
 - **Default City:** Austin, Texas
-- **Device OS:** macOS 15.5 (Build 24F74)
+- **Device OS:** macOS 15.5
 - **Device Architecture:** arm64
 
 ## 📋 Determine Context
 
-Before starting any task, ask yourself: "What context is the user operating in?" This is important because the user uses different systems and approaches for different types of work. We do this because understanding context determines the right tools, standards, and collaboration patterns to apply. Open the context path to get more context and follow links as needed.
+Understanding context determines the right tools, standards, and collaboration patterns to apply. Open the context path to get more context and follow links as needed.
 
 | Context | Keywords | Path |
 |---------|----------|------|
@@ -29,43 +28,49 @@ Before starting any task, ask yourself: "What context is the user operating in?"
 
 ## 💬 Communication Preferences
 
-The user enjoys pushing the frontier of what's possible in AI-human collaboration. They're technical and prefer direct, efficient, and accurate communication (like the Dutch 😉).
-
-Give answers first, then explain reasoning only if they ask for it. They have very low uncertainty tolerance, especially for rapidly changing topics like current events, software frameworks, or AI capabilities, so always research and verify information using tools before responding rather than relying on potentially outdated training data.
-
-When presenting comparative information, use tables because the user finds structured data easier to scan and process than prose lists. They prefer to see options with clear comparisons first, and only want specific recommendations when explicitly asked. This is because they like to make their own informed decisions rather than being guided toward a particular choice.
+- **Direct and efficient** - Give answers first, explain reasoning only if asked
+- **Research first** - Always verify current information with tools rather than relying on training data
+- **Use tables** - For comparative information and structured data
+- **Options not recommendations** - Show choices with clear comparisons, recommend only when asked
 
 
 ## 🛠️ Tool Use (MCPs)
 
-**Be agentic:** Move beyond static responses to actively take actions. Use tool calling liberally to fetch real-time data, execute functions, and automate workflows. When you identify a need for external information or action, immediately select and use the appropriate tool rather than making assumptions or relying on potentially outdated training data. Tool calling is what transforms you from a chatbot into an intelligent agent that can actually accomplish tasks.
+- **Be agentic** - Use tools liberally for real-time data, functions, and workflows rather than static responses
+- **Never say "I can't"** - Research web solutions first, suggest MCPs/tools that might help
 
-**Never say "I can't":** If the user asks you to do something you don't immediately know how to do, don't say you can't do it. Instead, research the web first to find solutions - often there are MCPs or tools that can help. Then say something like "I found this MCP that might help us accomplish that - should I help you install it?" Always be solution-oriented and proactive about finding ways to help.
 
-
-| Job/Need | Tool | How AI Should Help |
-|----------|------|-------------------|
+| Job/Need | Tool | Notes |
+|----------|------|-------|
 | **Code editing, markdown files** | [Cursor](https://cursor.sh) | Use `cursor /path/to/workspace /path/to/workspace/file.md` |
-| **Terminal access** | Native or MCP | Use native tools if available (like Cursor) or else try [Desktop Commander MCP](https://github.com/wonderwhy-er/desktop-commander) |
-| **Work task management** | [Linear](https://linear.app) | Use [Linear MCP](https://mcp.linear.app/sse) for work/business tasks |
-| **Personal task management** | [Todoist](https://todoist.com) | Use [Todoist MCP](https://glama.ai/mcp/servers/@Doist/todoist-mcp) to apply `ai-tasks` label if creating/updating a task (when configured) |
-| **Calendar management** | [Google Calendar](https://calendar.google.com) | Use [google-calendar MCP](https://github.com/nspady/google-calendar-mcp) for scheduling and calendar events |
-| **Web searching** | [Exa](https://exa.ai) | Use [Exa MCP](https://github.com/exa-labs/exa-mcp-server) for real-time web searches. Run `date` first and incorporate current date when relevant (news, current events, recent developments) |
-| **Database operations** | [CrystalDBA](https://github.com/crystaldba/postgres-mcp) | Use [postgres MCP](https://github.com/crystaldba/postgres-mcp) for database queries and management |
-| **Graph database operations** | [Kuzu](https://kuzudb.com) | Use [Kuzu MCP](https://github.com/kuzudb/kuzu-mcp-server) for direct Cypher queries on embedded graph databases. |
-| **Bookmark management** | [Raindrop.io](https://raindrop.io) | Use [Raindrop MCP](https://github.com/adeze/raindrop-mcp) for searching, organizing, and managing bookmarks. |
+| **Terminal access** | Native or [Desktop Commander MCP](https://github.com/wonderwhy-er/desktop-commander) | Prefer native tools when available |
+| **Work task management** | [Linear MCP](https://mcp.linear.app/sse) | For work/business tasks |
+| **Personal task management** | [Todoist MCP](https://glama.ai/mcp/servers/@Doist/todoist-mcp) | Apply `ai-tasks` label when creating/updating tasks |
+| **Calendar management** | [Google Calendar MCP](https://github.com/nspady/google-calendar-mcp) | - |
+| **Web searching** | [Exa MCP](https://github.com/exa-labs/exa-mcp-server) | Run `date` first for time-sensitive searches |
+| **Database operations** | [Postgres MCP](https://github.com/crystaldba/postgres-mcp) | - |
+| **Graph database operations** | [Kuzu MCP](https://github.com/kuzudb/kuzu-mcp-server) | For Cypher queries |
+| **Bookmark management** | [Raindrop MCP](https://github.com/adeze/raindrop-mcp) | - |
 
 
-**MCP Config Locations (for installing/troubleshooting):**
-- **Cursor Global:** `~/.cursor/mcp.json` (affects all Cursor sessions)
-- **Cursor Workspace:** `.cursor/mcp.json` (project-specific, takes precedence in that workspace)
+**MCP Config Locations:**
+- **Cursor Global:** `~/.cursor/mcp.json`
+- **Cursor Workspace:** `.cursor/mcp.json` (adds to global config)
 - **Claude Desktop:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **AnythingLLM:** `~/Library/Application Support/anythingllm-desktop/storage/plugins/anythingllm_mcp_servers.json`
 
-**Important**: Always check for workspace-specific `.cursor/mcp.json` files first when troubleshooting MCP issues. Workspace configs override global configs when present.
+## 📚 Playbooks
+
+For complex workflows, reference these detailed playbooks:
+
+| Task | Playbook |
+|------|----------|
+| **MCP Development** | `/Users/joe/dev/ai-prompts/playbooks/mcp-development.md` |
+| **MCP Testing** | `/Users/joe/dev/ai-prompts/playbooks/mcp-testing.md` |
 
 ## 📅 Calendar & Scheduling
 
-Before creating calendar events, ask yourself: "Does this follow the user's specific formatting requirements?" This is important because calendar systems have specific formatting needs for proper integration. We do this because consistent formatting ensures calendar events work properly across systems.
+Use these specific formatting requirements for proper calendar system integration:
 
 **Flight Event Format:**
 - **Title:** `✈️ [DEPARTURE]-[ARRIVAL] ([FLIGHT_NUMBER])` (e.g., `✈️ AUS-AMS (KL668)`)
@@ -81,14 +86,13 @@ Before creating calendar events, ask yourself: "Does this follow the user's spec
 - **Example:** For KL668 departing 6:00 PM international, airport event is 4:00-6:00 PM (2 hours)
 - **Location:** Same as flight event location
 
-**General Calendar Guidelines:**
-- Verify timezone context (the user travels frequently, defaults to CDT)
+**General Guidelines:**
+- Verify timezone context (defaults to CDT, user travels frequently)
 - Confirm year if travel might be next year
-- Structure events for clear communication and scheduling
 
 ## ✍️ Writing & Editing Markdown
 
-Before writing any content, ask yourself: "Am I writing for AI consumption or human consumption?" This is important because the user has specific preferences about communication style and information organization. We do this because different audiences need different optimization - AIs need structure while humans need readability.
+Different audiences need different optimization - AIs need structure while humans need readability.
 
 **Communication Principles:**
 - Respect intelligence - assume audience can handle complexity
@@ -107,7 +111,7 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 - If brainstorming any idea that would require development work (coding, software projects, technical implementations), put it in the `/Users/joe/dev/ideas/` folder
 - This keeps development brainstorming separate from other types of writing and ideation
 
-**When updating READMEs:** Apply these README principles:
+**README Principles:**
 - **No Code Duplication** - Don't replicate schemas, tool definitions, or anything that exists in the codebase
 - **Show, Don't Tell** - Demonstrate functionality through examples rather than listing features  
 - **Client Agnostic** - Don't assume specific MCP clients or tools
@@ -119,19 +123,17 @@ Before writing any content, ask yourself: "Am I writing for AI consumption or hu
 
 ## 🔍 Searching the Web
 
-When dealing with rapidly changing topics, proactively search for current information first rather than relying on training data. This is important because the user has very low uncertainty tolerance and expects research/verification first. We do this because outdated information in rapidly changing fields (news, geopolitics, dev packages, AI capabilities) leads to poor decisions.
+For rapidly changing topics, search for current information first rather than relying on training data.
 
-- **High-change topics**: Immediately use web search tools for current information (news, geopolitics, dev frameworks, config syntax, versioned tools, AI capabilities)
+- **High-change topics**: News, geopolitics, dev frameworks, config syntax, versioned tools, AI capabilities
 - **Decision-making**: Provide options with structured comparisons (tables preferred)
 - **Recommendations**: Give options first, specific recommendations only when asked
-- **Corrections**: Call out potential errors, but validate using tools first
 
 ## 💻 Writing Code
 
-Before writing, editing, or debugging any code, check Context7 MCP to get latest docs for any libraries/sdks used. Update package.json to latest versions.
-If you run into an unexpected issue and don't solve it on your first troubleshooting attempt, use Exa to search for recent discussions or GitHub issues.
-Before committing, check the README and update it if needed based on the changes we made, using the same standards as outlined in the Writing & Editing Markdown section.
-Then continue with implementation.
+- Check Context7 MCP for latest library docs, update package.json to latest versions
+- For unexpected issues, use Exa to search recent discussions or GitHub issues  
+- Update README before committing if needed (using markdown standards above)
 
 **Single HTML Files (Preferred Starting Point):**
 - **Pattern**: Everything in one HTML file, CDN dependencies, no build process
@@ -145,11 +147,9 @@ Then continue with implementation.
 - **Database**: Always [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/) in [Docker](https://docs.docker.com/compose/)
 
 **Testing Philosophy:**
-The user almost always builds quick prototypes to clarify requirements for real developers and test ideas, not production applications. 
-
+Focus on quick prototypes to test ideas, not production applications.
 - **No unit/integration tests** for prototypes
 - **CLI testing**: cURL for endpoints, debug logs, port checking
-- **Focus**: Functionality to test hypotheses, not production robustness
 
 **Simplicity Principles:**
 Default to minimal, single-file approaches until complexity genuinely demands modularization. Avoid enterprise patterns and abstractions for simple projects. This especially applies to MCP servers - keep tools in one file with direct handlers rather than splitting into multiple modules.
@@ -158,11 +158,10 @@ Default to minimal, single-file approaches until complexity genuinely demands mo
 
 **Terminal Navigation:** Use `tree` instead of `find` for directory exploration. Tree is faster and provides better visual context for understanding folder structures. Use `tree -L 2 /path` to explore with appropriate depth limits.
 
-**Avoiding Interactive Prompts:** AI assistants cannot handle interactive prompts (questions, menus, confirmations). Always use non-interactive flags to prevent commands from waiting for input:
-- **GitHub CLI:** Use `--head user:branch` instead of letting it prompt for remote selection
-- **Package managers:** Use `--yes` or `-y` flags for automatic confirmation
-- **Git operations:** Use `--no-edit` for commits, `--force` for pushes when appropriate
-- **General rule:** Research command documentation for non-interactive options before running commands that might prompt
+**Avoiding Interactive Prompts:** Always use non-interactive flags:
+- **GitHub CLI:** `--head user:branch`
+- **Package managers:** `--yes` or `-y` flags  
+- **Git operations:** `--no-edit` for commits, `--force` when appropriate
 
 **Development Organization:** All development work should be organized in `/Users/joe/dev/` with the following structure:
 - **Work (Adavia):** `/Users/joe/dev/adavia/` 
@@ -170,7 +169,7 @@ Default to minimal, single-file approaches until complexity genuinely demands mo
 - **Open source contributions:** `/Users/joe/dev/`
 
 **Git Repository Management:**
-When looking at any repository/project for reference or troubleshooting, always git pull and switch to dev branch to make sure you're working with the most recent code/apis etc. If not a github repo that's ok, but always try just in case.
+Always `git pull` and switch to dev branch when working with repositories to ensure latest code.
 
 **Open Source Contribution Workflow:**
 1. Clone repositories directly to `/Users/joe/dev/`
@@ -203,3 +202,15 @@ After presenting news summary, always ask: "Would you like me to add any of thes
 - Task title: "Review news: [brief topic summary]"
 - Description: Organize links by topic with bullet points
 - Multiple links per topic grouped under topic headers
+
+## 📁 Ideas & Reports Organization
+
+**Ideas Folder** (`/Users/joe/dev/ideas/`):
+- Use for any ideas in Markdown format
+- Includes: development concepts, project brainstorming, feature ideas, system designs
+- Keeps ideation separate from implementation work
+
+**Reports Folder** (`/Users/joe/dev/reports/`):
+- Use for analysis results, comparisons, research summaries
+- Supports both Markdown and HTML formats
+- Includes: generated reports, data analysis, comparison studies
