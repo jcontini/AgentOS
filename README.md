@@ -4,7 +4,7 @@ My personal prompt configuration for AI assistants. Instead of explaining my pre
 
 ## What This Is
 
-The [`user.md`](./user.md) file contains my complete configuration for working with AI assistants - my preferences, tools I use, communication style, and context about my work environments.
+The [`agent-os.md`](./agent-os.md) file contains my complete configuration for working with AI assistants - my preferences, tools I use, communication style, and context about my work environments.
 
 ## Platform Support
 
@@ -28,7 +28,7 @@ this contains all context, preferences, and routing for how we collaborate.
 
 ## How It Works
 
-When an AI reads `user.md`, it learns:
+When an AI reads `agent-os.md`, it learns:
 - My communication preferences (direct, efficient)
 - What tools and platforms I use
 - My work contexts and environments  
@@ -39,4 +39,4 @@ This eliminates the need to re-explain my preferences in every conversation.
 
 ## Fork and Customize
 
-Feel free to fork this repository and replace `user.md` with your own preferences. The structure works with any AI platform that can read local files. 
+Feel free to fork this repository and replace `agent-os.md` with your own preferences. The structure works with any AI platform that can read local files. 
