@@ -78,12 +78,13 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
 ---
 
 ### **Playbook: Save Report**
-- **Rationale:** Using a dedicated directory (`/Users/joe/Documents/Reports/`) for analysis and reports keeps generated knowledge organized and easy to find later.
+- **Rationale:** Using a dedicated directory (`/Users/joe/Documents/Reports/`) for analysis and reports keeps generated knowledge organized and easy to find later. Always get the current date first to ensure accurate timestamps instead of relying on potentially outdated training data.
 - **Example:**
     - `[USER]` "Analyze the performance data and save the report."
     - `[ASSISTANT]`
-        1.  *...performs analysis...*
-        2.  `edit_file: target_file="/Users/joe/Documents/Reports/YYYY-MM-DD-performance-analysis.md" code_edit="..."`
+        1.  `run_terminal_cmd: date +"%Y-%m-%d"`
+        2.  *...performs analysis...*
+        3.  `edit_file: target_file="/Users/joe/Documents/Reports/2025-01-27-performance-analysis.md" code_edit="..."`
 
 ---
 
@@ -169,6 +170,25 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
         1. `mcp_terminal-mcp_execute_command: command="docker pull myapp:latest" host="192.168.68.66"`
         2. `mcp_terminal-mcp_execute_command: command="docker-compose up -d --force-recreate myapp" host="192.168.68.66"`
         3. "Deployment completed. The updated container is now running on the NUC."
+
+---
+
+### **Playbook: YouTube Transcription**
+- **Rationale:** Automated transcription of YouTube videos enables efficient content analysis, note-taking, and knowledge extraction. Using yt-dlp with integrated subtitle processing provides clean, readable transcripts saved to a dedicated location for future reference. The consolidated script eliminates external dependencies and uses pure bash text processing for reliability.
+- **Keywords:** `transcribe`, `YouTube`, `video transcript`, `yt-dlp`
+- **Action:**
+    1. Extract YouTube URL from user request
+    2. Run the consolidated transcription script: `/Users/joe/Documents/Admin/ai/scripts/youtube-transcript.sh "URL"`
+    3. Verify transcript was created successfully
+    4. Read the transcript file and provide a concise summary of key topics
+    5. Ask if user has questions about the content or wants to see the full transcript
+    6. If user wants full transcript, open it in Cursor using `cursor [filepath]`
+- **Example:**
+    - `[USER]` "Can you transcribe this YouTube video for me? https://www.youtube.com/watch?v=BdwvKm4yzC0"
+    - `[ASSISTANT]` "I'll transcribe that YouTube video for you using our automated transcription system."
+        1. `run_terminal_cmd: /Users/joe/Documents/Admin/ai/scripts/youtube-transcript.sh "https://www.youtube.com/watch?v=BdwvKm4yzC0"`
+        2. `read_file: [transcript_path]`
+        3. "✅ Transcript completed. Here's a summary of key topics: [bullet points of main themes]. Do you have any questions about the content, or would you like me to open the full transcript in Cursor?"
 
 ---
 
