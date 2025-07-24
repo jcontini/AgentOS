@@ -78,12 +78,12 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
 ---
 
 ### **Playbook: Save Report**
-- **Rationale:** Using a dedicated directory (`/Users/joe/dev/reports/`) for analysis and reports keeps generated knowledge organized and easy to find later.
+- **Rationale:** Using a dedicated directory (`/Users/joe/Documents/Reports/`) for analysis and reports keeps generated knowledge organized and easy to find later.
 - **Example:**
     - `[USER]` "Analyze the performance data and save the report."
     - `[ASSISTANT]`
         1.  *...performs analysis...*
-        2.  `edit_file: target_file="/Users/joe/dev/reports/performance-analysis-YYYY-MM-DD.md" code_edit="..."`
+        2.  `edit_file: target_file="/Users/joe/Documents/Reports/YYYY-MM-DD-performance-analysis.md" code_edit="..."`
 
 ---
 
@@ -120,6 +120,55 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
               2. "Okay, I have the article. I will summarize it by extracting the key arguments into three concise bullet points."
               3. *...outputs summary...*
       ```"
+
+### **Playbook: Business Commitments Tracking**
+- **Rationale:** Maintaining awareness of ongoing legal and business responsibilities helps prevent missed deadlines and enables effective delegation to assistants/agents. A comprehensive tracking system ensures compliance and business continuity.
+- **Action:**
+    1. When a new commitment, responsibility, or ongoing obligation is identified during conversation, immediately offer to update the Business Commitments Tracker.
+    2. Categorize the commitment by trigger type (moving residence, business address change, email change, company structure change, etc.).
+    3. Include all relevant details: action required, timeline, fees, responsible party, delegation notes, and impact if missed.
+    4. Update `/Users/joe/Documents/Reports/business-commitments-tracker.md` with the new commitment information.
+    5. If a new trigger category is needed, create the section and note it for future development.
+- **Example:**
+    - `[USER]` "I just realized I need to update my business insurance when I move offices."
+    - `[ASSISTANT]` "That's an important commitment to track. I'll add this business insurance update requirement to your Business Commitments Tracker under the 'Business Address Change' trigger. This will help ensure you don't miss it when the time comes and can be delegated to an assistant later."
+      *(Then proceeds to update the commitments tracker file with the new information.)*
+
+---
+
+### **Playbook: Browser Automation with Playwright MCP**
+- **Rationale:** Modern web automation requires accessibility tree navigation rather than fragile CSS selectors. The Microsoft Playwright MCP provides robust browser control through structured accessibility data, enabling reliable form filling, clicking, and navigation without vision models.
+- **Action:**
+    1. Always use `@playwright/mcp@latest` (not `playwright-mcp`) in MCP configuration
+    2. Start with `browser_snapshot` to capture the accessibility tree structure  
+    3. Use element references `[ref=eXXX]` from the accessibility tree for interactions
+    4. Navigate through accessibility roles (button, textbox, link) rather than CSS selectors
+    5. For complex workflows, capture snapshots between each major step to verify state
+- **Example:**
+    - `[USER]` "Fill out the login form on this website and click submit."
+    - `[ASSISTANT]` 
+        1. `browser_navigate: "https://example.com/login"`
+        2. `browser_snapshot` *(captures accessibility tree)*
+        3. `browser_type: element="Username field" ref="e123" text="username"`
+        4. `browser_type: element="Password field" ref="e124" text="password"`  
+        5. `browser_click: element="Submit button" ref="e125"`
+
+---
+
+### **Playbook: Remote Command Execution**
+- **Rationale:** For system administration, deployment, and infrastructure tasks, the Terminal MCP enables secure SSH-based command execution on remote hosts. This allows AI agents to manage servers, deploy applications, and perform system maintenance remotely.
+- **Action:**
+    1. Use `mcp_terminal-mcp_execute_command` for remote operations
+    2. Specify host parameter for remote execution, omit for local commands
+    3. Use session names to maintain persistent environments (conda, virtual envs)
+    4. Always use non-interactive flags (`--yes`, `-y`) for automated execution
+    5. For long-running processes, run commands in background when appropriate
+- **Example:**
+    - `[USER]` "Deploy the updated Docker container to the NUC server."
+    - `[ASSISTANT]` 
+        1. `mcp_terminal-mcp_execute_command: command="docker pull myapp:latest" host="192.168.68.66"`
+        2. `mcp_terminal-mcp_execute_command: command="docker-compose up -d --force-recreate myapp" host="192.168.68.66"`
+        3. "Deployment completed. The updated container is now running on the NUC."
 
 ---
 
