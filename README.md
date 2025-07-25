@@ -1,12 +1,47 @@
-# AI Prompts
+# AgentOS: AI Agent Operating System
 
-My personal prompt configuration for AI assistants. Instead of explaining my preferences in every conversation, I give AIs this file to read first.
+**AI agents that extract content and accomplish real tasks.**
 
-## What This Is
+Turn any URL into AI-analyzable content. YouTube videos, Spotify podcasts, web articles → automatic transcription and extraction → instant AI analysis.
 
-The [`agent-os.md`](./agent-os.md) file contains my complete configuration for working with AI assistants - my preferences, tools I use, communication style, and context about my work environments.
+## 🚀 Quick Start
 
-## Platform Support
+```bash
+# Extract any content
+./scripts/content-extractor.sh "https://youtube.com/watch?v=xyz"
+
+# AI Integration: Add to your system prompt
+# Read /path/to/this/repo/agent-os.md first
+```
+
+Content gets cached in `downloads/` by type: `audio/`, `video/`, `text/`.
+
+
+
+## 📁 Structure
+
+```
+ai/
+├── agent-os.md             # AI agent instructions
+├── config.yaml             # System configuration  
+├── scripts/                # Automation tools
+├── downloads/              # Extracted content (gitignored)
+│   ├── audio/
+│   ├── video/
+│   └── text/
+└── apps/                   # Local tool installs (gitignored)
+```
+
+
+
+## ⚙️ Setup
+
+**Required:** `yt-dlp`, `whisper` (auto-installed via brew/local)  
+**Optional:** `yq` for config parsing
+
+
+Finally, if the AI can only be, if our, say we're in cursor or Claude desktop, you know, I want my, my prompt is going to say, hey, open one file. What should be the entry point? Think critically about this. How can we optimize this that so that the readme is good for humans and I'm cool if it's good for the agent too. What do you think makes sense?
+## 🤖 AI Platform Support
 
 | Platform | Prerequisites | Setup Location |
 |----------|---------------|----------------|
@@ -15,28 +50,16 @@ The [`agent-os.md`](./agent-os.md) file contains my complete configuration for w
 | ✅ **[OpenWebUI](https://openwebui.com/)** | [MCPO proxy](https://github.com/open-webui/mcpo) + MCPs | Settings → System Prompt |
 | ❌ **[ChatGPT Web](https://chatgpt.com/)** | Web-based - no file access | N/A |
 | ❌ **[Claude Web](https://claude.ai/)** | Web-based - no file access | N/A |
-## Setup Instructions
 
-Add this line to your AI system prompt:
+**Verification**: When setup correctly, AI will start responses with 🙌
 
-```
-First, read my AI configuration at /path/to/your/ai-config.md -
-this contains all context, preferences, and routing for how we collaborate.
-```
+## 🤝 Contributing
 
-**Verification**: When it's working properly, the AI will start its first response with 🙌
+This system grows through real-world usage. To contribute:
 
-## How It Works
+1. **Use it for actual work** - find what breaks or could be better
+2. **Propose changes against core intentions** - does this serve our four intentions?
+3. **Test on different machines** - ensure portability
+4. **Share working workflows** - add proven playbooks
 
-When an AI reads `agent-os.md`, it learns:
-- My communication preferences (direct, efficient)
-- What tools and platforms I use
-- My work contexts and environments  
-- How I like information formatted
-- When to research vs. use training data
-
-This eliminates the need to re-explain my preferences in every conversation.
-
-## Fork and Customize
-
-Feel free to fork this repository and replace `agent-os.md` with your own preferences. The structure works with any AI platform that can read local files. 
+ 

@@ -1,0 +1,54 @@
+# AgentOS Content Extraction Configuration
+# Portable settings that work anywhere this repo is located
+
+# Base configuration
+base:
+  repo_dir: "."  # Current repo location (auto-detected)
+  downloads_base: downloads  # Single source of truth for all content
+
+# Content organization (relative to downloads_base)
+content:
+  audio: audio      # Audio files (Spotify, podcasts, etc.)
+  video: video      # Video files (YouTube, etc.)  
+  text: text        # All transcripts and text content
+  logs: logs        # Processing logs
+
+# Script locations (relative to repo_dir)
+scripts:
+  youtube_transcript: scripts/youtube-transcript.sh
+  spotify_transcript: scripts/spotify-transcript.sh
+  content_extractor: scripts/content-extractor.sh
+
+# Tool settings
+tools:
+  whisper:
+    model: medium  # tiny, base, small, medium, large
+    language: en   # auto-detect if not specified
+  
+  youtube:
+    quality: audio  # audio, best, worst
+    format: mp3
+  
+  spotify:
+    format: mp3
+    quality: 320k
+    # OnTheSpot installation (hybrid pattern: brew -> local -> manual)
+    install_method: auto  # auto, brew, local, manual
+    brew_formula: casual-snek/onthespot
+    local_path: apps/onthespot  # Relative to repo
+    manual_path: ~/Applications/onthespot  # Fallback for existing installs
+    # OnTheSpot downloads to its default location, we copy to our organized structure
+  
+  web:
+    scraper: exa    # exa, curl, lynx
+    format: markdown
+
+# Caching
+cache:
+  enabled: true
+  max_age_days: 30  # Auto-cleanup old cached files
+  
+# Logging
+logging:
+  level: info  # debug, info, warn, error
+  file: ~/Documents/Admin/ai/logs/content-extractor.log 

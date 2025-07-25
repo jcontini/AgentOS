@@ -2,6 +2,12 @@
 personal/ 
 temp.md
 
+# Downloaded content (not tracked in git)
+downloads/
+
+# Local app installations (not tracked in git)
+apps/
+
 # macOS
 .DS_Store
 .DS_Store?

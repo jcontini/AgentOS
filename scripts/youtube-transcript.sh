@@ -1,17 +1,29 @@
 #!/bin/bash
 
-# YouTube Transcription Script (Consolidated Version)
-# Usage: ./youtube-transcript-consolidated.sh "https://youtube.com/watch?v=..."
+# YouTube Transcription Script - Pure Function
+# Usage: ./youtube-transcript.sh "URL" "TEXT_DIR" "VIDEO_ID"
+# Called by content-extractor.sh with proper paths
 
-# Check if URL is provided
-if [ -z "$1" ]; then
-    echo "Error: Please provide a YouTube URL"
-    echo "Usage: $0 'https://youtube.com/watch?v=...'"
+# Check arguments
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+    echo "Error: Missing required arguments"
+    echo "Usage: $0 'https://youtube.com/watch?v=...' '/path/to/text/dir' 'video_id'"
+    echo "Note: This script is typically called by content-extractor.sh"
     exit 1
 fi
 
-# Store URL in variable
+# Get arguments (no config loading needed)
 VIDEO_URL="$1"
+TEXT_DIR="$2"
+VIDEO_ID="$3"
+
+# Ensure output directory exists
+mkdir -p "$TEXT_DIR"
+
+# Final output file (cache-friendly filename)
+FINAL_OUTPUT="$TEXT_DIR/youtube-$VIDEO_ID.txt"
+
+
 
 # Check if yt-dlp is installed
 if ! command -v yt-dlp &> /dev/null; then
@@ -31,11 +43,9 @@ fi
 
 echo "Processing video: $TITLE"
 
-# Create output directory if it doesn't exist
-mkdir -p "/Users/joe/Documents/Reports/YT-transcripts"
-
-# Change to output directory
-cd "/Users/joe/Documents/Reports/YT-transcripts"
+# Create temp directory for processing
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
 
 # Download subtitles
 echo "Downloading subtitles..."
@@ -82,4 +92,11 @@ BEGIN {
 # Clean up the SRT file
 rm "${TITLE}.en.srt"
 
-echo "✅ Transcript saved to: /Users/joe/Documents/Reports/YT-transcripts/${TITLE}.txt" 
+# Move to final location with cache-friendly filename
+mv "${TITLE}.txt" "$FINAL_OUTPUT"
+
+# Clean up temp directory
+cd /
+rm -rf "$TEMP_DIR"
+
+echo "✅ Transcript saved to: $FINAL_OUTPUT" 
