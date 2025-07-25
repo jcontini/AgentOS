@@ -2,45 +2,35 @@
 
 **AI agents that extract content and accomplish real tasks.**
 
-Turn any URL into AI-analyzable content. YouTube videos, Spotify podcasts, web articles → automatic transcription and extraction → instant AI analysis.
+Transform any content into AI-analyzable format. YouTube videos, Spotify podcasts, web articles → automatic transcription and extraction → instant AI analysis. Plus a complete framework for AI agent behavior, principles, and workflows.
 
-## 🚀 Quick Start
+## 🔄 How It Works
 
-```bash
-# Extract any content
-./scripts/content-extractor.sh "https://youtube.com/watch?v=xyz"
+### **AI Agent Workflow**
+1. **Boot Sequence**: AI reads `boot.md` to understand core intentions, principles, and available playbooks
+2. **Task Recognition**: AI matches user requests to role-specific playbooks 
+3. **Content Processing**: When content analysis is needed, AI calls `./scripts/content-extractor.sh "URL"`
+4. **Analysis**: AI reads extracted content from `content/` and provides analysis
 
-# AI Integration: Add to your system prompt
-# Read /path/to/this/repo/agent-os.md first
-```
+### **Folder Structure & Purpose**
+- **`playbooks/`**: Proven workflows for common tasks (MCP installation, code development, etc.)
+- **`scripts/`**: Automation tools that handle technical complexity (content extraction, transcription)
+- **`content/`**: All user-generated content (`audio/`, `video/`, `text/`, `apps/`) - yours to keep or manage as needed
+- **`boot.md`**: Complete AI agent operating instructions - the single entry point for understanding the system
 
-Content gets cached in `downloads/` by type: `audio/`, `video/`, `text/`.
-
-
-
-## 📁 Structure
-
-```
-ai/
-├── agent-os.md             # AI agent instructions
-├── config.yaml             # System configuration  
-├── scripts/                # Automation tools
-├── downloads/              # Extracted content (gitignored)
-│   ├── audio/
-│   ├── video/
-│   └── text/
-└── apps/                   # Local tool installs (gitignored)
-```
-
-
+### **The Key Insight**
+Instead of explaining your preferences every conversation, AI agents read `boot.md` once and understand how to work with your system. Content extraction happens automatically when needed. Everything stays portable and under your control.
 
 ## ⚙️ Setup
 
-**Required:** `yt-dlp`, `whisper` (auto-installed via brew/local)  
-**Optional:** `yq` for config parsing
+**No manual setup required!** Scripts auto-install dependencies when first run:
+- **OnTheSpot**: Auto-installs via brew or local git clone
+- **Whisper**: Provides install instructions if missing (`pip install openai-whisper`)
+- **yt-dlp**: Provides install instructions if missing (`pip install yt-dlp`)
+- **FFmpeg**: Provides install instructions if missing (`brew install ffmpeg`)
 
+**Optional customization**: Edit `config.yaml` to customize paths, quality settings, etc. Scripts work with sensible defaults without any changes.
 
-Finally, if the AI can only be, if our, say we're in cursor or Claude desktop, you know, I want my, my prompt is going to say, hey, open one file. What should be the entry point? Think critically about this. How can we optimize this that so that the readme is good for humans and I'm cool if it's good for the agent too. What do you think makes sense?
 ## 🤖 AI Platform Support
 
 | Platform | Prerequisites | Setup Location |
@@ -51,7 +41,24 @@ Finally, if the AI can only be, if our, say we're in cursor or Claude desktop, y
 | ❌ **[ChatGPT Web](https://chatgpt.com/)** | Web-based - no file access | N/A |
 | ❌ **[Claude Web](https://claude.ai/)** | Web-based - no file access | N/A |
 
-**Verification**: When setup correctly, AI will start responses with 🙌
+**Setup Instructions**: Add this to your AI system prompt:
+```
+🛑 STOP! Tell user: "🥾 Booting up..."
+Read `/Users/joe/Documents/ai/boot.md` before responding to their query.
+```
+
+**Verification**: When setup correctly, AI will start responses with 🥾
+
+## 🎭 Core Philosophy
+
+AgentOS follows four core intentions:
+
+1. **Agent Empowerment**: AI agents should accomplish real tasks, not just provide information
+2. **User Sovereignty**: Users should own and control their AI infrastructure  
+3. **Practical Implementation**: Working solutions over theoretical frameworks
+4. **Content Liberation**: Any content should be analyzable by AI immediately
+
+Every feature, principle, and workflow serves these intentions.
 
 ## 🤝 Contributing
 
@@ -61,5 +68,9 @@ This system grows through real-world usage. To contribute:
 2. **Propose changes against core intentions** - does this serve our four intentions?
 3. **Test on different machines** - ensure portability
 4. **Share working workflows** - add proven playbooks
+
+## 📋 License
+
+MIT License - Use freely, modify as needed, make it your own.
 
  

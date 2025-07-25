@@ -53,23 +53,23 @@ if [ -z "$ONTHESPOT_DIR" ]; then
     if [ -z "$ONTHESPOT_DIR" ] || [ ! -d "$ONTHESPOT_DIR" ]; then
         echo "📁 Installing OnTheSpot locally..."
         REPO_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-        LOCAL_ONTHESPOT="$REPO_DIR/apps/onthespot"
+        LOCAL_ONTHESPOT="$REPO_DIR/content/apps/onthespot"
         
-        mkdir -p "$REPO_DIR/apps"
-        cd "$REPO_DIR/apps"
+        mkdir -p "$REPO_DIR/content/apps"
+        cd "$REPO_DIR/content/apps"
         
         if git clone https://github.com/casualsnek/onthespot; then
             cd onthespot
             python3 -m venv onthespot_env
             source onthespot_env/bin/activate
             pip install -r requirements.txt
-            echo "✅ OnTheSpot installed locally to apps/onthespot"
+            echo "✅ OnTheSpot installed locally to content/apps/onthespot"
             ONTHESPOT_DIR="$LOCAL_ONTHESPOT"
         else
             echo "❌ Failed to install OnTheSpot automatically"
             echo "📋 Manual installation options:"
             echo "1. Brew (if available): brew tap casual-snek/onthespot && brew install onthespot"
-            echo "2. Local: cd apps && git clone https://github.com/casualsnek/onthespot"
+            echo "2. Local: cd content/apps && git clone https://github.com/casualsnek/onthespot"
             echo "3. Manual: Install to ~/Applications/onthespot"
             exit 1
         fi

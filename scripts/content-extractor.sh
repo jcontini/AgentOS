@@ -14,101 +14,78 @@ function load_config() {
     # Auto-detect repo directory (parent of scripts dir)
     REPO_DIR="$(dirname "$SCRIPT_DIR")"
     
-    # Set defaults (relative to repo) - simplified single source of truth
-    DOWNLOADS_BASE="$REPO_DIR/downloads"
+    # Set defaults - scripts auto-detect repo location
     YOUTUBE_SCRIPT="$REPO_DIR/scripts/youtube-transcript.sh"
     SPOTIFY_SCRIPT="$REPO_DIR/scripts/spotify-transcript.sh"
-    # Content organization within downloads
-    DOWNLOADS_TEXT="$DOWNLOADS_BASE/text"     # All transcripts
-    DOWNLOADS_AUDIO="$DOWNLOADS_BASE/audio"   # Audio files
-    DOWNLOADS_VIDEO="$DOWNLOADS_BASE/video"   # Video files  
-    # OnTheSpot defaults (will be determined by hybrid detection)
-    ONTHESPOT_DIR=""  # Will be detected
+    # Default content locations
+    CONTENT_TEXT="$REPO_DIR/content/text"     # All transcripts
+    CONTENT_AUDIO="$REPO_DIR/content/audio"   # Audio files
+    CONTENT_VIDEO="$REPO_DIR/content/video"   # Video files  
+    CONTENT_APPS="$REPO_DIR/content/apps"     # Local installations
+    # OnTheSpot location (hardcoded)
+    ONTHESPOT_DIR="$CONTENT_APPS/onthespot"
     
     # Try to load from YAML config if yq is available
     if command -v yq >/dev/null 2>&1 && [[ -f "$CONFIG_FILE" ]]; then
         echo "📄 Loading AgentOS config from $CONFIG_FILE"
         
-        # Get downloads base path
-        local downloads_base
-        downloads_base=$(yq eval '.base.downloads_base // "downloads"' "$CONFIG_FILE")
-        DOWNLOADS_BASE="$REPO_DIR/$downloads_base"
+        # Get content paths (support both relative and absolute)
+        local text_path audio_path video_path apps_path
+        text_path=$(yq eval '.content.text // "content/text"' "$CONFIG_FILE")
+        audio_path=$(yq eval '.content.audio // "content/audio"' "$CONFIG_FILE")
+        video_path=$(yq eval '.content.video // "content/video"' "$CONFIG_FILE")
+        apps_path=$(yq eval '.content.apps // "content/apps"' "$CONFIG_FILE")
         
-        # Build content organization paths
-        local text_dir audio_dir video_dir
-        text_dir=$(yq eval '.content.text // "text"' "$CONFIG_FILE") 
-        audio_dir=$(yq eval '.content.audio // "audio"' "$CONFIG_FILE")
-        video_dir=$(yq eval '.content.video // "video"' "$CONFIG_FILE")
-        
-        DOWNLOADS_TEXT="$DOWNLOADS_BASE/$text_dir"
-        DOWNLOADS_AUDIO="$DOWNLOADS_BASE/$audio_dir" 
-        DOWNLOADS_VIDEO="$DOWNLOADS_BASE/$video_dir"
-        
-        # Script paths (relative to repo)
-        local yt_script spotify_script
-        yt_script=$(yq eval '.scripts.youtube_transcript // "scripts/youtube-transcript.sh"' "$CONFIG_FILE")
-        spotify_script=$(yq eval '.scripts.spotify_transcript // "scripts/spotify-transcript.sh"' "$CONFIG_FILE")
-        
-        YOUTUBE_SCRIPT="$REPO_DIR/$yt_script"
-        SPOTIFY_SCRIPT="$REPO_DIR/$spotify_script"
-        
-        # OnTheSpot hybrid installation detection
-        local install_method brew_formula local_path manual_path download_path
-        install_method=$(yq eval '.tools.spotify.install_method // "auto"' "$CONFIG_FILE")
-        brew_formula=$(yq eval '.tools.spotify.brew_formula // "casual-snek/onthespot"' "$CONFIG_FILE")
-        local_path=$(yq eval '.tools.spotify.local_path // "apps/onthespot"' "$CONFIG_FILE")
-                 manual_path=$(yq eval '.tools.spotify.manual_path // "~/Applications/onthespot"' "$CONFIG_FILE" | sed "s|^~|$HOME|")
-        
-        # Determine OnTheSpot directory using hybrid pattern
-        if [[ "$install_method" == "auto" ]]; then
-            # Try brew first
-            if command -v brew >/dev/null 2>&1 && brew list "$brew_formula" >/dev/null 2>&1; then
-                ONTHESPOT_DIR="$(brew --prefix)/bin"
-                echo "🍺 Using brew-installed OnTheSpot"
-            # Try local path
-            elif [[ -d "$REPO_DIR/$local_path" ]]; then
-                ONTHESPOT_DIR="$REPO_DIR/$local_path"
-                echo "📁 Using local OnTheSpot: $ONTHESPOT_DIR"
-            # Fallback to manual path
-            elif [[ -d "$manual_path" ]]; then
-                ONTHESPOT_DIR="$manual_path"
-                echo "⚠️  Using manual OnTheSpot install: $ONTHESPOT_DIR"
-            else
-                echo "❌ OnTheSpot not found. Will attempt auto-install when needed."
-                ONTHESPOT_DIR=""
-            fi
-        elif [[ "$install_method" == "brew" ]]; then
-            ONTHESPOT_DIR="$(brew --prefix)/bin"
-        elif [[ "$install_method" == "local" ]]; then
-            ONTHESPOT_DIR="$REPO_DIR/$local_path"
-        elif [[ "$install_method" == "manual" ]]; then
-            ONTHESPOT_DIR="$manual_path"
+        # Convert relative paths to absolute (starting with repo root)
+        if [[ "$text_path" != /* ]]; then
+            CONTENT_TEXT="$REPO_DIR/$text_path"
+        else
+            CONTENT_TEXT="$text_path"
         fi
         
+        if [[ "$audio_path" != /* ]]; then
+            CONTENT_AUDIO="$REPO_DIR/$audio_path"
+        else
+            CONTENT_AUDIO="$audio_path"
+        fi
         
+        if [[ "$video_path" != /* ]]; then
+            CONTENT_VIDEO="$REPO_DIR/$video_path"
+        else
+            CONTENT_VIDEO="$video_path"
+        fi
+        
+        if [[ "$apps_path" != /* ]]; then
+            CONTENT_APPS="$REPO_DIR/$apps_path"
+        else
+            CONTENT_APPS="$apps_path"
+        fi
+        
+        # OnTheSpot location (always in apps folder)
+        ONTHESPOT_DIR="$CONTENT_APPS/onthespot"
         
         echo "🏠 Repo: $REPO_DIR"
-        echo "📁 Downloads: $DOWNLOADS_BASE"
+        echo "📁 Content: Custom paths from config"
     else
         if [[ ! -f "$CONFIG_FILE" ]]; then
             echo "⚠️  No config file found at $CONFIG_FILE, using defaults"
         elif ! command -v yq >/dev/null 2>&1; then
-            echo "⚠️  yq not found. Install with: brew install yq"
-            echo "   Using default settings for now"
+            echo "⚠️  yq not found, using default paths"
+            echo "   Edit config.yaml to customize content locations"
         fi
         echo "🏠 Repo: $REPO_DIR (auto-detected)"
-        echo "📁 Downloads: $DOWNLOADS_BASE (default)"
+        echo "📁 Content: $REPO_DIR/content/* (default)"
     fi
     
-    # Ensure download directories exist
-    mkdir -p "$DOWNLOADS_TEXT" "$DOWNLOADS_AUDIO" "$DOWNLOADS_VIDEO"
+    # Ensure content directories exist
+    mkdir -p "$CONTENT_TEXT" "$CONTENT_AUDIO" "$CONTENT_VIDEO" "$CONTENT_APPS"
 }
 
 function main() {
     load_config
     
     local url="$1"
-    local output_dir="${2:-$DOWNLOADS_TEXT}"
+    local output_dir="${2:-$CONTENT_TEXT}"
     
     if [[ -z "$url" ]]; then
         echo "Usage: $0 <url>"
@@ -140,7 +117,7 @@ function extract_youtube() {
         video_id=$(echo "$url" | sed -n 's/.*youtu\.be\/\([^?]*\).*/\1/p')
     fi
     
-    local cache_file="$DOWNLOADS_TEXT/youtube-$video_id.txt"
+    local cache_file="$CONTENT_TEXT/youtube-$video_id.txt"
     
     # Check cache
     if [[ -f "$cache_file" ]]; then
@@ -151,8 +128,8 @@ function extract_youtube() {
     
     echo "📺 Downloading and transcribing YouTube video..."
     
-    # Use configured script - it will save directly to downloads with smart filename
-    "$YOUTUBE_SCRIPT" "$url" "$DOWNLOADS_TEXT" "$video_id"
+    # Use configured script - it will save directly to content with smart filename
+    "$YOUTUBE_SCRIPT" "$url" "$CONTENT_TEXT" "$video_id"
     
     if [[ -f "$cache_file" ]]; then
         echo "✅ YouTube transcript saved: $cache_file"
@@ -169,7 +146,7 @@ function extract_spotify() {
     # Simple cache key based on URL hash
     local url_hash
     url_hash=$(echo "$url" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
-    local cache_file="$DOWNLOADS_TEXT/spotify-$url_hash.txt"
+    local cache_file="$CONTENT_TEXT/spotify-$url_hash.txt"
     
     # Check cache
     if [[ -f "$cache_file" ]]; then
@@ -180,8 +157,8 @@ function extract_spotify() {
     
     echo "🎵 Downloading and transcribing Spotify content..."
     
-    # Use configured script - it will save directly to downloads with smart filename
-    "$SPOTIFY_SCRIPT" "$url" "$DOWNLOADS_TEXT" "$DOWNLOADS_AUDIO" "$ONTHESPOT_DIR" "$url_hash"
+    # Use configured script - it will save directly to content with smart filename
+    "$SPOTIFY_SCRIPT" "$url" "$CONTENT_TEXT" "$CONTENT_AUDIO" "$ONTHESPOT_DIR" "$url_hash"
     
     if [[ -f "$cache_file" ]]; then
         echo "✅ Spotify transcript saved: $cache_file"
@@ -198,7 +175,7 @@ function extract_web() {
     # Simple cache key based on URL hash
     local url_hash
     url_hash=$(echo "$url" | shasum -a 256 | cut -d' ' -f1 | cut -c1-12)
-    local cache_file="$DOWNLOADS_TEXT/web-$url_hash.txt"
+    local cache_file="$CONTENT_TEXT/web-$url_hash.txt"
     
     # Check cache
     if [[ -f "$cache_file" ]]; then
