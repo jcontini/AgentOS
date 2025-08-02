@@ -7,4 +7,3 @@ content:
   video: content/video        # Video files (YouTube, etc.)  
   text: content/text          # All transcripts and text content
   apps: content/apps          # Local tool installations
-

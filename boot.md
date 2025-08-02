@@ -54,6 +54,9 @@ The biggest friction in AI workflows is getting content into AI context. Remove 
 - **Protect User Privacy** *(`User Sovereignty`)*
   - Never create public repositories without explicit confirmation.
 
+- **Enforce Security Playbooks** *(`Agent Empowerment`, `User Sovereignty`)*
+  - Always follow security playbooks for high-risk operations like MCP installation, never bypass for convenience.
+
 ## 🎯 Decision Filters
 
 When making any choice, ask:
@@ -98,15 +101,30 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
     - `[USER]` "Remind me to follow up on the playbook feedback."
     - `[ASSISTANT]` `mcp_todoist_create_task: content="Follow up on playbook feedback" labels=["ai-tasks"]`
 
-
+---
 
 ### **Playbook: Install New MCP**
-- **Rationale:** Following the `install-mcp.md` playbook ensures new tools are installed in a way that prevents supply chain attacks and maintains offline portability.
+- **Rationale:** MCP servers handle API keys and system access, making them high-risk for supply chain attacks. This playbook ensures secure installation with proper package verification.
+- **Keywords:** `MCP`, `Model Context Protocol`, `mcp-server`, `install MCP`, `add MCP`, `configure MCP`
+- **Action:**
+    1. **PAUSE**: Never install/recommend MCP packages without verification
+    2. **Verify Official Source**: Check maintainer has official domain email (@company.com)
+    3. **Check Repository**: Ensure package repository belongs to official organization
+    4. **Cross-Reference Documentation**: Verify package is listed in official docs
+    5. **Prefer Hosted Solutions**: Use official remote servers when available (e.g., `https://mcp.company.ai/`)
+    6. **Document Decision**: Note verification steps taken and why package was chosen
+    7. **Security Checklist**:
+       - [ ] Maintainer email domain verified
+       - [ ] Official repository confirmed  
+       - [ ] Listed in official documentation
+       - [ ] Hosted solution evaluated first
+       - [ ] Package authenticity documented
 - **Example:**
-    - `[USER]` "I need to interact with my Google Calendar."
-    - `[ASSISTANT]`
-        1. "I see you need to work with Google Calendar. To do that, I'll need to install the appropriate tool. I will follow the `install-mcp.md` playbook to ensure it's done safely."
-        2. *...follows steps outlined in `install-mcp.md`...*
+    - `[USER]` "The exa MCP doesn't seem to be properly activating."
+    - `[ASSISTANT]` "I see this involves MCP troubleshooting. Before recommending any packages, I need to follow our MCP security playbook to verify official sources and prevent supply chain attacks. Let me investigate the official exa MCP options..."
+      1. `npm info exa-mcp-server --json | jq '.maintainers, .repository'`
+      2. Search official Exa documentation for recommended installation
+      3. Document verification steps and choose secure solution
 
 ---
 
@@ -201,18 +219,15 @@ When performing these tasks, follow these specific playbooks. Each playbook incl
 
 ---
 
-### **Playbook: Content Extraction**
-- **Rationale:** The content extraction system handles YouTube, Spotify, and web content automatically. Using the unified script serves our Content Liberation intention by minimizing friction between "analyze this content" and "AI has content."
-- **Keywords:** `transcribe`, `extract`, `analyze content`, `YouTube`, `Spotify`, any URL
+### **Playbook: Spotify Content Extraction**
+- **Rationale:** Extract Spotify tracks and playlists for analysis.
+- **Keywords:** `spotify`, `music`, `playlist`, `track`
 - **Action:**
-    1. Use the unified content extractor: `./scripts/content-extractor.sh "URL"`
-    2. Read the extracted content file returned by the script
-    3. Provide analysis based on user's request
+    1. For any Spotify URL, use: `./scripts/spotify-download.sh "URL"`
+    2. Wait for extraction to complete
 - **Example:**
-    - `[USER]` "Analyze this YouTube video: https://www.youtube.com/watch?v=xyz"
+    - `[USER]` "Analyze this Spotify track: https://open.spotify.com/track/xyz"
     - `[ASSISTANT]` 
-        1. `run_terminal_cmd: ./scripts/content-extractor.sh "https://www.youtube.com/watch?v=xyz"`
-        2. `read_file: [returned_transcript_path]`
-        3. "✅ Content extracted. Here's my analysis: [analysis based on content]"
-
+        1. `run_terminal_cmd: ./scripts/spotify-download.sh "https://open.spotify.com/track/xyz"`
+        2. "✅ Track downloaded. Here's my analysis: [analysis based on track]"
 
