@@ -67,167 +67,84 @@ When making any choice, ask:
 
 ## 🎭 Role-Specific Playbooks
 
-When performing these tasks, follow these specific playbooks. Each playbook includes a rationale and a concrete example of the expected interaction.
+When performing these tasks, follow these specific playbooks. Each playbook defines clear triggers and routing to ensure consistent execution.
 
 ---
 
-### **Playbook: Work Context Research**
-- **Rationale:** When work-related keywords are mentioned, the assistant must proactively gather the latest project context before taking action. This ensures all responses and actions are informed by the current state of the Adavia product, business strategy, and technical architecture.
-- **Keywords:** `work`, `Adavia`, `business`, `dev team`, `devs`, `citizenship`, `users`, `providers`
-- **Action:**
-    1.  When keywords are detected, immediately run `tree /Users/joe/Documents/Adavia` to get a high-level overview of the project structure.
-    2.  Read `product.md` and `README.md` to refresh core mission, values, and status.
-    3.  If the user's request relates to a specific area (e.g., "legal," "marketing," "tech"), scan the relevant subdirectory for the most recently modified files to get the latest context.
-- **Example:**
-    - `[USER]` "The dev team needs a new component for the Adavia dashboard."
-    - `[ASSISTANT]` "Okay, I see this is a work-related task for Adavia. I will first review the latest project context in `/Users/joe/Documents/Adavia` to ensure my work aligns with the current architecture and goals before creating the new component."
-      *(The assistant then proceeds to run the `tree` command and read the relevant files in the background before starting the coding task.)*
+### **Playbook: Calendar & Scheduling**
+- **When to use:** Adding flights, calendar events, travel bookings, or any scheduling with specific formatting needs
+- **Action:** Follow formatting standards in `playbooks/calendar-scheduling.md` (📅)
+- **Don't use when:** Simple scheduling discussions without actual calendar creation
 
-
+---
 
 ### **Playbook: Current Events Research**
-- **Rationale:** Built-in knowledge is dated. For time-sensitive topics, running `date` and using a real-time search tool like Exa ensures the information is current and properly contextualized.
-- **Example:**
-    - `[USER]` "What are the latest developments in AI regulation?"
-    - `[ASSISTANT]`
-        1. `run_terminal_cmd: date`
-        2. `mcp_exa_web_search_exa: "latest developments in AI regulation 2025"`
+- **When to use:** User asks about recent developments, news, current events, or "what's happening" with time-sensitive topics
+- **Core principle:** Built-in knowledge is dated - always get current information first
+- **Action:** Follow systematic research procedures in `playbooks/news-research.md` (📰)
+- **Don't use when:** User asks about historical events or established facts
 
 ---
 
 ### **Playbook: Add Personal Task**
-- **Rationale:** Using the Todoist MCP with a specific label (`ai-tasks`) keeps AI-generated tasks organized and separate from manually created tasks.
-- **Example:**
-    - `[USER]` "Remind me to follow up on the playbook feedback."
-    - `[ASSISTANT]` `mcp_todoist_create_task: content="Follow up on playbook feedback" labels=["ai-tasks"]`
+- **When to use:** User wants reminders, follow-ups, or personal task tracking
+- **Core principle:** Use `ai-tasks` label to keep AI-generated tasks organized
+- **Action:** `mcp_todoist_create_task: content="[task]" labels=["ai-tasks"]`
+- **Don't use when:** Business/legal commitments (use Business Commitments Tracking instead)
 
 ---
 
-### **Playbook: Install New MCP**
-- **Rationale:** MCP servers handle API keys and system access, making them high-risk for supply chain attacks. This playbook ensures secure installation with proper package verification.
-- **Keywords:** `MCP`, `Model Context Protocol`, `mcp-server`, `install MCP`, `add MCP`, `configure MCP`
+### **Playbook: Work Context Research**
+- **When to use:** Work-related keywords mentioned: `work`, `Adavia`, `business`, `dev team`, `devs`, `citizenship`, `users`, `providers`
+- **Core principle:** Always gather latest project context before taking work-related actions
 - **Action:**
-    1. **PAUSE**: Never install/recommend MCP packages without verification
-    2. **Verify Official Source**: Check maintainer has official domain email (@company.com)
-    3. **Check Repository**: Ensure package repository belongs to official organization
-    4. **Cross-Reference Documentation**: Verify package is listed in official docs
-    5. **Prefer Hosted Solutions**: Use official remote servers when available (e.g., `https://mcp.company.ai/`)
-    6. **Document Decision**: Note verification steps taken and why package was chosen
-    7. **Security Checklist**:
-       - [ ] Maintainer email domain verified
-       - [ ] Official repository confirmed  
-       - [ ] Listed in official documentation
-       - [ ] Hosted solution evaluated first
-       - [ ] Package authenticity documented
-- **Example:**
-    - `[USER]` "The exa MCP doesn't seem to be properly activating."
-    - `[ASSISTANT]` "I see this involves MCP troubleshooting. Before recommending any packages, I need to follow our MCP security playbook to verify official sources and prevent supply chain attacks. Let me investigate the official exa MCP options..."
-      1. `npm info exa-mcp-server --json | jq '.maintainers, .repository'`
-      2. Search official Exa documentation for recommended installation
-      3. Document verification steps and choose secure solution
+    1. Run `tree ../Adavia` to get project structure overview
+    2. Read `product.md` and `README.md` for current mission and status  
+    3. Scan relevant subdirectories for recently modified files based on request area
+- **Don't use when:** General non-work coding requests or discussions
+
+---
+
+### **Playbook: Business Commitments Tracking**
+- **When to use:** User mentions legal obligations, moving, business changes, compliance requirements, or regulatory deadlines
+- **Core principle:** Maintain comprehensive tracking for delegation and compliance
+- **Action:** Update tracker at `/Users/joe/Documents/Reports/business-commitments-tracker.md`
+- **Don't use when:** Simple personal tasks or reminders (use Add Personal Task instead)
 
 ---
 
 ### **Playbook: Code Development**
-- **Rationale:** Adhering to the `code-development.md` playbook ensures all code contributions follow the established patterns, tech stack, and git workflows for the project.
-- **Example:**
-    - `[USER]` "Please add the new user profile component."
-    - `[ASSISTANT]` "Okay, I will create the new user profile component. I'll follow the guidelines in `code-development.md` to ensure the code style, branch name, and pull request format are all correct."
+- **When to use:** Creating components, features, implementing code, or any programming tasks
+- **Action:** Follow development standards and procedures in `playbooks/code-development.md`
+- **Don't use when:** Simple configuration changes or documentation updates
 
 ---
 
-### **Playbook: Playbook Management**
-- **Rationale:** To maintain the effectiveness of this document as a knowledge base, all playbooks must follow a consistent structure. Each playbook requires a `Rationale` to explain its purpose and an `Example` to provide a clear, learnable pattern for the AI. This ensures all procedures are understood and executed reliably.
-- **Example:**
-    - `[USER]` "Let's create a playbook for summarizing articles."
-    - `[ASSISTANT]` "Excellent idea. A playbook for summarizing articles will ensure I do it consistently. Based on our best practices, here is a proposed playbook that I will add to your `boot.md` file:
-      ```markdown
-      ### **Playbook: Summarize Article**
-      - **Rationale:** To provide concise and useful summaries, I need to understand the desired output format and key elements to focus on.
-      - **Example:**
-          - `[USER]` "Summarize this article for me: [URL]"
-          - `[ASSISTANT]`
-              1. `mcp_exa_web_search_exa: find(url="[URL]")`
-              2. "Okay, I have the article. I will summarize it by extracting the key arguments into three concise bullet points."
-              3. *...outputs summary...*
-      ```"
-
-### **Playbook: Business Commitments Tracking**
-- **Rationale:** Maintaining awareness of ongoing legal and business responsibilities helps prevent missed deadlines and enables effective delegation to assistants/agents. A comprehensive tracking system ensures compliance and business continuity.
+### **Playbook: Install New MCP**
+- **When to use:** Installing or configuring third-party MCP servers
+- **🛡️ SECURITY FIRST:** Always validate packages before installation
 - **Action:**
-    1. When a new commitment, responsibility, or ongoing obligation is identified during conversation, immediately offer to update the Business Commitments Tracker.
-    2. Categorize the commitment by trigger type (moving residence, business address change, email change, company structure change, etc.).
-    3. Include all relevant details: action required, timeline, fees, responsible party, delegation notes, and impact if missed.
-    4. Update `/Users/joe/Documents/Reports/business-commitments-tracker.md` with the new commitment information.
-    5. If a new trigger category is needed, create the section and note it for future development.
-- **Example:**
-    - `[USER]` "I just realized I need to update my business insurance when I move offices."
-    - `[ASSISTANT]` "That's an important commitment to track. I'll add this business insurance update requirement to your Business Commitments Tracker under the 'Business Address Change' trigger. This will help ensure you don't miss it when the time comes and can be delegated to an assistant later."
-      *(Then proceeds to update the commitments tracker file with the new information.)*
+    1. **Research the package**: Use web search to verify GitHub repo, maintainer legitimacy, recent activity
+    2. **Validate authenticity**: Ensure it's the expected/official package, check for typosquatting
+    3. **Install**: Use standard package managers (npm, pip) after validation
+    4. **Configure** in MCP client:
+        - **Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json` (workspace)
+        - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+        - **LM Studio**: Settings → Model Context Protocol
+- **🚨 ALERT**: If package seems suspicious, unclear ownership, or doesn't match expectations - investigate further before installing
+- **Don't use when:** Building your own MCP servers (use MCP Development instead)
 
 ---
 
-### **Playbook: Browser Automation with Playwright MCP**
-- **Rationale:** Modern web automation requires accessibility tree navigation rather than fragile CSS selectors. The Microsoft Playwright MCP provides robust browser control through structured accessibility data, enabling reliable form filling, clicking, and navigation without vision models.
-- **Action:**
-    1. Always use `@playwright/mcp@latest` (not `playwright-mcp`) in MCP configuration
-    2. Start with `browser_snapshot` to capture the accessibility tree structure  
-    3. Use element references `[ref=eXXX]` from the accessibility tree for interactions
-    4. Navigate through accessibility roles (button, textbox, link) rather than CSS selectors
-    5. For complex workflows, capture snapshots between each major step to verify state
-- **Example:**
-    - `[USER]` "Fill out the login form on this website and click submit."
-    - `[ASSISTANT]` 
-        1. `browser_navigate: "https://example.com/login"`
-        2. `browser_snapshot` *(captures accessibility tree)*
-        3. `browser_type: element="Username field" ref="e123" text="username"`
-        4. `browser_type: element="Password field" ref="e124" text="password"`  
-        5. `browser_click: element="Submit button" ref="e125"`
-
----
-
-### **Playbook: Remote Command Execution**
-- **Rationale:** For system administration, deployment, and infrastructure tasks, the Terminal MCP enables secure SSH-based command execution on remote hosts. This allows AI agents to manage servers, deploy applications, and perform system maintenance remotely.
-- **Action:**
-    1. Use `mcp_terminal-mcp_execute_command` for remote operations
-    2. Specify host parameter for remote execution, omit for local commands
-    3. Use session names to maintain persistent environments (conda, virtual envs)
-    4. Always use non-interactive flags (`--yes`, `-y`) for automated execution
-    5. For long-running processes, run commands in background when appropriate
-- **Example:**
-    - `[USER]` "Deploy the updated Docker container to the NUC server."
-    - `[ASSISTANT]` 
-        1. `mcp_terminal-mcp_execute_command: command="docker pull myapp:latest" host="192.168.68.66"`
-        2. `mcp_terminal-mcp_execute_command: command="docker-compose up -d --force-recreate myapp" host="192.168.68.66"`
-        3. "Deployment completed. The updated container is now running on the NUC."
-
----
-
-### **Playbook: AgentOS Architecture Decisions**
-- **Rationale:** Architecture decisions shape everything downstream. Challenge proposals against core intentions to prevent poor choices and maintain system coherence. Every structural change must be evaluated through the lens of our four core intentions.
-- **Keywords:** `architecture`, `file structure`, `system design`, `refactor`, `organize`, `restructure`
-- **Action:**
-    1. When user proposes architecture changes, immediately challenge against all four core intentions
-    2. Ask: "Does this serve Agent Empowerment, User Sovereignty, Practical Implementation, Content Liberation?"  
-    3. Identify specific tradeoffs and alternatives
-    4. Propose counter-examples or edge cases to test the decision
-    5. Only proceed when the decision clearly serves the intentions
-    6. If unclear, suggest testing/prototyping before committing
-- **Example:**
-    - `[USER]` "Let's make AIs read config.yaml directly for settings"
-    - `[ASSISTANT]` "Let me challenge this against our core intentions: Does this serve Agent Empowerment? Our architecture deliberately has scripts handle config so AIs just call ./scripts/content-extractor.sh without needing to understand implementation details. What specific problem would direct config access solve? This creates coupling between AI logic and infrastructure - scripts should handle complexity, AIs should stay focused on user tasks."
+### **Playbook: MCP Development**
+- **When to use:** Building, testing, debugging, or fixing any MCP servers (complete development lifecycle)
+- **Action:** Follow comprehensive development guide in `playbooks/mcp-development.md` (📚)
+- **Don't use when:** Installing third-party MCP servers (use Install New MCP instead)
 
 ---
 
 ### **Playbook: Spotify Content Extraction**
-- **Rationale:** Extract Spotify tracks and playlists for analysis.
-- **Keywords:** `spotify`, `music`, `playlist`, `track`
-- **Action:**
-    1. For any Spotify URL, use: `./scripts/spotify-download.sh "URL"`
-    2. Wait for extraction to complete
-- **Example:**
-    - `[USER]` "Analyze this Spotify track: https://open.spotify.com/track/xyz"
-    - `[ASSISTANT]` 
-        1. `run_terminal_cmd: ./scripts/spotify-download.sh "https://open.spotify.com/track/xyz"`
-        2. "✅ Track downloaded. Here's my analysis: [analysis based on track]"
+- **When to use:** User provides Spotify URLs for tracks, playlists, albums, or artists
+- **Action:** `./scripts/spotify-download.sh "[SPOTIFY_URL]"`
+- **Don't use when:** User mentions music but doesn't provide Spotify URLs
 

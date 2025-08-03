@@ -1,8 +1,8 @@
-# MCP Development Playbook
+# MCP Development, Testing & Debugging Playbook
 
-This playbook defines the preferred approach for developing Model Context Protocol (MCP) servers based on proven patterns and user preferences.
+Comprehensive guide for developing, testing, and debugging Model Context Protocol (MCP) servers based on proven patterns and user preferences.
 
-**📖 To confirm you've read this playbook, prefix your response with "📚"**
+**📚 To confirm you've read this playbook, prefix your response with "📚"**
 
 ## 🎯 Core Philosophy
 
@@ -12,17 +12,22 @@ This playbook defines the preferred approach for developing Model Context Protoc
 
 **Modern Stack**: Always use latest versions and modern best practices.
 
+**Iterative Development**: Build → Test → Debug → Fix → Repeat - integrate testing and debugging as core parts of development workflow.
+
 ## 📁 Project Structure (Preferred)
 
 ```
 project-name-mcp/
 ├── src/
 │   └── index.ts          # Everything goes here
+├── test/
+│   └── testing.md        # Testing protocols only
+│   └── results/          # Test results (optional)
 ├── package.json
 ├── tsconfig.json
 ├── .gitignore            # Comprehensive AI tool + development ignores
 ├── README.md
-└── [tool-specific config]   # See Development Environment Setup below
+└── .cursor/mcp.json      # Development config
 ```
 
 **Anti-pattern**: Avoid complex folder structures with separate `/tools`, `/resources`, `/api` folders unless absolutely necessary.
@@ -69,22 +74,12 @@ server.run().catch(console.error);
 - **Meaningful errors**: Return helpful error messages
 - **Consistent responses**: Use standard success/error format
 
-## 🧪 Testing Requirements
-
-Create `testing.md` file with instructions for real MCP client testing in Cursor:
-1. **Schema validation**: Verify tool definitions load correctly
-2. **Functionality tests**: Step-by-step tool calls with expected outputs
-3. **Error conditions**: Test auth failures, invalid inputs, edge cases
-4. **Build/restart cycle**: Instructions for rebuilding and restarting MCP process
-
-**Testing Workflow**: Build → Test in Cursor → Iterate → Repeat
-
-## 🔧 Development Workflow
+## 🔧 Development Environment Setup
 
 ### 1. Research Latest Docs
 Before starting, use Context7 MCP to get latest documentation for any libraries/frameworks used.
 
-### 2. Development Environment Setup
+### 2. AI Coding Tool Configuration
 
 Different AI coding tools use different permission/approval systems. Configure based on your tool:
 
@@ -121,64 +116,55 @@ Different AI coding tools use different permission/approval systems. Configure b
 }
 ```
 
-**Benefits**: 
-- User only clicks "yes" twice at start of session
-- Full autonomy for remainder of development
-- No interruptions for permission requests
-- Self-documenting through the settings file
+### 3. MCP Configuration
 
-**Note**: Permissions are session-bound and may not persist between sessions, but this approach minimizes friction.
+**Configuration Location Priority:**
+1. **Workspace-level**: `.cursor/mcp.json` (preferred for development)
+2. **Global**: `~/.cursor/mcp.json` (for production tools)
 
-#### General Principle
-Always configure your AI coding tool for maximum autonomy while maintaining safety. Most tools support some form of pre-approval for common development commands.
+**Required Configuration Structure:**
+```json
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "node",
+      "args": ["/absolute/path/to/dist/index.js"],
+      "env": {
+        "API_KEY": "your-staging-api-key",
+        "BACKEND_URL": "http://localhost:3011"
+      }
+    }
+  }
+}
+```
 
-### 3. Package Management
+### 4. Package Management
 - Always use latest versions in `package.json`
 - Include proper scripts: `build`, `test`, `dev`
 - Use TypeScript with strict configuration
 
-### 4. Git Configuration
-Create comprehensive `.gitignore` for MCP development:
-```gitignore
-# Node.js
-node_modules/
-dist/
-build/
-*.log
+### 5. Git Configuration
+Create comprehensive `.gitignore` for MCP development
 
-# AI Coding Tool Configs
-.claude/
-.codex/
-.gemini/
-.cursor/
-.vscode/
-.idea/
+## 🧪 Iterative Development Workflow
 
-# Database Files
-*.db
-*.kz
+### Build & Development Cycle
 
-# Environment & Secrets
-.env
-.env.local
-.env.*.local
+```bash
+# Always build before testing
+npm install
+npm run build
 
-# OS Generated
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Verify TypeScript compilation
+npx tsc --noEmit
+
+# Test server starts (optional validation)
+node dist/index.js
 ```
 
-### 5. Documentation
-- **README**: Follow user's README principles (no code duplication, show don't tell)
-- **Tool descriptions**: Rich, helpful schemas with examples
-- **Error messages**: Clear and actionable
+**Core Workflow**: Build → Test in Cursor → Debug → Fix → Repeat
 
-## 🚀 Deployment Patterns
+## 🚀 Deployment & Integration
 
 ### Local Development
 ```bash
@@ -203,57 +189,53 @@ node dist/index.js
 **LM Studio** (Settings → Model Context Protocol):
 - Add server with command: `node /path/to/your-mcp/dist/index.js`
 
-**Testing with AI Coding Tools**: Most CLI-based AI tools (Claude Code, Codex CLI, Gemini CLI) can interact with MCP servers when properly configured in their respective clients.
+## 📝 Documentation Best Practices
 
-## ❌ Anti-Patterns to Avoid
+### README.md Standards
 
-- **Over-engineering**: Multiple files/folders for simple MCPs
-- **Resource-heavy**: Prefer tools over resources 
-- **Enterprise patterns**: Avoid abstractions for simple projects
-- **Complex build processes**: Keep it simple
-- **Outdated dependencies**: Always use latest versions
+**Evergreen Content Principles:**
+- ❌ **Avoid**: Status badges, version numbers, recent updates
+- ❌ **Avoid**: Test results, fix histories, temporal references
+- ❌ **Avoid**: "All tools working!" or implementation details
+- ✅ **Include**: What it does, how to use it, setup instructions
+- ✅ **Include**: Tool categories and purposes
+- ✅ **Include**: Example workflows and usage patterns
 
-## ✅ Success Patterns
+**README Template Structure:**
+```markdown
+# Project Name
 
-- **Single file with everything**: Like people MCP
-- **Clear tool naming**: Descriptive and unambiguous  
-- **Rich error handling**: Helpful messages
-- **Modern TypeScript**: Latest features and strict mode
-- **Comprehensive permissions**: Pre-approve everything
-- **Real-world testing**: Test with actual MCP clients
+Brief description of what it does.
 
-## 🔍 Troubleshooting
+## What It Does
+Usage-focused explanation with examples.
 
-1. **Use Exa search** for recent issues/discussions
-2. **Check GitHub issues** for MCP SDK problems
-3. **Validate schemas** with actual MCP client
-4. **Test incrementally** - build tools one at a time
+## Setup
+1. Install dependencies
+2. Configure MCP client  
+3. Start using
 
-## 💡 Code Writing Philosophy
+## Available Tools
+| Category | Tools | What They Do |
+|----------|-------|-------------|
 
-### Be Solution-Oriented
-- Never say "I can't" - research web for solutions first
-- Use web search (preferably Exa) for rapidly changing topics like MCP SDK updates
-- Move beyond static responses to actively take actions
+## Key Features
+- Capability descriptions (not implementation details)
+```
 
-### Simplicity Principles  
-- Default to minimal approaches until complexity demands modularization
-- Avoid enterprise patterns and abstractions for simple projects
-- Focus on functionality to test hypotheses, not production robustness
+### Testing Documentation
 
-### Non-Interactive Development
-- Always use non-interactive flags (`--yes`, `--no-edit`, `--force`) 
-- AI assistants cannot handle interactive prompts
-- Research command documentation for automation options
+**test/testing.md Purpose:**
+- Testing protocols and procedures
+- Setup and validation steps
+- Troubleshooting commands
+- Expected behaviors and error conditions
+- **NOT for**: Test results, status updates, fix histories
 
-### Testing for Prototypes
-- No unit/integration tests for quick prototypes
-- Focus on CLI testing (cURL, debug logs, functionality validation)
-- Real MCP client testing (Cursor, Claude Desktop, LM Studio) over simulated testing
-- Build → Test → Iterate workflow using actual MCP clients
+**Separate Test Results:**
+- Keep test results in `test/results/` or similar
+- Use timestamped files for historical tracking
+- Don't mix protocols with results
 
-This playbook prioritizes developer velocity and maintainability over enterprise patterns.
 
 ---
-
-**📚 Additional Context**: Also read `../user.md` for comprehensive user preferences and development context. 
