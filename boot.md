@@ -145,6 +145,7 @@ When performing these tasks, follow these specific playbooks. Each playbook defi
 
 ### **Playbook: YouTube Content Extraction**
 - **When to use:** User requests transcript/video of YouTube video or provides YouTube URL with `@` prefix
+- **Working directory:** Ensure you're in the AgentOS root directory (where boot.md is located)
 - **Actions:**
   - **Transcript only:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
   - **Video + transcript:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`

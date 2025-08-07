@@ -1,9 +1,0 @@
-# AgentOS Content Extraction Configuration
-# Edit paths below to customize where content gets stored
-
-# Content locations (relative to repo or absolute paths)
-content:
-  audio: content/audio        # Audio files (Spotify, podcasts, etc.)
-  video: content/video        # Video files (YouTube, etc.)  
-  text: content/text          # All transcripts and text content
-  apps: content/apps          # Local tool installations
