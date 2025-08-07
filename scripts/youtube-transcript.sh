@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# YouTube Transcription Script - Pure Function
-# Usage: ./youtube-transcript.sh "URL" "TEXT_DIR" "VIDEO_ID"
-# Called by content-extractor.sh with proper paths
+# YouTube Transcription Script - Simplified
+# Usage: ./youtube-transcript.sh "YOUTUBE_URL"
 
 # Check arguments
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    echo "Error: Missing required arguments"
-    echo "Usage: $0 'https://youtube.com/watch?v=...' '/path/to/text/dir' 'video_id'"
-    echo "Note: This script is typically called by content-extractor.sh"
+if [ -z "$1" ]; then
+    echo "Error: Missing YouTube URL"
+    echo "Usage: $0 'https://youtube.com/watch?v=...'"
     exit 1
 fi
 
-# Get arguments (no config loading needed)
+# Get URL and extract video ID
 VIDEO_URL="$1"
-TEXT_DIR="$2"
-VIDEO_ID="$3"
+VIDEO_ID=$(echo "$VIDEO_URL" | sed -n 's/.*[?&]v=\([^&]*\).*/\1/p')
+
+if [ -z "$VIDEO_ID" ]; then
+    echo "Error: Could not extract video ID from URL"
+    exit 1
+fi
+
+# Set up directories relative to script location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEXT_DIR="$SCRIPT_DIR/../content/youtube/transcripts"
 
 # Ensure output directory exists
 mkdir -p "$TEXT_DIR"
 
-# Final output file (cache-friendly filename)
-FINAL_OUTPUT="$TEXT_DIR/youtube-$VIDEO_ID.txt"
+# Final output file (will be set after getting title)
 
 
 
@@ -42,6 +47,9 @@ if [ -z "$TITLE" ]; then
 fi
 
 echo "Processing video: $TITLE"
+
+# Set final output filename using title (no prefix needed in dedicated directory)
+FINAL_OUTPUT="$TEXT_DIR/$TITLE.txt"
 
 # Create temp directory for processing
 TEMP_DIR=$(mktemp -d)

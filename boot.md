@@ -143,6 +143,14 @@ When performing these tasks, follow these specific playbooks. Each playbook defi
 
 ---
 
+### **Playbook: YouTube Transcription**
+- **When to use:** User requests transcript of YouTube video or provides YouTube URL with `@` prefix or asks to "transcribe"
+- **Action:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
+- **Content Liberation:** Immediately read the generated transcript file for analysis
+- **Don't use when:** User just mentions YouTube without requesting transcription
+
+---
+
 ### **Playbook: Spotify Content Extraction**
 - **When to use:** User provides Spotify URLs for tracks, playlists, albums, or artists
 - **Action:** `./scripts/spotify-download.sh "[SPOTIFY_URL]"`
