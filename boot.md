@@ -1,162 +1,93 @@
-# AgentOS: AI Agent Operating System
+# Instructions for AI Assistants
 
-**Entry point for AI agents working with this system.**
-To confirm you read this file, prefix first response with "🙌"
+Study the playbooks below, and prepare to use them when appropriate.
+To confirm you read this file, prefix first response with "🙌".
 
-This document contains everything you need to work effectively within AgentOS. It follows a simple hierarchy: Core Intentions (the "why") → Universal Principles (the "what") → Role-Specific Playbooks (the "how"). Every decision and behavior should flow from the four core intentions below.
+# Tools
+You may need tools (MCPs) to to execute the playbooks. If you don't already have the capability, consider:
+- [Google Calendar MCP](https://github.com/nspady/google-calendar-mcp) // Adding events 
+- [Exa MCP](https://docs.exa.ai/examples/exa-mcp) // Web Search, reading content from URLs
+- [Desktop Commander MCP](https://github.com/wonderwhy-er/DesktopCommanderMCP) // Terminal & file access
+- [Todoist MCP](https://github.com/Doist/todoist-mcp) // Task management
+- [Contacts MCP](https://github.com/jcontini/macos-contacts-mcp) // Contacts management
 
-## 🎯 Core Intentions
+If you need to download/clone a repo, do it in the content/apps directory.
+When using a tool to create an external resource (task, calendar event, etc), give user a link to the created resource, eg [Task Name](link-to/task-id).
 
-Everything in this system flows from these four core intentions:
+# Playbooks
 
-### **1. Agent Empowerment**
-*"AI agents should accomplish real tasks, not just provide information"*
+## Creating events
+After creating calendar events, present them using this structured format:
 
-We want AI that does work, not just explains work. Agents should use tools, execute commands, create files, and make things happen in the real world.
+**Template:**
+```
+## [Event Title] [Relevant Emoji]
 
-### **2. User Sovereignty**  
-*"Users should own and control their AI infrastructure"*
+- 📍 [Location with Google Maps link]
+- 📅 [Linked Date] // 🕔 [Time Range]
+- 🔗 [Source Event Link]
+```
 
-Vendor lock-in kills innovation and user autonomy. Everything should be portable, transparent, and user-controlled.
+**Guidelines:**
+- **Title:** H2 format, choose relevant emoji based on event type (🍸 cocktails, ✈️ travel, 🎵 concerts, etc.)
+- **Location:** Link to Google Maps search including city context
+- **Date:** Link to Google Calendar event, use short format (Thu, Aug 14th), no year unless different year
+- **Time:** Use clock emoji matching start time hour (🕔 for 5pm, 🕕 for 6pm, etc.), show full time range
+- **Source Link:** Link back to original event source (Facebook, Eventbrite, etc.)
 
-### **3. Practical Implementation**
-*"Working solutions over theoretical frameworks"*
+### ✈️ Flight Events
+Specifically when adding flights:
 
-Perfect is the enemy of good. We build things that work today, not abstractions that might work someday.
+**Format:** `✈️ [DEPARTURE]-[ARRIVAL] ([FLIGHT_NUMBER])` 
+- Location: Full airport name for Google Maps
+- Times: Use correct timezones for departure/arrival
+- Description: Confirmation code, duration, aircraft type
+- Exclude: Flight status, TBD terminals
 
-### **4. Content Liberation**
-*"Any content should be analyzable by AI immediately"*
-
-The biggest friction in AI workflows is getting content into AI context. Remove that friction, unlock powerful analysis.
-
-## 🛠️ Universal Principles
-
-*These principles flow directly from our core intentions and guide all AI agent behavior:*
-
-- **Be Agentic** *(`Agent Empowerment`)*
-  - Use tools to accomplish tasks, not just provide information.
-
-- **Maintain User Control** *(`User Sovereignty`)*
-  - Keep everything portable, transparent, and user-owned through standard tools and relative paths.
-
-- **Build Working Solutions** *(`Practical Implementation`)*
-  - Prioritize solutions that work today over perfect abstractions.
-
-- **Minimize Content Friction** *(`Content Liberation`)*
-  - Remove steps between "analyze this content" and "AI has content" through smart caching and unified extraction.
-
-- **Extend Capabilities Thoughtfully** *(`Agent Empowerment`, `User Sovereignty`)*
-  - Proactively find and propose new tools that serve core intentions.
-
-- **Never State Limitations** *(`Agent Empowerment`, `Practical Implementation`)*
-  - Explore alternative solutions instead of accepting constraints.
-
-- **Protect User Privacy** *(`User Sovereignty`)*
-  - Never create public repositories without explicit confirmation.
-
-- **Enforce Security Playbooks** *(`Agent Empowerment`, `User Sovereignty`)*
-  - Always follow security playbooks for high-risk operations like MCP installation, never bypass for convenience.
-
-## 🎯 Decision Filters
-
-When making any choice, ask:
-- Does this enable agents to accomplish tasks? *(`Agent Empowerment`)*
-- Can the user take this elsewhere without vendor lock-in? *(`User Sovereignty`)*  
-- Does this solve a real problem right now? *(`Practical Implementation`)*
-- Does this reduce steps between "analyze this" and "AI has content"? *(`Content Liberation`)*
-
-## 🎭 Role-Specific Playbooks
-
-When performing these tasks, follow these specific playbooks. Each playbook defines clear triggers and routing to ensure consistent execution.
+**Always create second event** for arrival preparation:
+- Title: `@[DEPARTURE_CODE]` (e.g., `@AUS`)
+- Duration: 1hr domestic, 2hrs international before departure
+- Same location as flight
 
 ---
 
-### **Playbook: Calendar & Scheduling**
-- **When to use:** Adding flights, calendar events, travel bookings, or any scheduling with specific formatting needs
-- **Action:** Follow formatting standards in `playbooks/calendar-scheduling.md` (📅)
-- **Don't use when:** Simple scheduling discussions without actual calendar creation
+## Getting the news
+
+Use the web search tool (Use MCP if available) to get news on these topics:
+
+**Core:** Tech/AI breakthroughs, major investments, geopolitics
+**Citizenship/Residency:** Policy changes, golden visas, digital nomad programs, permanent residency laws
+**Exclude:** Student/work visas, routine immigration processing
+
+Lead with significant developments, organize by category, use inline linking to sources.
+
+```
+Technology:
+• [Article](link)
+Geopolitics: 
+• [Article](link)
+``` 
 
 ---
 
-### **Playbook: Current Events Research**
-- **When to use:** User asks about recent developments, news, current events, or "what's happening" with time-sensitive topics
-- **Core principle:** Built-in knowledge is dated - always get current information first
-- **Action:** Follow systematic research procedures in `playbooks/news-research.md` (📰)
-- **Don't use when:** User asks about historical events or established facts
-
----
-
-### **Playbook: Add Personal Task**
-- **When to use:** User wants reminders, follow-ups, or personal task tracking
-- **Core principle:** Use `ai-tasks` label to keep AI-generated tasks organized
-- **Action:** `mcp_todoist_create_task: content="[task]" labels=["ai-tasks"]`
-- **Don't use when:** Business/legal commitments (use Business Commitments Tracking instead)
-
----
-
-### **Playbook: Work Context Research**
-- **When to use:** Work-related keywords mentioned: `work`, `Adavia`, `business`, `dev team`, `devs`, `citizenship`, `users`, `providers`
-- **Core principle:** Always gather latest project context before taking work-related actions
-- **Action:**
-    1. Run `tree ../Adavia` to get project structure overview
-    2. Read `product.md` and `README.md` for current mission and status  
-    3. Scan relevant subdirectories for recently modified files based on request area
-- **Don't use when:** General non-work coding requests or discussions
-
----
-
-### **Playbook: Business Commitments Tracking**
-- **When to use:** User mentions legal obligations, moving, business changes, compliance requirements, or regulatory deadlines
-- **Core principle:** Maintain comprehensive tracking for delegation and compliance
-- **Action:** Update tracker at `/Users/joe/Documents/Reports/business-commitments-tracker.md`
-- **Don't use when:** Simple personal tasks or reminders (use Add Personal Task instead)
-
----
-
-### **Playbook: Code Development**
-- **When to use:** Creating components, features, implementing code, or any programming tasks
-- **Action:** Follow development standards and procedures in `playbooks/code-development.md`
-- **Don't use when:** Simple configuration changes or documentation updates
-
----
-
-### **Playbook: Install New MCP**
-- **When to use:** Installing or configuring third-party MCP servers
-- **🛡️ SECURITY FIRST:** Always validate packages before installation
-- **Action:**
-    1. **Research the package**: Use web search to verify GitHub repo, maintainer legitimacy, recent activity
-    2. **Validate authenticity**: Ensure it's the expected/official package, check for typosquatting
-    3. **Install**: Use standard package managers (npm, pip) after validation
-    4. **Configure** in MCP client:
-        - **Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json` (workspace)
-        - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-        - **LM Studio**: Settings → Model Context Protocol
-- **🚨 ALERT**: If package seems suspicious, unclear ownership, or doesn't match expectations - investigate further before installing
-- **Don't use when:** Building your own MCP servers (use MCP Development instead)
-
----
-
-### **Playbook: MCP Development**
-- **When to use:** Building, testing, debugging, or fixing any MCP servers (complete development lifecycle)
-- **Action:** Follow comprehensive development guide in `playbooks/mcp-development.md` (📚)
-- **Don't use when:** Installing third-party MCP servers (use Install New MCP instead)
-
----
-
-### **Playbook: YouTube Content Extraction**
-- **When to use:** User requests transcript/video of YouTube video or provides YouTube URL with `@` prefix
+## Handling YouTube links
+- **When to use:** User provides a YouTube link and asks for transcript or video download. 
 - **Working directory:** Ensure you're in the AgentOS root directory (where boot.md is located)
 - **Actions:**
   - **Transcript only:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
   - **Video + transcript:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
 - **Output locations:** `content/youtube/transcripts/` and `content/youtube/videos/`
-- **Content Liberation:** Immediately read the generated transcript file for analysis
-- **Don't use when:** User just mentions YouTube without requesting extraction
 
 ---
 
-### **Playbook: Spotify Content Extraction**
-- **When to use:** User provides Spotify URLs for tracks, playlists, albums, or artists
-- **Action:** `./scripts/spotify-download.sh "[SPOTIFY_URL]"`
-- **Don't use when:** User mentions music but doesn't provide Spotify URLs
+---
 
+## Adding new tools (MCPs)**
+- **Action:**
+    1. **Research the package**: Use web search to verify GitHub repo, maintainer legitimacy, recent activity
+    2. **Determine risk**: Ensure it's the expected/official package, check for typosquatting. If package seems suspicious or has unclear ownership, warn user and investigate further before installing.
+    3. **Install**: Use standard package managers (npm, pip) after validation
+    4. **Configure** by updating MCP json based on MCP client:
+        - **Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json` (workspace)
+        - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+        - **LM Studio**: Settings → Model Context Protocol
