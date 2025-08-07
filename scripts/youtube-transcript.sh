@@ -1,17 +1,28 @@
 #!/bin/bash
 
-# YouTube Transcription Script - Simplified
-# Usage: ./youtube-transcript.sh "YOUTUBE_URL"
+# YouTube Content Extraction Script
+# Usage: ./youtube-transcript.sh "YOUTUBE_URL" [--video]
+# Default: transcript only
+# --video: download both video and transcript
 
 # Check arguments
 if [ -z "$1" ]; then
     echo "Error: Missing YouTube URL"
-    echo "Usage: $0 'https://youtube.com/watch?v=...'"
+    echo "Usage: $0 'https://youtube.com/watch?v=...' [--video]"
+    echo "  Default: Download transcript only"
+    echo "  --video: Download both video and transcript"
     exit 1
 fi
 
-# Get URL and extract video ID
+# Parse arguments
 VIDEO_URL="$1"
+DOWNLOAD_VIDEO=false
+
+if [ "$2" = "--video" ]; then
+    DOWNLOAD_VIDEO=true
+fi
+
+# Extract video ID
 VIDEO_ID=$(echo "$VIDEO_URL" | sed -n 's/.*[?&]v=\([^&]*\).*/\1/p')
 
 if [ -z "$VIDEO_ID" ]; then
@@ -22,9 +33,13 @@ fi
 # Set up directories relative to script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEXT_DIR="$SCRIPT_DIR/../content/youtube/transcripts"
+VIDEO_DIR="$SCRIPT_DIR/../content/youtube/videos"
 
-# Ensure output directory exists
+# Ensure output directories exist
 mkdir -p "$TEXT_DIR"
+if [ "$DOWNLOAD_VIDEO" = true ]; then
+    mkdir -p "$VIDEO_DIR"
+fi
 
 # Final output file (will be set after getting title)
 
@@ -48,8 +63,9 @@ fi
 
 echo "Processing video: $TITLE"
 
-# Set final output filename using title (no prefix needed in dedicated directory)
-FINAL_OUTPUT="$TEXT_DIR/$TITLE.txt"
+# Set final output filenames using title (no prefix needed in dedicated directory)
+TRANSCRIPT_OUTPUT="$TEXT_DIR/$TITLE.txt"
+VIDEO_OUTPUT="$VIDEO_DIR/$TITLE.%(ext)s"
 
 # Create temp directory for processing
 TEMP_DIR=$(mktemp -d)
@@ -100,11 +116,24 @@ BEGIN {
 # Clean up the SRT file
 rm "${TITLE}.en.srt"
 
-# Move to final location with cache-friendly filename
-mv "${TITLE}.txt" "$FINAL_OUTPUT"
+# Move transcript to final location
+mv "${TITLE}.txt" "$TRANSCRIPT_OUTPUT"
+
+# Download video if requested
+if [ "$DOWNLOAD_VIDEO" = true ]; then
+    echo "Downloading video..."
+    cd "$VIDEO_DIR"
+    yt-dlp -f "best[height<=1080]" -o "$TITLE.%(ext)s" "$VIDEO_URL"
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ Video saved to: $VIDEO_DIR/$TITLE.*"
+    else
+        echo "❌ Video download failed"
+    fi
+fi
 
 # Clean up temp directory
 cd /
 rm -rf "$TEMP_DIR"
 
-echo "✅ Transcript saved to: $FINAL_OUTPUT" 
+echo "✅ Transcript saved to: $TRANSCRIPT_OUTPUT" 

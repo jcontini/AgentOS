@@ -143,11 +143,14 @@ When performing these tasks, follow these specific playbooks. Each playbook defi
 
 ---
 
-### **Playbook: YouTube Transcription**
-- **When to use:** User requests transcript of YouTube video or provides YouTube URL with `@` prefix or asks to "transcribe"
-- **Action:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
+### **Playbook: YouTube Content Extraction**
+- **When to use:** User requests transcript/video of YouTube video or provides YouTube URL with `@` prefix
+- **Actions:**
+  - **Transcript only:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
+  - **Video + transcript:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
+- **Output locations:** `content/youtube/transcripts/` and `content/youtube/videos/`
 - **Content Liberation:** Immediately read the generated transcript file for analysis
-- **Don't use when:** User just mentions YouTube without requesting transcription
+- **Don't use when:** User just mentions YouTube without requesting extraction
 
 ---
 

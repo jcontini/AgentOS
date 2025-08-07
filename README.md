@@ -1,76 +1,49 @@
 # AgentOS: AI Agent Operating System
 
-**AI agents that extract content and accomplish real tasks.**
+## ⚡ What This Lets You Do
 
-Transform any content into AI-analyzable format. YouTube videos, Spotify podcasts, web articles → automatic transcription and extraction → instant AI analysis. Plus a complete framework for AI agent behavior, principles, and workflows.
+### 📺 YouTube
+Paste any YouTube link and ask your AI to transcribe or download it:
+- **"Transcribe this video"** → Gets transcript, saves to `content/youtube/transcripts/`
+- **"Download this video"** → Gets video + transcript, saves to `content/youtube/videos/`
 
-## 🔄 How It Works
-
-### **AI Agent Workflow**
-1. **Boot Sequence**: AI reads `boot.md` to understand core intentions, principles, and available playbooks
-2. **Task Recognition**: AI matches user requests to role-specific playbooks 
-3. **Content Processing**: When content analysis is needed, AI calls `./scripts/content-extractor.sh "URL"`
-4. **Analysis**: AI reads extracted content from `content/` and provides analysis
-
-### **Folder Structure & Purpose**
-- **`playbooks/`**: Proven workflows for common tasks (MCP installation, code development, etc.)
-- **`scripts/`**: Automation tools that handle technical complexity (content extraction, transcription)
-- **`content/`**: All user-generated content (`audio/`, `video/`, `text/`, `apps/`) - yours to keep or manage as needed
-- **`boot.md`**: Complete AI agent operating instructions - the single entry point for understanding the system
-
-### **The Key Insight**
-Instead of explaining your preferences every conversation, AI agents read `boot.md` once and understand how to work with your system. Content extraction happens automatically when needed. Everything stays portable and under your control.
+### 🎵 Spotify  
+Paste any Spotify link and ask your AI to extract it:
+- **"Extract this track/podcast"** → Downloads audio, saves to `content/audio/`
+- Works with tracks, playlists, albums, podcasts
 
 ## ⚙️ Setup
 
-**No manual setup required!** Scripts auto-install dependencies when first run:
-- **OnTheSpot**: Auto-installs via brew or local git clone
-- **Whisper**: Provides install instructions if missing (`pip install openai-whisper`)
-- **yt-dlp**: Provides install instructions if missing (`pip install yt-dlp`)
-- **FFmpeg**: Provides install instructions if missing (`brew install ffmpeg`)
+**Requirements**:
+- ✅ Desktop AI apps with terminal access on your computer
+- ❌ This will no work with ChatGPT.com or other AI websites
 
-**Optional customization**: Edit `config.yaml` to customize paths, quality settings, etc. Scripts work with sensible defaults without any changes.
+**Examples of supported AI apps:**
+- **[Cursor IDE](https://cursor.com/)** (built-in terminal access)
+- **[Claude Desktop](https://claude.ai/download)** (with files MCP)
+- **[LM Studio](https://lmstudio.ai/)** (with files MCP)
 
-## 🤖 AI Platform Support
+If you need to empower your AI with terminal/file access, check out [Desktop Commander MCP](https://desktopcommander.app/).
 
-| Platform | Prerequisites | Setup Location |
-|----------|---------------|----------------|
-| ✅ **[Cursor IDE](https://cursor.com/)** | Built-in file access | Settings → AI → System Prompt |
-| ✅ **[Claude Desktop](https://claude.ai/download)** | [Desktop Commander MCP](https://desktopcommander.app/) | Settings → Custom Instructions |
-| ✅ **[OpenWebUI](https://openwebui.com/)** | [MCPO proxy](https://github.com/open-webui/mcpo) + MCPs | Settings → System Prompt |
-| ❌ **[ChatGPT Web](https://chatgpt.com/)** | Web-based - no file access | N/A |
-| ❌ **[Claude Web](https://claude.ai/)** | Web-based - no file access | N/A |
-
-**Setup Instructions**: Add this to your AI system prompt:
+**Setup**: Add this to your AI system prompt (replace with your actual path):
 ```
-🛑 STOP! Tell user: "🥾 Booting up..."
-Read `/Users/joe/Documents/ai/boot.md` before responding to their query.
+🛑 STOP! Respond "🥾 Booting up..."
+First use a tool to read `/Users/joe/dev/ai/boot.md`, and then respond.
 ```
 
-**Verification**: When setup correctly, AI will start responses with 🥾
+**That's it!** Dependencies auto-install when first used. Your AI now knows how to extract and analyze any content.
 
-## 🎭 Core Philosophy
+**Verification**: If the AI responds to your initial message with "🥾 Booting up..." then you know it's working.
 
-AgentOS follows four core intentions:
+## 🛠️ Customization
 
-1. **Agent Empowerment**: AI agents should accomplish real tasks, not just provide information
-2. **User Sovereignty**: Users should own and control their AI infrastructure  
-3. **Practical Implementation**: Working solutions over theoretical frameworks
-4. **Content Liberation**: Any content should be analyzable by AI immediately
+Want to modify how your AI works? Edit these key files:
 
-Every feature, principle, and workflow serves these intentions.
+- **`boot.md`**: Add new playbooks, modify AI behavior, change core principles
+- **`playbooks/`**: Create workflows for new tasks (MCP installation, code development, etc.)
+- **`scripts/`**: Add support for new platforms or modify extraction logic
+- **`config.yaml`**: Customize file paths, quality settings, and preferences
 
-## 🤝 Contributing
-
-This system grows through real-world usage. To contribute:
-
-1. **Use it for actual work** - find what breaks or could be better
-2. **Propose changes against core intentions** - does this serve our four intentions?
-3. **Test on different machines** - ensure portability
-4. **Share working workflows** - add proven playbooks
-
-## 📋 License
-
-MIT License - Use freely, modify as needed, make it your own.
+Everything is designed to be easily modified and extended for your specific needs.
 
  
