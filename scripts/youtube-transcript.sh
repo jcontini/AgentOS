@@ -63,9 +63,12 @@ fi
 
 echo "Processing video: $TITLE"
 
-# Set final output filenames using title (no prefix needed in dedicated directory)
-TRANSCRIPT_OUTPUT="$TEXT_DIR/$TITLE.txt"
-VIDEO_OUTPUT="$VIDEO_DIR/$TITLE.%(ext)s"
+# Get current date in YYYY-MM-DD format
+CURRENT_DATE=$(date +%Y-%m-%d)
+
+# Set final output filenames with date prefix
+TRANSCRIPT_OUTPUT="$TEXT_DIR/${CURRENT_DATE}_$TITLE.txt"
+VIDEO_OUTPUT="$VIDEO_DIR/${CURRENT_DATE}_$TITLE.%(ext)s"
 
 # Create temp directory for processing
 TEMP_DIR=$(mktemp -d)
@@ -123,10 +126,10 @@ mv "${TITLE}.txt" "$TRANSCRIPT_OUTPUT"
 if [ "$DOWNLOAD_VIDEO" = true ]; then
     echo "Downloading video..."
     cd "$VIDEO_DIR"
-    yt-dlp -f "best[height<=1080]" -o "$TITLE.%(ext)s" "$VIDEO_URL"
+    yt-dlp -f "best[height<=1080]" -o "${CURRENT_DATE}_$TITLE.%(ext)s" "$VIDEO_URL"
     
     if [ $? -eq 0 ]; then
-        echo "✅ Video saved to: $VIDEO_DIR/$TITLE.*"
+        echo "✅ Video saved to: $VIDEO_DIR/${CURRENT_DATE}_$TITLE.*"
     else
         echo "❌ Video download failed"
     fi

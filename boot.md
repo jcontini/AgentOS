@@ -3,23 +3,29 @@
 Study the playbooks below, and prepare to use them when appropriate.
 To confirm you read this file, prefix first response with "🙌".
 
-# Tools
-You may need tools (MCPs) to to execute the playbooks. If you don't already have the capability, consider:
-- [Google Calendar MCP](https://github.com/nspady/google-calendar-mcp) // Adding events 
-- [Exa MCP](https://docs.exa.ai/examples/exa-mcp) // Web Search, reading content from URLs
-- [Desktop Commander MCP](https://github.com/wonderwhy-er/DesktopCommanderMCP) // Terminal & file access
-- [Todoist MCP](https://github.com/Doist/todoist-mcp) // Task management
-- [Contacts MCP](https://github.com/jcontini/macos-contacts-mcp) // Contacts management
-
-If you need to download/clone a repo, do it in the content/apps directory.
-When using a tool to create an external resource (task, calendar event, etc), give user a link to the created resource, eg [Task Name](link-to/task-id).
-
 # Playbooks
+
+## Getting user context / profile
+
+**When to use:** User asks you to read specific context (personal, work, profile, etc)
+
+**Actions:** Read profile.md in the same directory
+
+---
+
+## Writing reports
+
+**When to use:** User asks for a report, analysis, or research summary
+
+**Actions:**
+1. Create markdown report in `content/reports/` folder
+2. Use lowercase filename with underscores (e.g., `YYYY-MM-DD_report-topic.md`)
+3. Follow structure: Summary → Key Findings → Detailed Sections → Sources
+
 
 ## Creating events
 After creating calendar events, present them using this structured format:
 
-**Template:**
 ```
 ## [Event Title] [Relevant Emoji]
 
@@ -51,9 +57,19 @@ Specifically when adding flights:
 
 ---
 
+## Searching the web
+
+When user mentions specific platforms, optimize search strategy:
+- **Domain focus:** Restrict to target site (youtube.com, github.com, docs.site.com, etc.)
+- **Search quality:** Use advanced/deep search options when available
+- **Result limits:** 3-5 results for specific searches, more for research
+- **Score analysis:** Higher relevance scores usually indicate target content
+
+---
+
 ## Getting the news
 
-Use the web search tool (Use MCP if available) to get news on these topics:
+Use a web search tool to get news on these topics:
 
 **Core:** Tech/AI breakthroughs, major investments, geopolitics
 **Citizenship/Residency:** Policy changes, golden visas, digital nomad programs, permanent residency laws
@@ -62,17 +78,17 @@ Use the web search tool (Use MCP if available) to get news on these topics:
 Lead with significant developments, organize by category, use inline linking to sources.
 
 ```
-Technology:
-• [Article](link)
-Geopolitics: 
-• [Article](link)
+## Technology
+- [Article](link)
+## Geopolitics
+- [Article](link)
 ``` 
 
 ---
 
 ## Handling YouTube links
 - **When to use:** User provides a YouTube link and asks for transcript or video download. 
-- **Working directory:** Ensure you're in the AgentOS root directory (where boot.md is located)
+- **Working directory:** Ensure you're in the working directory (where boot.md is located)
 - **Actions:**
   - **Transcript only:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
   - **Video + transcript:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
@@ -80,14 +96,28 @@ Geopolitics:
 
 ---
 
----
+## Installing anything from the internet (plugins, extensions, libraries, MCPs)
 
-## Adding new tools (MCPs)**
-- **Action:**
-    1. **Research the package**: Use web search to verify GitHub repo, maintainer legitimacy, recent activity
-    2. **Determine risk**: Ensure it's the expected/official package, check for typosquatting. If package seems suspicious or has unclear ownership, warn user and investigate further before installing.
-    3. **Install**: Use standard package managers (npm, pip) after validation
-    4. **Configure** by updating MCP json based on MCP client:
-        - **Cursor**: `~/.cursor/mcp.json` or `.cursor/mcp.json` (workspace)
-        - **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-        - **LM Studio**: Settings → Model Context Protocol
+- **Rule 0**: No `curl | bash`. Present a plan before executing.
+- **Verify identity**: Exact name matches official docs; maintainer/org match; healthy activity.
+- **Plan**: name, ecosystem, official URL, version (pin), exact commands, install scope.
+- **Execute**: Use non-interactive flags; pin versions (npm/pnpm/yarn exact, pip `==`, brew formula).
+- **Untrusted/new**: Clone to temp and scan for postinstall/eval/network/fs/obfuscation/native bins.
+- **MCP locations**: Cursor global `~/.cursor/mcp.json`; workspace `.cursor/mcp.json`; Claude `~/Library/Application Support/Claude/claude_desktop_config.json`.
+- **MCP edit**: Propose minimal JSON diff first; then apply; restart client.
+- **Verify**: `npm ls <pkg>` / `uv pip show <pkg>` / `brew info <formula>` / `<cmd> --version`.
+- **Rollback**: `npm uninstall` / `uv pip uninstall` / `brew uninstall` / revert JSON edits.
+- **Auto-fail**: name mismatch, suspicious postinstall, publisher mismatch, abandoned repo.
+
+## Using Tools
+You may need tools to to execute the playbooks. Instead of saying that you are unable to do something:
+
+1. Try to use MCPs. If you don't have access to one, propose installing one to the user.
+   - [Google Calendar MCP](https://github.com/nspady/google-calendar-mcp) // Adding events 
+   - [Tavily MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/tavily) // Web search, crawling, content extraction
+   - [Desktop Commander MCP](https://github.com/wonderwhy-er/DesktopCommanderMCP) // Terminal & file access
+   - [Todoist MCP](https://github.com/Doist/todoist-mcp) // Task management
+   - [Contacts MCP](https://github.com/jcontini/macos-contacts-mcp) // Contacts management
+2. Try to use the script in {WORKING_DIR} as instructed, eg `cd {WORKING_DIR} && ./scripts/{script w params}`
+
+When using a tool to create an external resource (task, calendar event, etc), give user a link to the created resource, eg [Task Name](link-to/task-id).
