@@ -21,19 +21,19 @@ Get detailed profile and company information from emails and domains:
 - ✅ Desktop AI apps with terminal access on your computer
 - ❌ This will no work with ChatGPT.com or other AI websites
 
-**Examples of supported AI apps:**
-- **[Cursor IDE](https://cursor.com/)** (built-in terminal)
-- **[Claude Desktop](https://claude.ai/download)** (with MCP)
-- **[LM Studio](https://lmstudio.ai/)** (with MCP)
+**Examples of supported AI apps (with terminal MCP):**
+- **[Cursor](https://cursor.com/)** (built-in terminal)
+- **[Raycast AI](https://raycast.com/ai)**
+- **[Claude Desktop](https://claude.ai/download)**
+- **[LM Studio](https://lmstudio.ai/)**
 
-If you need to empower your AI with terminal access, check out [Desktop Commander MCP](https://desktopcommander.app/).
+If you need to empower your AI with terminal access, check out [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
 
 **Setup**: Add this to your AI system prompt (replace with your actual path):
 ```
-🛑 STOP! Respond "🥾 Booting up..."
-WORKING_DIR=/Users/joe/dev/ai
-Use a tool to read `boot.md` in the working dir before responding.
-When running a script, run `cd {WORKING_DIR} && ./scripts/{script w params}`
+Stop! Before responding, try to read `/Users/joe/dev/ai/boot.md` using an MCP.
+If you can't, just prefix your first response with "📳". 
+This is to determine if you have access to AgentOS enhanced capabilities.
 ```
 
 **That's it!** Dependencies auto-install when first used. Your AI now knows how to extract and analyze any content.
