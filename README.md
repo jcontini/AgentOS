@@ -7,6 +7,14 @@ Paste any YouTube link and ask your AI to transcribe or download it:
 - **"Transcribe this video"** → Gets transcript, saves to `content/youtube/transcripts/`
 - **"Download this video"** → Gets video + transcript, saves to `content/youtube/videos/`
 
+### 🔍 Email & Domain Enrichment
+Get detailed profile and company information from emails and domains:
+- **"Tell me about name@company.com"** → Gets LinkedIn profile, work history, education
+- **"Look up company.com"** → Gets company details, logo, employee count
+- **"Find the logo for company.com"** → Gets company logo and branding
+
+*Requires [Enrich.so](https://enrich.so) API key*
+
 ## ⚙️ Setup
 
 **Requirements**:
@@ -29,6 +37,12 @@ When running a script, run `cd {WORKING_DIR} && ./scripts/{script w params}`
 ```
 
 **That's it!** Dependencies auto-install when first used. Your AI now knows how to extract and analyze any content.
+
+**Environment Setup** (Optional): For enrichment features, create a `.env` file in the project root:
+```bash
+# Add your API keys (optional - only needed for specific features)
+ENRICH_SO_API_KEY=your_enrich_so_api_key_here
+```
 
 **Verification**: If the AI responds to your initial message with "🥾 Booting up..." then you know it's working.
 
