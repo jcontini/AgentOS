@@ -158,7 +158,7 @@ When running scripts or traversing folders
 - **Output locations:** `content/youtube/transcripts/` and `content/youtube/videos/`
 
 ### Enrich person or company information
-- **When to use:** Need to lookup contact details, company info, or validate emails/domains
+- **When to use:** Need to lookup contact details, company info, or validate emails/domains/LinkedIn profiles
 - **Actions:**
   - **Email to profile:** `./scripts/enrich.sh --email "user@domain.com"` (default)
   - **Email to phone:** `./scripts/enrich.sh --email "user@domain.com" --type phone`
@@ -166,5 +166,7 @@ When running scripts or traversing folders
   - **Domain to company:** `./scripts/enrich.sh --domain "company.com"` (default)
   - **Domain to logo:** `./scripts/enrich.sh --domain "company.com" --type logo`
   - **IP to company:** `./scripts/enrich.sh --ip "1.2.3.4"`
+  - **LinkedIn person profile:** `./scripts/enrich.sh --linkedin "linkedin.com/in/username"` (default: person)
+  - **LinkedIn company profile:** `./scripts/enrich.sh --linkedin "linkedin.com/company/companyname" --type company`
 - **Output:** JSON data to stdout (parse for structured information)
 - **Requirements:** ENRICH_SO_API_KEY set in .env file

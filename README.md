@@ -12,6 +12,7 @@ Get detailed profile and company information from emails and domains:
 - **"Tell me about name@company.com"** → Gets LinkedIn profile, work history, education
 - **"Look up company.com"** → Gets company details, logo, employee count
 - **"Find the logo for company.com"** → Gets company logo and branding
+- **"Tell me about linkedin.com/in/username"** → Gets person or company profile from LinkedIn URL
 
 *Requires [Enrich.so](https://enrich.so) API key*
 

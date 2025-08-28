@@ -4,6 +4,7 @@
 # Usage: ./enrich.sh --email "user@domain.com" [--type profile|phone|disposable]
 #        ./enrich.sh --domain "company.com" [--type company|logo] 
 #        ./enrich.sh --ip "1.2.3.4"
+#        ./enrich.sh --linkedin "linkedin.com/in/username" [--type person|company]
 # Outputs JSON directly to stdout for AI consumption
 
 # Set script directory and find .env file
@@ -54,6 +55,21 @@ validate_ip() {
     local ip="$1"
     if [[ ! "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         echo "Error: Invalid IP format: $ip" >&2
+        return 1
+    fi
+    return 0
+}
+
+# Function to validate LinkedIn URL format
+validate_linkedin() {
+    local linkedin_url="$1"
+    # Remove protocol if present and normalize
+    linkedin_url=$(echo "$linkedin_url" | sed 's|^https\?://||' | sed 's|^www\.||')
+    
+    # Check for valid LinkedIn URL patterns
+    if [[ ! "$linkedin_url" =~ ^linkedin\.com/in/[A-Za-z0-9._-]+/?$ ]] && [[ ! "$linkedin_url" =~ ^linkedin\.com/company/[A-Za-z0-9._-]+/?$ ]]; then
+        echo "Error: Invalid LinkedIn URL format: $linkedin_url" >&2
+        echo "Expected format: linkedin.com/in/username or linkedin.com/company/companyname" >&2
         return 1
     fi
     return 0
@@ -151,6 +167,20 @@ ip_to_company() {
     make_api_call "/ip-to-company-lookup?ip=$ip" "IP to company lookup"
 }
 
+# LinkedIn enrichment function
+linkedin_profile_lookup() {
+    local linkedin_url="$1"
+    local type="$2"
+    
+    # Remove protocol if present and normalize
+    linkedin_url=$(echo "$linkedin_url" | sed 's|^https\?://||' | sed 's|^www\.||')
+    
+    # URL encode the LinkedIn URL for the API call
+    local encoded_url=$(printf '%s' "$linkedin_url" | sed 's| |%20|g')
+    
+    make_api_call "/linkedin-by-url?url=$encoded_url&type=$type" "LinkedIn profile lookup"
+}
+
 # Function to show usage
 show_usage() {
     echo "Enrichment Script - Multi-purpose data enrichment using enrich.so API"
@@ -159,6 +189,7 @@ show_usage() {
     echo "  $0 --email 'user@domain.com' [--type profile|phone|disposable]"
     echo "  $0 --domain 'company.com' [--type company|logo]"
     echo "  $0 --ip '1.2.3.4'"
+    echo "  $0 --linkedin 'linkedin.com/in/username' [--type person|company]"
     echo ""
     echo "Email enrichment:"
     echo "  $0 --email 'john@company.com' --type profile     # Get full profile (default)"
@@ -171,6 +202,10 @@ show_usage() {
     echo ""
     echo "IP enrichment:"
     echo "  $0 --ip '86.92.60.221'                           # Get company from IP"
+    echo ""
+    echo "LinkedIn enrichment:"
+    echo "  $0 --linkedin 'linkedin.com/in/williamhgates' --type person    # Get person profile (default)"
+    echo "  $0 --linkedin 'linkedin.com/company/microsoft' --type company  # Get company profile"
     echo ""
     echo "Options:"
     echo "  --type TYPE      Specify enrichment type (see examples above)"
@@ -188,6 +223,7 @@ show_usage() {
 EMAIL=""
 DOMAIN=""
 IP=""
+LINKEDIN=""
 TYPE=""
 
 # Parse arguments
@@ -203,6 +239,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --ip)
             IP="$2"
+            shift 2
+            ;;
+        --linkedin)
+            LINKEDIN="$2"
             shift 2
             ;;
         --type)
@@ -226,13 +266,14 @@ input_count=0
 if [ -n "$EMAIL" ]; then ((input_count++)); fi
 if [ -n "$DOMAIN" ]; then ((input_count++)); fi
 if [ -n "$IP" ]; then ((input_count++)); fi
+if [ -n "$LINKEDIN" ]; then ((input_count++)); fi
 
 if [ $input_count -eq 0 ]; then
-    echo "Error: Must provide one of --email, --domain, or --ip" >&2
+    echo "Error: Must provide one of --email, --domain, --ip, or --linkedin" >&2
     show_usage
     exit 1
 elif [ $input_count -gt 1 ]; then
-    echo "Error: Can only provide one of --email, --domain, or --ip" >&2
+    echo "Error: Can only provide one of --email, --domain, --ip, or --linkedin" >&2
     show_usage
     exit 1
 fi
@@ -311,4 +352,26 @@ if [ -n "$IP" ]; then
     fi
     
     ip_to_company "$IP"
+fi
+
+# Process LinkedIn enrichment
+if [ -n "$LINKEDIN" ]; then
+    if ! validate_linkedin "$LINKEDIN"; then
+        exit 1
+    fi
+    
+    # Set default type if not specified
+    if [ -z "$TYPE" ]; then
+        TYPE="person"
+    fi
+    
+    case "$TYPE" in
+        person|company)
+            linkedin_profile_lookup "$LINKEDIN" "$TYPE"
+            ;;
+        *)
+            echo "Error: Invalid type '$TYPE' for LinkedIn. Use: person, company" >&2
+            exit 1
+            ;;
+    esac
 fi
