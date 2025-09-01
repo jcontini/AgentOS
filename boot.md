@@ -3,6 +3,9 @@
 You are operating within AgentOS, an operating environment that aims to provide you with enhanced capabilities.
 To confirm you read this file, prefix first response with "🙌".
 
+## Working Directory Context
+All file operations (reading, writing, running scripts) should be performed relative to the directory containing this `boot.md` file. When in doubt, use `pwd` to confirm your current location and `cd` to this directory as needed.
+
 # My Context & Preferences
 
 - I'm Joe. Treat me as a technical peer and systems thinker.
@@ -11,13 +14,7 @@ To confirm you read this file, prefix first response with "🙌".
 - Use tables when comparing things, with entities as columns (max 5) and differentiating criteria as rows (min 10)
 - Feel free to use occasional humor (let me see your fun side). 
 
-If I ask you to get across more context, you can use:
-- `{BOOT_DIR}/profile.md` // my personal profile (philosophy, interests, background, etc)
-- `/Users/joe/Documents/Adavia` // my work folder
-  - `business.md` // company mission, values, strategy, legal info & assets, web presences
-  - `product.md` // product overview, ux design, key modules & features
-  - `tech.md` // infra, security, architecture, platform, deployment
-  - `ops.md` // SOPs (mostly for humans)
+If I ask you to do or research anything related to me or my personal preferences, or my work/company, first read my profile at `content/profile.md`
 
 ## Using Tools & MCPs
 You may need tools to to execute the playbooks. Instead of saying that you are unable to do something, try to use MCPs. 
@@ -75,7 +72,7 @@ Lead with significant developments, organize by category, use inline linking to 
 
 **Actions:**
 1. Run `date +%Y-%m-%d` to get current date for filename
-2. Create markdown report in `{BOOT_DIR}/content/reports/` folder (rel to this boot.md)
+2. Create markdown report in `content/reports/` folder
 3. Use lowercase filename with underscores (e.g., `YYYY-MM-DD_report-topic.md`)
 4. Follow structure: Summary → Key Findings → Detailed Sections → Sources
 
@@ -145,28 +142,25 @@ This prevents outdated examples, wrong endpoints, and incorrect usage patterns.
 
 ## Scripts
 
-When running scripts or traversing folders
-  - Unless otherwise directed, assume that the folder containing `boot.md` (this file) is the `{BOOT_DIR}`
-  - This may be different from other folders you're working in. If needed, use `pwd` or similar to get context.
-  - Try to use the script in {BOOT_DIR} as instructed, eg `cd {BOOT_DIR} && ./scripts/{script w params}`
+When running scripts, execute them from this directory (containing `boot.md`). Use relative paths like `scripts/script-name.sh`
 
 ### Handling YouTube links
 - **When to use:** I provide a YouTube link and ask for transcript or video download
 - **Actions:**
-  - **Transcript only:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
-  - **Video + transcript:** `./scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
+  - **Transcript only:** `scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
+  - **Video + transcript:** `scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
 - **Output locations:** `content/youtube/transcripts/` and `content/youtube/videos/`
 
 ### Enrich person or company information
 - **When to use:** Need to lookup contact details, company info, or validate emails/domains/LinkedIn profiles
 - **Actions:**
-  - **Email to profile:** `./scripts/enrich.sh --email "user@domain.com"` (default)
-  - **Email to phone:** `./scripts/enrich.sh --email "user@domain.com" --type phone`
-  - **Check disposable email:** `./scripts/enrich.sh --email "user@domain.com" --type disposable`
-  - **Domain to company:** `./scripts/enrich.sh --domain "company.com"` (default)
-  - **Domain to logo:** `./scripts/enrich.sh --domain "company.com" --type logo`
-  - **IP to company:** `./scripts/enrich.sh --ip "1.2.3.4"`
-  - **LinkedIn person profile:** `./scripts/enrich.sh --linkedin "linkedin.com/in/username"` (default: person)
-  - **LinkedIn company profile:** `./scripts/enrich.sh --linkedin "linkedin.com/company/companyname" --type company`
+  - **Email to profile:** `scripts/enrich.sh --email "user@domain.com"` (default)
+  - **Email to phone:** `scripts/enrich.sh --email "user@domain.com" --type phone`
+  - **Check disposable email:** `scripts/enrich.sh --email "user@domain.com" --type disposable`
+  - **Domain to company:** `scripts/enrich.sh --domain "company.com"` (default)
+  - **Domain to logo:** `scripts/enrich.sh --domain "company.com" --type logo`
+  - **IP to company:** `scripts/enrich.sh --ip "1.2.3.4"`
+  - **LinkedIn person profile:** `scripts/enrich.sh --linkedin "linkedin.com/in/username"` (default: person)
+  - **LinkedIn company profile:** `scripts/enrich.sh --linkedin "linkedin.com/company/companyname" --type company`
 - **Output:** JSON data to stdout (parse for structured information)
 - **Requirements:** ENRICH_SO_API_KEY set in .env file
