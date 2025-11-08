@@ -122,6 +122,13 @@ rm "${TITLE}.en.srt"
 # Move transcript to final location
 mv "${TITLE}.txt" "$TRANSCRIPT_OUTPUT"
 
+# Output transcript content to stdout
+echo ""
+echo "==================== TRANSCRIPT CONTENT ===================="
+cat "$TRANSCRIPT_OUTPUT"
+echo "============================================================"
+echo ""
+
 # Download video if requested
 if [ "$DOWNLOAD_VIDEO" = true ]; then
     echo "Downloading video..."
