@@ -89,25 +89,25 @@ When I ask you to create a report:
    - Remove old installs to avoid conflicts. Uninstall with the same tool if needed.
 
 ## Scripts
-When running scripts, execute them from this directory (containing `boot.md`). Use relative paths like `scripts/script-name.sh`
+Commands executed via the Terminal Controller already run from `/Users/joe/dev/ai/`. Do not run `cd`, `pwd`, or any command to inspect or change directories unless I explicitly tell you to. All scripts are located at `/Users/joe/dev/ai/scripts/` - always use full absolute paths like `/Users/joe/dev/ai/scripts/script-name.sh`.
 
 ### Handling YouTube links
 - **When to use:** I provide a YouTube link and ask for transcript or video download
 - **Actions:**
-  - **Transcript only:** `scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
-  - **Video + transcript:** `scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
-- **Output locations:** `content/youtube/transcripts/` and `content/youtube/videos/`
+  - **Transcript only:** `/Users/joe/dev/ai/scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
+  - **Video + transcript:** `/Users/joe/dev/ai/scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
+- **Output locations:** `/Users/joe/dev/ai/content/youtube/transcripts/` and `/Users/joe/dev/ai/content/youtube/videos/`
 
 ### Enrich person or company information
 - **When to use:** Need to lookup contact details, company info, or validate emails/domains/LinkedIn profiles
 - **Actions:**
-  - **Email to profile:** `scripts/enrich.sh --email "user@domain.com"` (default)
-  - **Email to phone:** `scripts/enrich.sh --email "user@domain.com" --type phone`
-  - **Check disposable email:** `scripts/enrich.sh --email "user@domain.com" --type disposable`
-  - **Domain to company:** `scripts/enrich.sh --domain "company.com"` (default)
-  - **Domain to logo:** `scripts/enrich.sh --domain "company.com" --type logo`
-  - **IP to company:** `scripts/enrich.sh --ip "1.2.3.4"`
-  - **LinkedIn person profile:** `scripts/enrich.sh --linkedin "linkedin.com/in/username"` (default: person)
-  - **LinkedIn company profile:** `scripts/enrich.sh --linkedin "linkedin.com/company/companyname" --type company`
+  - **Email to profile:** `/Users/joe/dev/ai/scripts/enrich.sh --email "user@domain.com"` (default)
+  - **Email to phone:** `/Users/joe/dev/ai/scripts/enrich.sh --email "user@domain.com" --type phone`
+  - **Check disposable email:** `/Users/joe/dev/ai/scripts/enrich.sh --email "user@domain.com" --type disposable`
+  - **Domain to company:** `/Users/joe/dev/ai/scripts/enrich.sh --domain "company.com"` (default)
+  - **Domain to logo:** `/Users/joe/dev/ai/scripts/enrich.sh --domain "company.com" --type logo`
+  - **IP to company:** `/Users/joe/dev/ai/scripts/enrich.sh --ip "1.2.3.4"`
+  - **LinkedIn person profile:** `/Users/joe/dev/ai/scripts/enrich.sh --linkedin "linkedin.com/in/username"` (default: person)
+  - **LinkedIn company profile:** `/Users/joe/dev/ai/scripts/enrich.sh --linkedin "linkedin.com/company/companyname" --type company`
 - **Output:** JSON data to stdout (parse for structured information)
 - **Requirements:** ENRICH_SO_API_KEY set in .env file
