@@ -4,8 +4,8 @@
 
 ### 📺 YouTube
 Paste any YouTube link and ask your AI to transcribe or download it:
-- **"Transcribe this video"** → Gets transcript, saves to `content/youtube/transcripts/`
-- **"Download this video"** → Gets video + transcript, saves to `content/youtube/videos/`
+- **"Transcribe this video"** → Gets transcript, saves to `user/youtube/transcripts/`
+- **"Download this video"** → Gets video + transcript, saves to `user/youtube/videos/`
 
 ### 🔍 Email & Domain Enrichment
 Get detailed profile and company information from emails and domains:
@@ -20,7 +20,7 @@ Get detailed profile and company information from emails and domains:
 
 **Requirements**:
 - ✅ Desktop AI apps with terminal access on your computer
-- ❌ This will no work with ChatGPT.com or other AI websites
+- ❌ This will not work with ChatGPT.com or other AI websites
 
 **Examples of supported AI apps (with terminal MCP):**
 - **[Cursor](https://cursor.com/)** (built-in terminal)
@@ -45,15 +45,17 @@ This is to determine if you have access to AgentOS enhanced capabilities.
 ENRICH_SO_API_KEY=your_enrich_so_api_key_here
 ```
 
-**Verification**: If the AI responds to your initial message with "🥾 Booting up..." then you know it's working.
+**Verification**: If the AI responds to your initial message with "🙌" then you know it's working.
 
 ## 🛠️ Customization
 
 Want to modify how your AI works? Edit these key files:
 
-- **`boot.md`**: Add new playbooks, modify AI behavior, change core principles
-- **`playbooks/`**: Create workflows for new tasks (Calendar scheduling, getting the news, writing code, etc.)
+- **`user/profile.md`**: Personal information, preferences, and user-specific context (private to you)
+- **`boot.md`**: General workflow instructions, tool usage, and system-wide behavior (shareable across users)
 - **`scripts/`**: Add support for new platforms or modify extraction logic
+
+**Key distinction**: `boot.md` contains general instructions that work for anyone, while `profile.md` contains personal information specific to you. When sharing or forking this project, keep your `profile.md` private.
 
 Everything is designed to be easily modified and extended for your specific needs.
 

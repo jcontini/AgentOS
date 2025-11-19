@@ -2,23 +2,12 @@
 You are operating within AgentOS at `/Users/joe/dev/ai/` - always start here.
 To confirm you read this file, prefix first response with "🙌".
 
-# Communication
-- I'm Joe. Treat me as a technical peer and systems thinker.
-- Be concise and accurate in your responses. Less is more.
-- Use tables when comparing things, with entities as columns (max 5) and differentiating criteria as rows (min 10)
-
-If I ask you anything related to the following, read my profile at `/Users/joe/dev/ai/content/profile.md` first before replying:
-- My work, team, product, or company (Adavia)
-- Create a calendar event  
-- Give me the news
-
 ## Using Tools & MCPs
 You may need tools to to execute the playbooks. Instead of saying that you are unable to do something, try to use MCPs. 
 If you don't have access to one, do some web research, and propose installing one.
    - [Context7 MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/context7) // API & library documentation lookup
    - [Google Calendar MCP](https://github.com/nspady/google-calendar-mcp) // Adding events 
    - [Tavily MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/tavily) // Web search, crawling, content extraction
-   - [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp) // Terminal & file access
    - [Todoist MCP](https://github.com/Doist/todoist-mcp) // Task management
    - [Contacts MCP](https://github.com/jcontini/macos-contacts-mcp) // Contacts management
 
@@ -39,7 +28,7 @@ When using a tool to create or find any external resource (task, event, webpage,
     - Useful for: footer content, embedded links, metadata, social media links
 
 ## Using the terminal
-- When trying to find a file, use `tree -L 3` instead of find or grep. It is much faster.
+- **NEVER use `grep` or `find` to locate files.** Always use `tree -L 3` instead. It is much faster and more reliable.
 
 ## Writing & Editing code
 When using an IDE like Cursor or VSCode:
@@ -63,7 +52,7 @@ When I ask you to create a report:
 
 1. Read my profile to get more context on me
 2. Run `date +%Y-%m-%d` to get current date for filename
-3. Create markdown report in `content/reports/` folder
+3. Create markdown report in `user/reports/` folder
 4. Use lowercase filename with underscores (e.g., `YYYY-MM-DD_report-topic.md`)
 5. Follow structure: Summary → Key Findings → Detailed Sections → Sources
 
@@ -89,14 +78,18 @@ When I ask you to create a report:
    - Remove old installs to avoid conflicts. Uninstall with the same tool if needed.
 
 ## Scripts
-Commands executed via the Terminal Controller already run from `/Users/joe/dev/ai/`. Do not run `cd`, `pwd`, or any command to inspect or change directories unless I explicitly tell you to. All scripts are located at `/Users/joe/dev/ai/scripts/` - always use full absolute paths like `/Users/joe/dev/ai/scripts/script-name.sh`.
+Commands run from `/Users/joe/dev/ai/`. Do not run `cd`, `pwd`, or any command to inspect or change directories unless I explicitly tell you to. 
+
+**Script locations:**
+- General scripts: `/Users/joe/dev/ai/scripts/` - always use full absolute paths like `/Users/joe/dev/ai/scripts/script-name.sh`
+- User-specific scripts: `/Users/joe/dev/ai/user/scripts/` - for personal scripts like backups, local schedules, etc.
 
 ### Handling YouTube links
 - **When to use:** I provide a YouTube link and ask for transcript or video download
 - **Actions:**
   - **Transcript only:** `/Users/joe/dev/ai/scripts/youtube-transcript.sh "[YOUTUBE_URL]"`
   - **Video + transcript:** `/Users/joe/dev/ai/scripts/youtube-transcript.sh "[YOUTUBE_URL]" --video`
-- **Output locations:** `/Users/joe/dev/ai/content/youtube/transcripts/` and `/Users/joe/dev/ai/content/youtube/videos/`
+- **Output locations:** `/Users/joe/dev/ai/user/youtube/transcripts/` and `/Users/joe/dev/ai/user/youtube/videos/`
 
 ### Enrich person or company information
 - **When to use:** Need to lookup contact details, company info, or validate emails/domains/LinkedIn profiles
