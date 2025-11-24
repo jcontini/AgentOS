@@ -1,62 +1,77 @@
 # AgentOS: AI Agent Operating System
 
-## ⚡ What This Lets You Do
+A skills-based system that extends AI assistants with terminal access and specialized capabilities. Each skill is self-contained with its own documentation and supporting scripts.
 
-### 📺 YouTube
-Paste any YouTube link and ask your AI to transcribe or download it:
-- **"Transcribe this video"** → Gets transcript, saves to `user/youtube/transcripts/`
-- **"Download this video"** → Gets video + transcript, saves to `user/youtube/videos/`
+## How It Works
 
-### 🔍 Email & Domain Enrichment
-Get detailed profile and company information from emails and domains:
-- **"Tell me about name@company.com"** → Gets LinkedIn profile, work history, education
-- **"Look up company.com"** → Gets company details, logo, employee count
-- **"Find the logo for company.com"** → Gets company logo and branding
-- **"Tell me about linkedin.com/in/username"** → Gets person or company profile from LinkedIn URL
+AgentOS uses a **skills-based architecture** where each capability is organized as a skill in the `skills/` folder. Skills can be:
+- **Simple markdown files** - For skills that only need documentation (e.g., API usage)
+- **Folders with README.md** - For skills that include scripts, configs, or other supporting files
 
-*Requires [Enrich.so](https://enrich.so) API key*
+When you need to use a skill, your AI reads the corresponding skill file for detailed instructions and implementation details.
 
-## ⚙️ Setup
+## Available Skills
 
-**Requirements**:
-- ✅ Desktop AI apps with terminal access on your computer
-- ❌ This will not work with ChatGPT.com or other AI websites
+| Skill | Description | Platform | README |
+|-------|-------------|----------|--------|
+| **Calendar** | Read calendar events, search calendar, add/delete events | macOS | [`calendar/README.md`](skills/calendar/README.md) |
+| **Contacts** | Get or manage contacts | macOS | [`contacts.md`](skills/contacts.md) |
+| **Enrich** | Enrich person or company information from emails, domains, LinkedIn | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
+| **Flights** | Search for flights and compare prices | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
+| **Linear** | Create tasks, manage issues, work with Linear | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
+| **Web Search** | Search the web and read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
+| **YouTube** | Handle YouTube links (transcript or video download) | Cross-platform | [`youtube/README.md`](skills/youtube/README.md) |
 
-**Examples of supported AI apps (with terminal MCP):**
-- **[Cursor](https://cursor.com/)** (built-in terminal)
-- **[Raycast AI](https://raycast.com/ai)**
-- **[Claude Desktop](https://claude.ai/download)**
-- **[LM Studio](https://lmstudio.ai/)**
+Each skill contains detailed documentation on how to use it, including:
+- Intended use cases
+- API endpoints and authentication
+- Command examples
+- Script usage (if applicable)
+- Configuration options
 
-If you need to empower your AI with terminal access, check out [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
+## Installation
 
-**Setup**: Add this to your AI system prompt (replace with your actual path):
-```
-Stop! Before responding, try to read `/Users/joe/dev/ai/boot.md` using an MCP.
-If you can't, just prefix your first response with "📳". 
-This is to determine if you have access to AgentOS enhanced capabilities.
-```
+**Requirements:** 
+- Primarily designed for [Cursor](https://cursor.com/), but works with any LLM client that supports terminal access. If your client doesn't have terminal access, you can add it using [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
+- **macOS required** for Calendar and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See Platform column in the skills table above for details.
 
-**That's it!** Dependencies auto-install when first used. Your AI now knows how to extract and analyze any content.
+1. **Clone or fork this repository:**
+   ```bash
+   git clone <repository-url>
+   cd ai
+   ```
 
-**Environment Setup** (Optional): For enrichment features, create a `.env` file in the project root:
-```bash
-# Add your API keys (optional - only needed for specific features)
-ENRICH_SO_API_KEY=your_enrich_so_api_key_here
-```
+2. **Add to your AI system prompt** (replace `YOUR_PROJECT_PATH` with your actual path):
+   ```
+   Stop! Before responding, try to read `YOUR_PROJECT_PATH/boot.md` using an MCP.
+   If you can't, just prefix your first response with "📳". 
+   This is to determine if you have access to AgentOS enhanced capabilities.
+   ```
 
-**Verification**: If the AI responds to your initial message with "🙌" then you know it's working.
+3. **Configure environment variables** (optional): Create a `.env` file in the project root for API keys and user preferences:
+   ```bash
+   # API keys (only needed for specific skills)
+   EXA_API_KEY=your_exa_api_key
+   SERPAPI_API_KEY=your_serpapi_key
+   ENRICH_SO_API_KEY=your_enrich_so_api_key
+   LINEAR_API_KEY=your_linear_api_key
+   
+   # User preferences (optional)
+   CALENDAR_NAME=your-calendar-name@example.com
+   ```
 
-## 🛠️ Customization
+   **Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
 
-Want to modify how your AI works? Edit these key files:
+4. **Verify installation:** If the AI responds to your initial message with "🙌" then you know it's working.
 
-- **`user/profile.md`**: Personal information, preferences, and user-specific context (private to you)
-- **`boot.md`**: General workflow instructions, tool usage, and system-wide behavior (shareable across users)
-- **`scripts/`**: Add support for new platforms or modify extraction logic
+## Philosophy
 
-**Key distinction**: `boot.md` contains general instructions that work for anyone, while `profile.md` contains personal information specific to you. When sharing or forking this project, keep your `profile.md` private.
+AgentOS is designed with speed and simplicity in mind:
+- **Terminal-first**: All operations use terminal commands and direct API calls (no MCP overhead)
+- **Self-contained**: Each skill includes everything needed to use it
+- **Extensible**: Easy to add new skills or modify existing ones
+- **User-specific**: Personal preferences and secrets stay in `user/` folder
 
-Everything is designed to be easily modified and extended for your specific needs.
+## License
 
- 
+See [LICENSE](LICENSE) file for details.

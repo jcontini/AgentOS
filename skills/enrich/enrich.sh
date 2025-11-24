@@ -9,7 +9,7 @@
 
 # Set script directory and find .env file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 ENV_FILE="$PROJECT_ROOT/.env"
 
 # Load environment variables from .env file

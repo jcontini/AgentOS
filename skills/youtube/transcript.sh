@@ -32,8 +32,9 @@ fi
 
 # Set up directories relative to script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEXT_DIR="$SCRIPT_DIR/../user/youtube/transcripts"
-VIDEO_DIR="$SCRIPT_DIR/../user/youtube/videos"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+TEXT_DIR="$PROJECT_ROOT/user/youtube/transcripts"
+VIDEO_DIR="$PROJECT_ROOT/user/youtube/videos"
 
 # Ensure output directories exist
 mkdir -p "$TEXT_DIR"

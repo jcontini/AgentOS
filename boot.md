@@ -4,12 +4,15 @@
 
 - **Search the web / Read URLs** → `skills/web-search.md`
 - **Get or manage contacts** → `skills/contacts.md`
-- **Understand SDKs/libraries/APIs** → `skills/get-docs.md`
-- **Task management / Linear** → `skills/task-management.md`
-- **Handle YouTube links** → `skills/youtube.md`
-- **Enrich person/company info** → `skills/enrich.md`
+- **Task management / Linear** → `skills/linear/README.md`
+- **Handle YouTube links** → `skills/youtube/README.md`
+- **Enrich person/company info** → `skills/enrich/README.md`
+- **Search for flights** → `skills/flights/README.md`
+- **Read calendar events** → `skills/calendar/README.md`
 
 When you need to perform any of these tasks, read the corresponding skill file for detailed instructions.
+
+**Understanding SDKs/libraries/APIs:** Use web search (see `skills/web-search.md`) to research and find documentation for any library or API you need to understand.
 
 ## Philosophy: Optimize for Speed
 
@@ -26,9 +29,22 @@ When you need to perform any of these tasks, read the corresponding skill file f
 
 **Everything runs through the terminal. Always use absolute paths and combine operations in single calls.**
 
+### Project Root
+
+**Define project root once at the start of your session or in your shell:**
+```bash
+PROJECT_ROOT="/path/to/your/project"  # Replace with your actual path
+```
+
+**Or detect it automatically from script location:**
+```bash
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+```
+
 ### Paths & File Exploration
 
-- **Always use absolute paths** - `/Users/joe/dev/ai/scripts/enrich.sh` not `./enrich.sh`. Avoid `cd` unless necessary.
+- **Always use absolute paths** - Use `$PROJECT_ROOT` variable: `$PROJECT_ROOT/skills/enrich/enrich.sh` not `./enrich.sh`. Avoid `cd` unless necessary.
+- **Skills data**: Store generated data in `$PROJECT_ROOT/skills-data/` (gitignored, like application data)
 - **Use `tree` for file exploration** - `tree -a -L N` (include hidden files). **NEVER use `find` or `grep` to locate files** - `tree` is much faster.
 
 ### Minimizing Calls
@@ -39,7 +55,7 @@ When you need to perform any of these tasks, read the corresponding skill file f
 
 ## Environment Variables & Secrets
 
-**All API keys and credentials are in `.env` at project root (`/Users/joe/dev/ai/.env`).**
+**All API keys and credentials are in `.env` at project root (`$PROJECT_ROOT/.env`).**
 
 ### Sourcing Pattern
 
@@ -47,7 +63,7 @@ When you need to perform any of these tasks, read the corresponding skill file f
 
 **Pattern (Default - Use This):**
 ```bash
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -H "x-api-key: $API_KEY_VAR" https://api.example.com/endpoint
 ```
 
@@ -56,11 +72,11 @@ curl -H "x-api-key: $API_KEY_VAR" https://api.example.com/endpoint
 **Examples:**
 ```bash
 # ✅ CORRECT: Unconditional sourcing (default - use this)
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -H "x-api-key: $EXA_API_KEY" https://api.exa.ai/search
 
 # ❌ WRONG: Split calls (adds latency)
-set -a && source /Users/joe/dev/ai/.env && set +a
+set -a && source "$PROJECT_ROOT/.env" && set +a
 curl ...  # Separate call!
 ```
 
@@ -83,9 +99,18 @@ curl ...  # Separate call!
 
 ---
 
+## Repository Structure
+
+**This is an open-source repository.** The structure is organized as follows:
+
+- **`user/` folder**: Contains user-specific content (personal files, preferences, scripts, reports). This folder is for individual user customization and should not be shared publicly.
+- **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
+
+When creating or referencing user-specific files, always place them in the `user/` folder or its subdirectories.
+
 ## Before Responding
 
-**Always read `/Users/joe/dev/ai/user/profile.md` before responding to the user.** This contains important context about communication style, preferences, workflows, and personal information that should inform your responses.
+**Always read `$PROJECT_ROOT/user/profile.md` before responding to the user.** This contains important context about communication style, preferences, workflows, and personal information that should inform your responses.
 
 To confirm you read both this file and the profile, prefix your first response with "🙌".
 

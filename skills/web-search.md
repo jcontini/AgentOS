@@ -10,7 +10,7 @@ Use Exa API for web search. API key stored in `.env` as `EXA_API_KEY`. Use curl 
 
 **Web Search with Content Extraction (Recommended):**
 ```bash
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -s -X POST "https://api.exa.ai/search" \
   -H "x-api-key: $EXA_API_KEY" \
   -H "Content-Type: application/json" \
@@ -30,7 +30,7 @@ curl -s -X POST "https://api.exa.ai/search" \
 
 **URL Content Extraction (when you already have URLs):**
 ```bash
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -s -X POST "https://api.exa.ai/contents" \
   -H "x-api-key: $EXA_API_KEY" \
   -H "Content-Type: application/json" \
@@ -50,4 +50,5 @@ Use `/contents` endpoint only when:
 ## Notes
 
 When using a tool to create or find any external resource (task, event, webpage, etc), show the URL in the response so it can be clicked easily.
+
 

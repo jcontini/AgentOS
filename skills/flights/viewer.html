@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .filters {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            color: #d0d0d0;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0;
+        }
+
+        /* Modern Single Range Slider */
+        .slider-container {
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            height: 32px;
+            background: transparent;
+            border-radius: 9999px;
+            margin: 6px 0;
+            padding: 12px 0;
+        }
+
+        .slider-histogram {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 32px;
+            display: flex;
+            align-items: flex-end;
+            gap: 1px;
+            padding: 0;
+            z-index: 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .histogram-bar {
+            flex: 1;
+            background: rgba(74, 158, 255, 0.5);
+            min-height: 8px;
+            transition: background 0.2s;
+            border-radius: 1px 1px 0 0;
+            align-self: flex-end;
+            box-shadow: 0 -1px 2px rgba(74, 158, 255, 0.3);
+        }
+
+        .histogram-bar:hover {
+            background: rgba(74, 158, 255, 0.7);
+        }
+
+        .slider-track {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: rgba(42, 42, 42, 0.6);
+            border-radius: 9999px;
+            z-index: 1;
+        }
+
+        .slider-fill {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #4a9eff 0%, #5aaeff 100%);
+            border-radius: 9999px;
+            transition: width 0.1s ease;
+            box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
+            z-index: 2;
+        }
+
+        input[type="range"].modern-slider {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            outline: none;
+            cursor: pointer;
+            z-index: 10;
+            margin: 0;
+            top: 12px;
+            left: 0;
+        }
+
+        input[type="range"].modern-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px #4a9eff;
+            border: 2px solid #4a9eff;
+            position: relative;
+            z-index: 20;
+        }
+
+        input[type="range"].modern-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.5), 0 0 0 4px rgba(74, 158, 255, 0.2);
+        }
+
+        input[type="range"].modern-slider::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(74, 158, 255, 0.6), 0 0 0 3px rgba(74, 158, 255, 0.3);
+        }
+
+        input[type="range"].modern-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #4a9eff;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px #4a9eff;
+            position: relative;
+            z-index: 20;
+        }
+
+        input[type="range"].modern-slider::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.5), 0 0 0 4px rgba(74, 158, 255, 0.2);
+        }
+
+        .slider-value {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #333333 100%);
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modern Dual Range Slider for Time */
+        .time-slider-container {
+            position: relative;
+            padding: 8px 0 4px 0;
+        }
+
+        .time-slider-wrapper {
+            position: relative;
+            height: 40px;
+            background: transparent;
+            border-radius: 9999px;
+            margin-bottom: 12px;
+            padding: 12px 0;
+        }
+
+        .time-slider-wrapper .slider-histogram {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 1px;
+            padding: 0;
+            z-index: 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .time-slider-track {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(42, 42, 42, 0.6);
+            border-radius: 9999px;
+            z-index: 1;
+        }
+
+        .time-slider-range {
+            position: absolute;
+            top: 12px;
+            height: 8px;
+            background: linear-gradient(90deg, #4a9eff 0%, #5aaeff 100%);
+            border-radius: 9999px;
+            pointer-events: none;
+            z-index: 2;
+            box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
+            transition: left 0.1s ease, width 0.1s ease;
+        }
+
+        .time-slider {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            outline: none;
+            top: 12px;
+            left: 0;
+            margin: 0;
+            cursor: pointer;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .time-slider::-webkit-slider-thumb {
+            pointer-events: all;
+        }
+
+        .time-slider::-moz-range-thumb {
+            pointer-events: all;
+        }
+
+        #departure-time {
+            z-index: 4;
+        }
+
+        #arrival-time {
+            z-index: 5;
+        }
+
+        #price-min {
+            z-index: 4;
+        }
+
+        #price-max {
+            z-index: 5;
+        }
+
+        #duration-min {
+            z-index: 4;
+        }
+
+        #duration-max {
+            z-index: 5;
+        }
+
+        .time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px #4a9eff;
+            border: 2px solid #4a9eff;
+        }
+
+        .time-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.5), 0 0 0 4px rgba(74, 158, 255, 0.2);
+        }
+
+        .time-slider::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(74, 158, 255, 0.6), 0 0 0 3px rgba(74, 158, 255, 0.3);
+        }
+
+        .time-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #4a9eff;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px #4a9eff;
+        }
+
+        .time-slider::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.5), 0 0 0 4px rgba(74, 158, 255, 0.2);
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2px;
+            font-size: 0.7rem;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .time-display span {
+            padding: 1px 6px;
+            background: rgba(42, 42, 42, 0.5);
+            border-radius: 3px;
+        }
+
+        /* Modern Segmented Control */
+        .stops-segmented {
+            display: inline-flex;
+            background: transparent;
+            border-radius: 6px;
+            padding: 2px;
+            gap: 6px;
+        }
+
+        .stops-segment {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #b0b0b0;
+            border: none;
+            background: transparent;
+            position: relative;
+        }
+
+        .stops-segment:hover {
+            background: rgba(58, 58, 58, 0.4);
+            color: #e0e0e0;
+        }
+
+        .stops-segment.active {
+            background: linear-gradient(135deg, #4a9eff 0%, #5aaeff 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(74, 158, 255, 0.3);
+        }
+
+
+        /* Airline-specific styling */
+        .airline-segment.active {
+            background: linear-gradient(135deg, var(--airline-color, #4a9eff) 0%, var(--airline-color, #5aaeff) 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .airline-segment:not(.active) {
+            border: 1px solid var(--airline-color, #4a9eff) !important;
+            color: var(--airline-color, #b0b0b0) !important;
+            background: transparent !important;
+        }
+
+        .airline-segment:not(.active):hover {
+            background: rgba(0, 0, 0, 0.1) !important;
+            border-color: var(--airline-color, #4a9eff) !important;
+            opacity: 0.9;
+        }
+
+        .time-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        /* Modern Checkboxes */
+        .airline-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 8px;
+            background: rgba(26, 26, 26, 0.5);
+            border-radius: 8px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .airline-checkboxes::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .airline-checkboxes::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 3px;
+        }
+
+        .airline-checkboxes::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 3px;
+        }
+
+        .airline-checkboxes::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        .airline-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(42, 42, 42, 0.5);
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .airline-checkbox:hover {
+            background: rgba(58, 58, 58, 0.6);
+            border-color: #4a4a4a;
+        }
+
+        .airline-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #4a9eff;
+            border-radius: 4px;
+        }
+
+        .airline-checkbox input[type="checkbox"]:checked {
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.3);
+        }
+
+        .airline-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            color: #e0e0e0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #2a2a2a;
+        }
+
+        .results-table thead {
+            background: #252525;
+        }
+
+        .results-table th {
+            padding: 12px 16px;
+            text-align: left;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #3a3a3a;
+            position: relative;
+        }
+
+        .day-group-header {
+            background: rgba(58, 58, 58, 0.5);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 16px;
+            border-top: 2px solid #3a3a3a;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .day-group-header:first-child {
+            border-top: none;
+        }
+
+        .results-table td {
+            padding: 6px 16px;
+            border-bottom: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .results-table tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .results-table tbody tr:hover {
+            background: #252525;
+        }
+
+        .results-table tbody tr.clickable {
+            cursor: pointer;
+        }
+
+        .results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-price {
+            color: #4a9eff;
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .table-date {
+            color: #b0b0b0;
+            font-size: 0.85rem;
+        }
+
+        .table-time {
+            color: #e0e0e0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+        }
+
+        .time-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-duration {
+            color: #b0b0b0;
+            font-size: 0.85rem;
+            position: relative;
+        }
+
+        .best-duration {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(74, 158, 255, 0.05) 100%);
+        }
+
+        .best-price {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(74, 158, 255, 0.05) 100%);
+        }
+
+        .best-duration.best-price {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.25) 0%, rgba(74, 158, 255, 0.15) 100%);
+        }
+
+        .table-airline {
+            color: #e0e0e0;
+        }
+
+
+        .table-route {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .table-flight {
+            padding: 4px 12px;
+            position: relative;
+            min-width: 300px;
+        }
+
+        .flight-container {
+            position: relative;
+            height: 28px;
+            background: rgba(42, 42, 42, 0.3);
+            border-radius: 4px;
+            overflow: visible;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+        }
+
+        .flight-time-label {
+            font-size: 0.75rem;
+            color: #b0b0b0;
+            font-weight: 500;
+            white-space: nowrap;
+            min-width: 55px;
+            z-index: 3;
+            position: relative;
+        }
+
+        .flight-time-label.departure {
+            text-align: right;
+        }
+
+        .flight-time-label.arrival {
+            text-align: left;
+        }
+
+        .flight-bar-wrapper {
+            flex: 1;
+            position: relative;
+            height: 20px;
+            min-height: 20px;
+            background: rgba(42, 42, 42, 0.2);
+            border-radius: 3px;
+        }
+
+        .table-duration {
+            color: #b0b0b0;
+            font-size: 0.85rem;
+        }
+
+        .timeline-header-container {
+            position: relative;
+            height: 24px;
+            margin-top: 8px;
+        }
+
+        .timeline-header-day {
+            position: absolute;
+            top: 0;
+            font-size: 0.85rem;
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 6px;
+            background: rgba(58, 58, 58, 0.4);
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .duration-bar {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 20px;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.8) 0%, rgba(74, 158, 255, 0.6) 100%);
+            border-radius: 3px;
+            border: 1px solid rgba(74, 158, 255, 0.5);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2;
+            min-width: 2px;
+        }
+
+        .duration-bar:hover {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 1) 0%, rgba(74, 158, 255, 0.8) 100%);
+            box-shadow: 0 2px 6px rgba(74, 158, 255, 0.4);
+            transform: translateY(-50%) scaleY(1.1);
+        }
+
+        .duration-bar.nonstop {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.9) 0%, rgba(74, 158, 255, 0.7) 100%);
+        }
+
+        .duration-bar-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.7rem;
+            color: #ffffff;
+            font-weight: 600;
+            white-space: nowrap;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            padding: 2px 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2px;
+        }
+
+        .table-stops {
+            display: inline-block;
+            background: #3a3a3a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #e0e0e0;
+        }
+
+        .table-stops.nonstop {
+            background: #2a5a2a;
+            color: #90ee90;
+        }
+
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #808080;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #808080;
+        }
+
+        .error {
+            background: #3a1a1a;
+            border: 1px solid #5a2a2a;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="display: none;">Flight Search Results</h1>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <div class="filters">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Price</label>
+                    <div class="time-slider-container">
+                        <div class="time-slider-wrapper">
+                            <div class="slider-histogram" id="price-histogram"></div>
+                            <div class="time-slider-track"></div>
+                            <div class="time-slider-range" id="price-range"></div>
+                            <input type="range" id="price-min" class="time-slider" min="0" max="500" value="0" step="10">
+                            <input type="range" id="price-max" class="time-slider" min="0" max="500" value="500" step="10">
+                        </div>
+                        <div class="time-display">
+                            <span id="price-min-display">$0</span>
+                            <span id="price-max-display">$500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Duration</label>
+                    <div class="time-slider-container">
+                        <div class="time-slider-wrapper">
+                            <div class="slider-histogram" id="duration-histogram"></div>
+                            <div class="time-slider-track"></div>
+                            <div class="time-slider-range" id="duration-range"></div>
+                            <input type="range" id="duration-min" class="time-slider" min="0" max="720" value="0" step="30">
+                            <input type="range" id="duration-max" class="time-slider" min="0" max="720" value="720" step="30">
+                        </div>
+                        <div class="time-display">
+                            <span id="duration-min-display">0h</span>
+                            <span id="duration-max-display">12h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Departure & Arrival Time</label>
+                    <div class="time-slider-container">
+                        <div class="time-slider-wrapper">
+                            <div class="time-slider-track"></div>
+                            <div class="time-slider-range" id="time-range"></div>
+                            <input type="range" id="departure-time" class="time-slider" min="0" max="1440" value="0" step="30">
+                            <input type="range" id="arrival-time" class="time-slider" min="0" max="1440" value="1440" step="30">
+                        </div>
+                        <div class="time-display">
+                            <span id="departure-time-display">12:00 AM</span>
+                            <span id="arrival-time-display">11:59 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Date</label>
+                    <div id="dates-segmented" class="stops-segmented">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Stops</label>
+                    <div id="stops-segmented" class="stops-segmented">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Airlines</label>
+                    <div id="airlines-segmented" class="stops-segmented">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading flight data...</div>
+        <div id="results-container" style="display: none;">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Flight</th>
+                        <th>Duration</th>
+                        <th>Price</th>
+                        <th>Airline</th>
+                    </tr>
+                </thead>
+                <tbody id="results">
+                    <!-- Dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+        <div id="no-results" class="no-results" style="display: none;">No flights match your filters.</div>
+    </div>
+
+    <script>
+        let allFlights = [];
+        let filteredFlights = [];
+
+        // Load JSON data
+        async function loadFlights() {
+            try {
+                // Try skills-data folder first (via server), then relative path, then /tmp path
+                let response = await fetch('/skills-data/flights/flights-results.json');
+                if (!response.ok) {
+                    response = await fetch('flights-results.json');
+                }
+                if (!response.ok) {
+                    response = await fetch('/tmp/flights-results.json');
+                }
+                if (!response.ok) {
+                    throw new Error(`Failed to load flights: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid JSON format: expected array');
+                }
+
+                allFlights = data;
+                filteredFlights = [...allFlights];
+                
+                initializeSliders();
+                initializeTimeSliders();
+                populateDateFilters();
+                populateStopsFilters();
+                populateAirlineFilters();
+                applyFilters(); // Apply filters on initial load (this also calls renderFlights)
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results-container').style.display = 'block';
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('error-message').textContent = `Error: ${error.message}`;
+                console.error('Error loading flights:', error);
+            }
+        }
+
+        // Calculate percentile value from array (0-100)
+        function calculatePercentile(arr, percentile) {
+            if (arr.length === 0) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+            return sorted[Math.max(0, Math.min(index, sorted.length - 1))];
+        }
+
+        // Update price range display
+        function updatePriceRange() {
+            const minSlider = document.getElementById('price-min');
+            const maxSlider = document.getElementById('price-max');
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
+            
+            // Update range visual
+            const range = document.getElementById('price-range');
+            const sliderMax = parseInt(minSlider.max);
+            const minPercent = (min / sliderMax) * 100;
+            const maxPercent = (max / sliderMax) * 100;
+            range.style.left = `${minPercent}%`;
+            range.style.width = `${maxPercent - minPercent}%`;
+            
+            // Update displays
+            document.getElementById('price-min-display').textContent = `$${min}`;
+            document.getElementById('price-max-display').textContent = `$${max}`;
+        }
+
+        // Update duration range display
+        function updateDurationRange() {
+            const minSlider = document.getElementById('duration-min');
+            const maxSlider = document.getElementById('duration-max');
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
+            
+            // Update range visual
+            const range = document.getElementById('duration-range');
+            const sliderMax = parseInt(minSlider.max);
+            const minPercent = (min / sliderMax) * 100;
+            const maxPercent = (max / sliderMax) * 100;
+            range.style.left = `${minPercent}%`;
+            range.style.width = `${maxPercent - minPercent}%`;
+            
+            // Update displays
+            const minHrs = Math.floor(min / 60);
+            const minMins = min % 60;
+            const minStr = minHrs > 0 ? `${minHrs}h ${minMins}m` : `${minMins}m`;
+            
+            const maxHrs = Math.floor(max / 60);
+            const maxMins = max % 60;
+            const maxStr = maxHrs > 0 ? `${maxHrs}h ${maxMins}m` : `${maxMins}m`;
+            
+            document.getElementById('duration-min-display').textContent = minStr;
+            document.getElementById('duration-max-display').textContent = maxStr;
+        }
+
+        // Initialize sliders based on data
+        function initializeSliders() {
+            if (allFlights.length === 0) return;
+
+            // Price slider - dual range
+            const prices = allFlights.map(f => f.price);
+            const dataMinPrice = Math.min(...prices);
+            const dataMaxPrice = Math.max(...prices);
+            const percentile80Price = Math.ceil(calculatePercentile(prices, 80));
+            const sliderMaxPrice = Math.ceil(dataMaxPrice / 10) * 10 + 50; // Add buffer
+            
+            const priceMinSlider = document.getElementById('price-min');
+            const priceMaxSlider = document.getElementById('price-max');
+            priceMinSlider.min = 0;
+            priceMinSlider.max = sliderMaxPrice;
+            priceMaxSlider.min = 0;
+            priceMaxSlider.max = sliderMaxPrice;
+            priceMinSlider.value = dataMinPrice;
+            priceMaxSlider.value = percentile80Price;
+            
+            // Ensure min <= max
+            priceMinSlider.addEventListener('input', () => {
+                if (parseInt(priceMinSlider.value) > parseInt(priceMaxSlider.value)) {
+                    priceMinSlider.value = priceMaxSlider.value;
+                }
+                updatePriceRange();
+                applyFilters();
+            });
+            
+            priceMaxSlider.addEventListener('input', () => {
+                if (parseInt(priceMaxSlider.value) < parseInt(priceMinSlider.value)) {
+                    priceMaxSlider.value = priceMinSlider.value;
+                }
+                updatePriceRange();
+                applyFilters();
+            });
+            
+            updatePriceRange();
+
+            // Duration slider - dual range
+            const durations = allFlights.map(f => parseDuration(f.duration));
+            const dataMinDuration = Math.min(...durations);
+            const dataMaxDuration = Math.max(...durations);
+            const percentile80Duration = Math.ceil(calculatePercentile(durations, 80));
+            const sliderMaxDuration = Math.ceil(dataMaxDuration / 30) * 30 + 60; // Add buffer
+            
+            const durationMinSlider = document.getElementById('duration-min');
+            const durationMaxSlider = document.getElementById('duration-max');
+            durationMinSlider.min = 0;
+            durationMinSlider.max = sliderMaxDuration;
+            durationMaxSlider.min = 0;
+            durationMaxSlider.max = sliderMaxDuration;
+            durationMinSlider.value = dataMinDuration;
+            durationMaxSlider.value = percentile80Duration;
+            
+            // Ensure min <= max
+            durationMinSlider.addEventListener('input', () => {
+                if (parseInt(durationMinSlider.value) > parseInt(durationMaxSlider.value)) {
+                    durationMinSlider.value = durationMaxSlider.value;
+                }
+                updateDurationRange();
+                applyFilters();
+            });
+            
+            durationMaxSlider.addEventListener('input', () => {
+                if (parseInt(durationMaxSlider.value) < parseInt(durationMinSlider.value)) {
+                    durationMaxSlider.value = durationMinSlider.value;
+                }
+                updateDurationRange();
+                applyFilters();
+            });
+            
+            updateDurationRange();
+
+            // Create histogram visualizations
+            createHistogram('price-histogram', prices, 0, sliderMaxPrice, 30);
+            createHistogram('duration-histogram', durations, 0, sliderMaxDuration, 20);
+        }
+
+        // Create histogram visualization
+        function createHistogram(containerId, data, min, max, numBins) {
+            const container = document.getElementById(containerId);
+            if (!container || data.length === 0) return;
+
+            container.innerHTML = '';
+            
+            // Create bins
+            const binSize = (max - min) / numBins;
+            const bins = new Array(numBins).fill(0);
+            
+            // Count values in each bin
+            data.forEach(value => {
+                if (value >= min && value <= max) {
+                    const binIndex = Math.min(Math.floor((value - min) / binSize), numBins - 1);
+                    bins[binIndex]++;
+                }
+            });
+            
+            // Find max count for normalization
+            const maxCount = Math.max(...bins);
+            if (maxCount === 0) return;
+            
+            // Use square root scaling to make smaller values more visible
+            const sqrtMax = Math.sqrt(maxCount);
+            
+            // Create bars
+            bins.forEach((count, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'histogram-bar';
+                
+                if (count === 0) {
+                    // Empty bins get a tiny visible bar
+                    bar.style.height = '4px';
+                    bar.style.opacity = '0.2';
+                } else {
+                    // Use square root scaling for better visibility of smaller values
+                    const sqrtCount = Math.sqrt(count);
+                    const height = sqrtMax > 0 ? (sqrtCount / sqrtMax) * 100 : 0;
+                    // Minimum 15% height for any non-zero count to ensure visibility
+                    bar.style.height = `${Math.max(height, 15)}%`;
+                    bar.style.opacity = '1';
+                }
+                
+                container.appendChild(bar);
+            });
+        }
+
+        // Update slider fill width based on value
+        function updateSliderFill(sliderId, fillId) {
+            const slider = document.getElementById(sliderId);
+            const fill = document.getElementById(fillId);
+            if (slider && fill) {
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                const value = parseFloat(slider.value);
+                const percentage = ((value - min) / (max - min)) * 100;
+                fill.style.width = `${percentage}%`;
+            }
+        }
+
+
+        // Extract unique dates and populate segmented control
+        function populateDateFilters() {
+            const dates = new Set();
+            allFlights.forEach(flight => {
+                if (flight.date) {
+                    dates.add(flight.date);
+                }
+            });
+
+            const container = document.getElementById('dates-segmented');
+            container.innerHTML = '';
+
+            const sortedDates = Array.from(dates).sort();
+            
+            sortedDates.forEach((date, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `stops-segment active`; // All dates selected by default
+                button.dataset.date = date;
+                button.textContent = formatDateShort(date);
+                
+                button.addEventListener('click', () => {
+                    // Toggle active state
+                    button.classList.toggle('active');
+                    applyFilters();
+                });
+                
+                container.appendChild(button);
+            });
+        }
+
+        // Format date for button display (e.g., "2025-12-22" -> "Dec 22")
+        function formatDateShort(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Get selected dates from segmented control
+        function getSelectedDates() {
+            const activeButtons = document.querySelectorAll('#dates-segmented .stops-segment.active');
+            return Array.from(activeButtons).map(btn => btn.dataset.date);
+        }
+
+        // Extract unique stop counts and populate segmented control
+        function populateStopsFilters() {
+            const stops = new Set();
+            allFlights.forEach(flight => {
+                stops.add(flight.stops || 0);
+            });
+
+            const container = document.getElementById('stops-segmented');
+            container.innerHTML = '';
+
+            // Only show non-stop (0) and one-stop (1) if available
+            const sortedStops = Array.from(stops).sort((a, b) => a - b).filter(s => s <= 1);
+            
+            // Calculate average duration for each stops option to find the best one
+            const stopsDurations = {};
+            sortedStops.forEach(stopCount => {
+                const flightsWithStops = allFlights.filter(f => (f.stops || 0) === stopCount);
+                if (flightsWithStops.length > 0) {
+                    const durations = flightsWithStops.map(f => parseDuration(f.duration)).filter(d => d > 0);
+                    if (durations.length > 0) {
+                        const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+                        stopsDurations[stopCount] = avgDuration;
+                    }
+                }
+            });
+            
+            // Find best option: prefer non-stop (0 stops), otherwise shortest average duration
+            let bestStops = sortedStops[0]; // Default to first option
+            if (stopsDurations[0] !== undefined) {
+                // Non-stop exists, use it
+                bestStops = 0;
+            } else {
+                // Find shortest average duration
+                let shortestAvg = Infinity;
+                for (const [stopCount, avgDuration] of Object.entries(stopsDurations)) {
+                    if (avgDuration < shortestAvg) {
+                        shortestAvg = avgDuration;
+                        bestStops = parseInt(stopCount);
+                    }
+                }
+            }
+            
+            sortedStops.forEach((stops) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                // Only select the best option by default
+                button.className = `stops-segment ${stops === bestStops ? 'active' : ''}`;
+                button.dataset.stops = stops;
+                button.textContent = stops === 0 ? 'Nonstop' : `${stops} stop${stops > 1 ? 's' : ''}`;
+                
+                button.addEventListener('click', () => {
+                    // Exclusive selection: deselect all others, toggle this one
+                    const allButtons = container.querySelectorAll('.stops-segment');
+                    allButtons.forEach(btn => {
+                        if (btn !== button) {
+                            btn.classList.remove('active');
+                        }
+                    });
+                    // Toggle the clicked button
+                    button.classList.toggle('active');
+                    applyFilters();
+                });
+                
+                container.appendChild(button);
+            });
+        }
+
+        // Get selected stops from segmented control
+        function getSelectedStops() {
+            const activeButtons = document.querySelectorAll('#stops-segmented .stops-segment.active');
+            return Array.from(activeButtons).map(btn => parseInt(btn.dataset.stops));
+        }
+
+        // Convert minutes to time string (e.g., 360 -> "6:00 AM")
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours === 0 ? 12 : (hours > 12 ? hours - 12 : hours);
+            return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
+        }
+
+        // Get time icon based on time string
+        function getTimeIcon(timeStr) {
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (!match) return '';
+            
+            let hours = parseInt(match[1]);
+            const period = match[3].toUpperCase();
+            
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            
+            if (hours >= 19) {
+                // Night (7pm or later)
+                return '🌙';
+            } else if (hours < 9) {
+                // Before 9 AM
+                return '☀️';
+            }
+            // No icon for 9 AM - 7 PM
+            return '';
+        }
+
+        // Update combined time slider range display
+        function updateTimeRange() {
+            const departureSlider = document.getElementById('departure-time');
+            const arrivalSlider = document.getElementById('arrival-time');
+            const departureMin = parseInt(departureSlider.value);
+            const arrivalMax = parseInt(arrivalSlider.value);
+            
+            // Update range visual
+            const range = document.getElementById('time-range');
+            const minPercent = (departureMin / 1440) * 100;
+            const maxPercent = (arrivalMax / 1440) * 100;
+            range.style.left = `${minPercent}%`;
+            range.style.width = `${maxPercent - minPercent}%`;
+            
+            // Update displays
+            document.getElementById('departure-time-display').textContent = minutesToTime(departureMin);
+            document.getElementById('arrival-time-display').textContent = minutesToTime(arrivalMax);
+        }
+
+        // Initialize combined time slider
+        function initializeTimeSliders() {
+            if (allFlights.length === 0) return;
+
+            // Calculate earliest departure and latest arrival from data
+            const departureTimes = allFlights.map(f => parseTime(f.departure)).filter(t => t > 0);
+            const arrivalTimes = allFlights.map(f => parseTime(f.arrival)).filter(t => t > 0);
+            
+            const earliestDeparture = departureTimes.length > 0 ? Math.min(...departureTimes) : 0;
+            const latestArrival = arrivalTimes.length > 0 ? Math.max(...arrivalTimes) : 1440;
+            
+            const departureSlider = document.getElementById('departure-time');
+            const arrivalSlider = document.getElementById('arrival-time');
+            
+            // Set defaults to earliest departure and latest arrival
+            departureSlider.value = earliestDeparture;
+            arrivalSlider.value = latestArrival;
+            
+            // Ensure departure <= arrival
+            departureSlider.addEventListener('input', () => {
+                if (parseInt(departureSlider.value) > parseInt(arrivalSlider.value)) {
+                    departureSlider.value = arrivalSlider.value;
+                }
+                updateTimeRange();
+                applyFilters();
+            });
+            
+            arrivalSlider.addEventListener('input', () => {
+                if (parseInt(arrivalSlider.value) < parseInt(departureSlider.value)) {
+                    arrivalSlider.value = departureSlider.value;
+                }
+                updateTimeRange();
+                applyFilters();
+            });
+            
+            updateTimeRange();
+        }
+
+        // Get airline brand color
+        function getAirlineColor(airlineName) {
+            const airlineColors = {
+                'United Airlines': '#003366', // United Dark Blue (Dark Midnight Blue)
+                'United': '#003366',
+                'American Airlines': '#003278', // American Blue
+                'American': '#003278',
+                'Delta Air Lines': '#E3132C', // Delta Red (Medium Candy Apple Red)
+                'Delta': '#E3132C',
+                'Southwest Airlines': '#FF8C00', // Southwest Orange (Dark Orange - more orange than yellow)
+                'Southwest': '#FF8C00',
+                'JetBlue Airways': '#003C82', // JetBlue Blue
+                'JetBlue': '#003C82',
+                'Alaska Airlines': '#002855', // Alaska Blue
+                'Alaska': '#002855',
+                'Spirit Airlines': '#FFD100', // Spirit Yellow (more yellow, less orange)
+                'Spirit': '#FFD100',
+                'Frontier Airlines': '#046444', // Frontier Teal/Green
+                'Frontier': '#046444',
+                'Hawaiian Airlines': '#7B3F98', // Hawaiian Purple
+                'Hawaiian': '#7B3F98',
+                'Virgin America': '#E61E25', // Virgin Red
+                'Virgin': '#E61E25',
+                'Lufthansa': '#1A1A1A', // Lufthansa Dark Blue/Black
+                'British Airways': '#075696', // British Airways Blue
+                'Air France': '#002395', // Air France Blue
+                'KLM': '#00A1DE', // KLM Blue
+                'Emirates': '#D71921', // Emirates Red
+                'Qatar Airways': '#8E0B3B', // Qatar Maroon
+                'Turkish Airlines': '#C41E3A', // Turkish Red
+                'Singapore Airlines': '#004B93', // Singapore Blue
+                'Cathay Pacific': '#E4002B', // Cathay Red
+                'Japan Airlines': '#C41E3A', // JAL Red
+                'Air Canada': '#E31837', // Air Canada Red
+                'WestJet': '#FF8C00', // WestJet Orange
+                'Aer Lingus': '#006747', // Aer Lingus Green
+            };
+            
+            // Try exact match first
+            if (airlineColors[airlineName]) {
+                return airlineColors[airlineName];
+            }
+            
+            // Try partial match (case insensitive)
+            const normalizedName = airlineName.toLowerCase();
+            for (const [key, color] of Object.entries(airlineColors)) {
+                if (normalizedName.includes(key.toLowerCase())) {
+                    return color;
+                }
+            }
+            
+            // Default color for unknown airlines
+            return '#4a9eff'; // Default blue
+        }
+
+        // Extract unique airlines and populate segmented control
+        function populateAirlineFilters() {
+            const airlines = new Set();
+            allFlights.forEach(flight => {
+                if (flight.airline) {
+                    airlines.add(flight.airline);
+                }
+            });
+
+            const container = document.getElementById('airlines-segmented');
+            container.innerHTML = '';
+
+            Array.from(airlines).sort().forEach(airline => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'stops-segment active airline-segment'; // All airlines selected by default
+                button.dataset.airline = airline;
+                button.textContent = airline;
+                
+                // Apply airline brand color
+                const brandColor = getAirlineColor(airline);
+                button.style.setProperty('--airline-color', brandColor);
+                
+                button.addEventListener('click', () => {
+                    // Toggle active state
+                    button.classList.toggle('active');
+                    applyFilters();
+                });
+                
+                container.appendChild(button);
+            });
+        }
+
+        // Get selected airlines from segmented control
+        function getSelectedAirlines() {
+            const activeButtons = document.querySelectorAll('#airlines-segmented .stops-segment.active');
+            return Array.from(activeButtons).map(btn => btn.dataset.airline);
+        }
+
+        // Parse duration string to minutes (e.g., "2h 37m" -> 157)
+        function parseDuration(durationStr) {
+            if (!durationStr) return 0;
+            const match = durationStr.match(/(\d+)h\s*(\d+)m/);
+            if (match) {
+                return parseInt(match[1]) * 60 + parseInt(match[2]);
+            }
+            return 0;
+        }
+
+        // Parse time string to minutes since midnight (e.g., "6:00 AM" -> 360)
+        function parseTime(timeStr) {
+            if (!timeStr) return 0;
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (match) {
+                let hours = parseInt(match[1]);
+                const minutes = parseInt(match[2]);
+                const period = match[3].toUpperCase();
+                
+                if (period === 'PM' && hours !== 12) hours += 12;
+                if (period === 'AM' && hours === 12) hours = 0;
+                
+                return hours * 60 + minutes;
+            }
+            return 0;
+        }
+
+        // Convert date string and time to absolute minutes (for timeline positioning)
+        // Uses the earliest date in the dataset as reference (day 0)
+        let timelineBaseDate = null;
+        
+        function dateTimeToAbsoluteMinutes(dateStr, timeStr) {
+            if (!dateStr || !timeStr) return 0;
+            if (!timelineBaseDate) {
+                // Find earliest date in all flights
+                const dates = allFlights.map(f => f.date).filter(d => d).sort();
+                timelineBaseDate = dates.length > 0 ? dates[0] : dateStr;
+            }
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            const baseDate = new Date(timelineBaseDate + 'T00:00:00');
+            const daysDiff = Math.floor((date - baseDate) / (1000 * 60 * 60 * 24));
+            const minutesInDay = parseTime(timeStr);
+            return daysDiff * 1440 + minutesInDay;
+        }
+
+        // Calculate timeline range from all flights
+        function calculateTimelineRange(flights) {
+            if (flights.length === 0) return { min: 0, max: 1440 };
+            
+            // Reset base date for recalculation
+            timelineBaseDate = null;
+            
+            let min = Infinity;
+            let max = -Infinity;
+            
+            flights.forEach(flight => {
+                if (flight.date && flight.departure) {
+                    const dep = dateTimeToAbsoluteMinutes(flight.date, flight.departure);
+                    if (dep < min) min = dep;
+                }
+                if (flight.date && flight.arrival) {
+                    // Arrival might be next day, so we need to handle that
+                    let arr = dateTimeToAbsoluteMinutes(flight.date, flight.arrival);
+                    // If arrival time is earlier than departure, it's next day
+                    if (flight.departure && parseTime(flight.arrival) < parseTime(flight.departure)) {
+                        arr += 1440; // Add one day
+                    }
+                    if (arr > max) max = arr;
+                }
+            });
+            
+            // Ensure we have valid range
+            if (min === Infinity) min = 0;
+            if (max === -Infinity) max = 1440;
+            
+            // Add some padding
+            const padding = Math.max((max - min) * 0.05, 60); // At least 1 hour padding
+            return {
+                min: Math.max(0, min - padding),
+                max: max + padding
+            };
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+            const priceMax = parseFloat(document.getElementById('price-max').value) || parseFloat(document.getElementById('price-max').max) || Infinity;
+            
+            const departureMinMinutes = parseInt(document.getElementById('departure-time').value) || 0;
+            const departureMaxMinutes = 1440; // Allow all departure times up to the arrival time
+            
+            const arrivalMinMinutes = 0; // Allow all arrival times from the departure time
+            const arrivalMaxMinutes = parseInt(document.getElementById('arrival-time').value) || 1440;
+            
+            const durationMin = parseFloat(document.getElementById('duration-min').value) || 0;
+            const durationMax = parseFloat(document.getElementById('duration-max').value) || parseFloat(document.getElementById('duration-max').max) || Infinity;
+            
+            const selectedAirlines = getSelectedAirlines();
+            const selectedStops = getSelectedStops();
+            const selectedDates = getSelectedDates();
+
+            filteredFlights = allFlights.filter(flight => {
+                // Date filter
+                if (selectedDates.length > 0 && !selectedDates.includes(flight.date)) return false;
+                
+                // Price filter
+                if (flight.price < priceMin || flight.price > priceMax) return false;
+                
+                // Duration filter
+                const durationMinutes = parseDuration(flight.duration);
+                if (durationMinutes < durationMin || durationMinutes > durationMax) return false;
+                
+                // Departure time filter
+                const departureMinutes = parseTime(flight.departure);
+                if (departureMinutes < departureMinMinutes || departureMinutes > departureMaxMinutes) return false;
+                
+                // Arrival time filter
+                const arrivalMinutes = parseTime(flight.arrival);
+                if (arrivalMinutes < arrivalMinMinutes || arrivalMinutes > arrivalMaxMinutes) return false;
+                
+                // Stops filter
+                const flightStops = flight.stops || 0;
+                if (selectedStops.length > 0 && !selectedStops.includes(flightStops)) return false;
+                
+                // Airline filter
+                if (selectedAirlines.length > 0 && !selectedAirlines.includes(flight.airline)) return false;
+                
+                return true;
+            });
+
+            renderFlights();
+        }
+
+
+        // Render flights as a table
+        function renderFlights() {
+            const tbody = document.getElementById('results');
+            
+            if (filteredFlights.length === 0) {
+                document.getElementById('results-container').style.display = 'none';
+                document.getElementById('no-results').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('no-results').style.display = 'none';
+            document.getElementById('results-container').style.display = 'block';
+            tbody.innerHTML = '';
+
+            // Calculate top 10% threshold for price
+            const prices = filteredFlights.map(f => f.price).filter(p => p > 0);
+            prices.sort((a, b) => a - b);
+            const top10PercentCount = Math.max(1, Math.ceil(filteredFlights.length * 0.1));
+            const priceThreshold = prices[top10PercentCount - 1] || Infinity;
+
+            // Group flights by date
+            const flightsByDate = {};
+            filteredFlights.forEach(flight => {
+                const date = flight.date || 'Unknown';
+                if (!flightsByDate[date]) {
+                    flightsByDate[date] = [];
+                }
+                flightsByDate[date].push(flight);
+            });
+
+            // Get sorted dates
+            const sortedDates = Object.keys(flightsByDate).sort();
+
+            // Calculate max duration for scaling
+            const allDurations = filteredFlights.map(f => parseDuration(f.duration)).filter(d => d > 0);
+            const maxDuration = allDurations.length > 0 ? Math.max(...allDurations) : 720; // Default to 12 hours
+
+            // Render flights grouped by date
+            sortedDates.forEach(date => {
+                const flightsForDate = flightsByDate[date];
+                
+                // Sort flights by duration (shortest first)
+                flightsForDate.sort((a, b) => {
+                    const durationA = parseDuration(a.duration);
+                    const durationB = parseDuration(b.duration);
+                    return durationA - durationB;
+                });
+
+                // Add day group header row
+                const headerRow = document.createElement('tr');
+                const headerCell = document.createElement('td');
+                headerCell.className = 'day-group-header';
+                headerCell.colSpan = 5;
+                headerCell.textContent = formatDate(date);
+                headerRow.appendChild(headerCell);
+                tbody.appendChild(headerRow);
+
+                // Add flight rows for this date
+                flightsForDate.forEach(flight => {
+                    const row = document.createElement('tr');
+                    
+                    const stops = flight.stops || 0;
+                    const isNonstop = stops === 0;
+                    const isBestPrice = flight.price <= priceThreshold;
+
+                    // 1. Route column - Airport codes (AUS-MCO)
+                    const routeCell = document.createElement('td');
+                    routeCell.className = 'table-route';
+                    const depAirport = flight.departure_airport || '';
+                    const arrAirport = flight.arrival_airport || '';
+                    routeCell.textContent = depAirport && arrAirport ? `${depAirport}-${arrAirport}` : '';
+                    row.appendChild(routeCell);
+
+                    // 2. Flight column - Visual bar showing departure time within day with takeoff/landing times
+                    const flightCell = document.createElement('td');
+                    flightCell.className = 'table-flight';
+                    
+                    const flightContainer = document.createElement('div');
+                    flightContainer.className = 'flight-container';
+                    
+                    // Add departure time label before the bar
+                    const departureLabel = document.createElement('div');
+                    departureLabel.className = 'flight-time-label departure';
+                    departureLabel.textContent = flight.departure || '';
+                    flightContainer.appendChild(departureLabel);
+                    
+                    // Bar wrapper - represents the full day timeline
+                    const barWrapper = document.createElement('div');
+                    barWrapper.className = 'flight-bar-wrapper';
+                    
+                    // Only create bar if we have departure time
+                    if (flight.departure) {
+                        // Calculate bar position based on departure time (0-1440 minutes = midnight to midnight)
+                        const departureMinutes = parseTime(flight.departure) || 0;
+                        const durationMinutes = parseDuration(flight.duration) || 0;
+                        
+                        // Position bar based on departure time (0% = midnight, 100% = next midnight)
+                        const leftPercent = departureMinutes > 0 ? (departureMinutes / 1440) * 100 : 0;
+                        
+                        // Bar width represents duration, scaled to fit within remaining day
+                        // Cap width so bar doesn't extend past midnight
+                        const maxWidthPercent = 100 - leftPercent;
+                        const durationPercent = durationMinutes > 0 ? (durationMinutes / 1440) * 100 : 0;
+                        const widthPercent = Math.min(durationPercent, maxWidthPercent);
+                        
+                        const bar = document.createElement('div');
+                        bar.className = 'duration-bar';
+                        if (isNonstop) {
+                            bar.classList.add('nonstop');
+                        }
+                        
+                        // Apply airline brand color to the bar
+                        const airlineText = flight.flight_info || flight.airline || '';
+                        const brandColor = getAirlineColor(airlineText);
+                        bar.style.background = `linear-gradient(135deg, ${brandColor} 0%, ${brandColor}dd 100%)`;
+                        bar.style.borderColor = brandColor;
+                        
+                        bar.style.left = `${leftPercent}%`;
+                        bar.style.width = `${Math.max(1, widthPercent)}%`;
+                        
+                        barWrapper.appendChild(bar);
+                    }
+                    flightContainer.appendChild(barWrapper);
+                    
+                    // Add arrival time label after the bar
+                    const arrivalLabel = document.createElement('div');
+                    arrivalLabel.className = 'flight-time-label arrival';
+                    arrivalLabel.textContent = flight.arrival || '';
+                    flightContainer.appendChild(arrivalLabel);
+                    
+                    flightCell.appendChild(flightContainer);
+                    row.appendChild(flightCell);
+
+                    // 3. Duration column - Just the duration text
+                    const durationCell = document.createElement('td');
+                    durationCell.className = 'table-duration';
+                    durationCell.textContent = flight.duration || '';
+                    row.appendChild(durationCell);
+
+                // 4. Price column (with highlighting)
+                const priceCell = document.createElement('td');
+                priceCell.className = 'table-price';
+                if (isBestPrice) {
+                    priceCell.classList.add('best-price');
+                }
+                priceCell.textContent = `$${flight.price}`;
+                row.appendChild(priceCell);
+
+                // 5. Airline column - Badge with number of flights emoji + airline info
+                const airlineCell = document.createElement('td');
+                airlineCell.className = 'table-airline';
+                const numberOfFlights = stops + 1; // Nonstop = 1 flight, 1 stop = 2 flights, etc.
+                const airlineText = flight.flight_info || flight.airline || '';
+                
+                // Map number to emoji
+                const emojiMap = {
+                    1: '1️⃣',
+                    2: '2️⃣',
+                    3: '3️⃣',
+                    4: '4️⃣',
+                    5: '5️⃣',
+                    6: '6️⃣',
+                    7: '7️⃣',
+                    8: '8️⃣',
+                    9: '9️⃣'
+                };
+                const flightEmoji = emojiMap[numberOfFlights] || '✈️';
+                
+                // Airline column - Plain text with emoji (no badge styling)
+                airlineCell.textContent = `${flightEmoji} ${airlineText}`;
+                row.appendChild(airlineCell);
+
+                // Make entire row clickable for booking
+                if (flight.booking_token || flight.booking_url || (flight.departure_airport && flight.arrival_airport)) {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on a link or button
+                        if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                            // Build Google Flights search URL that pre-fills the form
+                            // The tfu parameter doesn't work well, so we'll use a search URL
+                            // that at least shows the route and date, and users can find the flight
+                            const dep = flight.departure_airport || '';
+                            const arr = flight.arrival_airport || '';
+                            const date = flight.date || '';
+                            
+                            if (dep && arr && date) {
+                                // Build Google Flights search URL for ONE-WAY flights
+                                // Critical: Must NOT include return_date parameter to ensure one-way
+                                // Google Flights defaults to round-trip if return_date is present
+                                const params = new URLSearchParams({
+                                    hl: 'en',
+                                    gl: 'us',
+                                    curr: 'USD',
+                                    departure_id: dep,
+                                    arrival_id: arr,
+                                    outbound_date: date,
+                                    adults: '1' // Explicitly set to 1 adult
+                                });
+                                
+                                // Note: Google Flights uses 'type' parameter for trip type:
+                                // type=1 = Round trip, type=2 = One way, type=3 = Multi-city
+                                // However, the simpler approach is to just omit return_date
+                                // and let Google infer one-way from the absence of return_date
+                                
+                                // If we have a booking token, append it
+                                // The tfu parameter helps pre-select the specific flight
+                                if (flight.booking_token) {
+                                    params.append('tfu', flight.booking_token);
+                                }
+                                
+                                // Use /search endpoint
+                                const bookingUrl = `https://www.google.com/travel/flights/search?${params.toString()}`;
+                                window.open(bookingUrl, '_blank', 'noopener,noreferrer');
+                            } else if (flight.booking_url) {
+                                // Fallback to existing booking_url if available
+                                // Ensure it's one-way by removing any return_date parameter
+                                let fallbackUrl = flight.booking_url;
+                                try {
+                                    const urlObj = new URL(fallbackUrl);
+                                    // Remove return_date if present (ensures one-way)
+                                    urlObj.searchParams.delete('return_date');
+                                    // Ensure adults=1 is set
+                                    if (!urlObj.searchParams.has('adults')) {
+                                        urlObj.searchParams.set('adults', '1');
+                                    }
+                                    fallbackUrl = urlObj.toString();
+                                } catch (e) {
+                                    // If URL parsing fails, use as-is
+                                    console.warn('Could not parse booking URL:', e);
+                                }
+                                window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+                            }
+                        }
+                    });
+                }
+
+                tbody.appendChild(row);
+                }); // End flightsForDate.forEach
+            }); // End sortedDates.forEach
+        }
+
+        // Format date string (e.g., "2025-12-22" -> "Dec 22")
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Add event listeners to filter inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFlights();
+        });
+    </script>
+</body>
+</html>
+

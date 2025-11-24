@@ -1,4 +1,4 @@
-# Task Management Skill
+# Linear Skill
 
 ## Intention: Create tasks, manage issues, or work with Linear
 
@@ -13,7 +13,7 @@ Use the Linear GraphQL API endpoint: `https://api.linear.app/graphql`
 **Basic Query Pattern:**
 ```bash
 # Unconditional sourcing (simpler and more reliable - see boot.md)
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -s -X POST "https://api.linear.app/graphql" \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -21,7 +21,7 @@ curl -s -X POST "https://api.linear.app/graphql" \
 ```
 
 **Troubleshooting Auth Errors:**
-- If you get `AUTHENTICATION_ERROR`, verify the key exists: `grep LINEAR_API_KEY /Users/joe/dev/ai/.env`
+- If you get `AUTHENTICATION_ERROR`, verify the key exists: `grep LINEAR_API_KEY "$PROJECT_ROOT/.env"`
 - **Never use "Bearer" prefix** for personal API keys - Linear personal keys are used directly
 - If auth still fails, try unconditional sourcing pattern above (more reliable than conditional)
 
@@ -35,20 +35,26 @@ curl -s -X POST "https://api.linear.app/graphql" \
 
 **Date Filtering:** Use ISO format (YYYY-MM-DD) for date filters.
 
-**Calculate "This Week" Range (macOS):**
+**Calculate "This Week" Range (Cross-platform):**
 ```bash
 TODAY=$(date +%Y-%m-%d) && \
 DOW=$(date +%w) && \
-if [ "$DOW" = "0" ]; then END_WEEK=$(date -v+7d +%Y-%m-%d); else END_WEEK=$(date -v+Sun +%Y-%m-%d); fi
+if [ "$DOW" = "0" ]; then 
+  # Today is Sunday, get next Sunday (+7 days)
+  END_WEEK=$(date -v+7d +%Y-%m-%d 2>/dev/null || date -d "+7 days" +%Y-%m-%d)
+else 
+  # Get next Sunday (cross-platform: try macOS BSD date, fallback to Linux GNU date)
+  END_WEEK=$(date -v+Sun +%Y-%m-%d 2>/dev/null || date -d "next Sunday" +%Y-%m-%d)
+fi
 ```
-**Why:** `date -v+Sun` returns today if today is Sunday. For "this week" queries, if today is Sunday, use next Sunday (+7 days). Otherwise, use `date -v+Sun` to get the upcoming Sunday.
+**Why:** On Sunday, we want next Sunday (+7 days). Otherwise, get the upcoming Sunday. The command tries macOS BSD date syntax first, then falls back to Linux GNU date syntax.
 
 **Complete "This Week" Query Example (Single Command):**
 ```bash
-set -a && source /Users/joe/dev/ai/.env && set +a && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
 TODAY=$(date +%Y-%m-%d) && \
 DOW=$(date +%w) && \
-if [ "$DOW" = "0" ]; then END_WEEK=$(date -v+7d +%Y-%m-%d); else END_WEEK=$(date -v+Sun +%Y-%m-%d); fi && \
+if [ "$DOW" = "0" ]; then END_WEEK=$(date -v+7d +%Y-%m-%d 2>/dev/null || date -d "+7 days" +%Y-%m-%d); else END_WEEK=$(date -v+Sun +%Y-%m-%d 2>/dev/null || date -d "next Sunday" +%Y-%m-%d); fi && \
 curl -s -X POST "https://api.linear.app/graphql" \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -56,14 +62,20 @@ curl -s -X POST "https://api.linear.app/graphql" \
 jq -r '.data.viewer.assignedIssues.nodes[] | "\(.identifier) | \(.title) | Due: \(.dueDate) | Status: \(.state.name) | Priority: \(.priority // "None") | Team: \(.team.name) | \(.url)"'
 ```
 
-**Note:** For detailed API documentation, search for Linear API docs using `skills/get-docs.md` or visit https://linear.app/developers/graphql
+**Note:** For detailed API documentation, use web search (see `skills/web-search.md`) to find Linear API docs or visit https://linear.app/developers/graphql
 
 ### Issue Creation Best Practices
 
 When creating Linear issues via the Linear API:
 - If an issue has a due date specified, automatically set its status to "Todo" unless explicitly specified otherwise
 - This ensures issues with deadlines are immediately actionable
-- After creating or updating an issue, automatically open it in the web browser using `open "https://linear.app/{workspace}/issue/{identifier}"`
+- After creating or updating an issue, automatically open it in the web browser using a cross-platform command:
+  ```bash
+  # Cross-platform: macOS uses 'open', Linux uses 'xdg-open', Windows uses 'start'
+  open "https://linear.app/{workspace}/issue/{identifier}" 2>/dev/null || \
+  xdg-open "https://linear.app/{workspace}/issue/{identifier}" 2>/dev/null || \
+  start "https://linear.app/{workspace}/issue/{identifier}" 2>/dev/null || true
+  ```
 
 **Note:** Project-specific reference IDs (user IDs, team IDs, label IDs) should be stored in project-specific rule files, not in this general skill file.
 

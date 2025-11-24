@@ -9,3 +9,7 @@ Use Contacts MCP for contacts management.
 - [Contacts MCP](https://github.com/jcontini/macos-contacts-mcp) - Contacts management
 
 
+
+
+
+

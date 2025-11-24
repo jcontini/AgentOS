@@ -1,6 +1,9 @@
 # User-generated content (not tracked in git)
 user/
 
+# Skills-generated data (not tracked in git)
+skills-data/
+
 # macOS
 .DS_Store
 .DS_Store?
