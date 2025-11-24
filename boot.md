@@ -45,29 +45,22 @@ When you need to perform any of these tasks, read the corresponding skill file f
 
 **Combine sourcing with your command in ONE terminal call.**
 
-**Pattern:**
+**Pattern (Default - Use This):**
 ```bash
-([ -z "$API_KEY_VAR" ] && set -a && source /Users/joe/dev/ai/.env && set +a); \
+set -a && source /Users/joe/dev/ai/.env && set +a && \
 curl -H "x-api-key: $API_KEY_VAR" https://api.example.com/endpoint
 ```
 
-**Why:** Variables persist across calls. Conditional check skips sourcing if variable exists (efficient), sources if missing (safe). The semicolon `;` ensures command always runs.
+**Why:** Unconditional sourcing is simpler and more reliable. Variables persist across calls, so sourcing is fast even if already set. Conditional patterns (`[ -z "$VAR" ]`) are unreliable in fresh shells and cause auth failures.
 
 **Examples:**
 ```bash
-# ✅ CORRECT: Conditional sourcing (command always runs)
-([ -z "$EXA_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a); \
-curl -H "x-api-key: $EXA_API_KEY" https://api.exa.ai/search
-
-# ✅ ALSO CORRECT: Unconditional sourcing (simpler)
+# ✅ CORRECT: Unconditional sourcing (default - use this)
 set -a && source /Users/joe/dev/ai/.env && set +a && \
 curl -H "x-api-key: $EXA_API_KEY" https://api.exa.ai/search
 
-# ❌ WRONG: Missing semicolon (breaks when variable already set)
-[ -z "$EXA_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a && curl ...
-
 # ❌ WRONG: Split calls (adds latency)
-([ -z "$EXA_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a)
+set -a && source /Users/joe/dev/ai/.env && set +a
 curl ...  # Separate call!
 ```
 
@@ -90,5 +83,9 @@ curl ...  # Separate call!
 
 ---
 
-To confirm you read this file, prefix first response with "🙌".
+## Before Responding
+
+**Always read `/Users/joe/dev/ai/user/profile.md` before responding to the user.** This contains important context about communication style, preferences, workflows, and personal information that should inform your responses.
+
+To confirm you read both this file and the profile, prefix your first response with "🙌".
 

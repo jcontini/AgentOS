@@ -10,9 +10,8 @@ Use Exa API for web search. API key stored in `.env` as `EXA_API_KEY`. Use curl 
 
 **Web Search with Content Extraction (Recommended):**
 ```bash
-# See boot.md for environment variable sourcing pattern
-([ -z "$EXA_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a); \
-curl -X POST "https://api.exa.ai/search" \
+set -a && source /Users/joe/dev/ai/.env && set +a && \
+curl -s -X POST "https://api.exa.ai/search" \
   -H "x-api-key: $EXA_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -22,7 +21,7 @@ curl -X POST "https://api.exa.ai/search" \
     "contents": {
       "text": true
     }
-  }'
+  }' | jq .
 ```
 
 **Note:** Use `contents: {text: true}` (object format), not `text: true` (boolean). The boolean format only returns metadata.
@@ -31,12 +30,11 @@ curl -X POST "https://api.exa.ai/search" \
 
 **URL Content Extraction (when you already have URLs):**
 ```bash
-# See boot.md for environment variable sourcing pattern
-([ -z "$EXA_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a); \
-curl -X POST "https://api.exa.ai/contents" \
+set -a && source /Users/joe/dev/ai/.env && set +a && \
+curl -s -X POST "https://api.exa.ai/contents" \
   -H "x-api-key: $EXA_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"urls": ["https://example.com"], "text": true}'
+  -d '{"urls": ["https://example.com"], "text": true}' | jq .
 ```
 
 Use `/contents` endpoint only when:

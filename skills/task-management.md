@@ -8,24 +8,53 @@ When the user mentions adding a task, creating a task, getting tasks, or anythin
 
 Use the Linear GraphQL API endpoint: `https://api.linear.app/graphql`
 
-**Authentication:** Use personal API key from `.env` file. For personal API keys, use `Authorization: <API_KEY>` (without "Bearer"). For OAuth tokens, use `Authorization: Bearer <TOKEN>`.
+**Authentication:** Use personal API key from `.env` file. **CRITICAL:** For personal API keys, use `Authorization: <API_KEY>` (without "Bearer"). For OAuth tokens, use `Authorization: Bearer <TOKEN>`.
 
 **Basic Query Pattern:**
 ```bash
-# See boot.md for environment variable sourcing pattern
-([ -z "$LINEAR_API_KEY" ] && set -a && source /Users/joe/dev/ai/.env && set +a); \
-curl -X POST "https://api.linear.app/graphql" \
+# Unconditional sourcing (simpler and more reliable - see boot.md)
+set -a && source /Users/joe/dev/ai/.env && set +a && \
+curl -s -X POST "https://api.linear.app/graphql" \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "{ issues { nodes { id title } } }"}'
+  -d '{"query": "{ issues { nodes { id title } } }"}' | jq .
 ```
+
+**Troubleshooting Auth Errors:**
+- If you get `AUTHENTICATION_ERROR`, verify the key exists: `grep LINEAR_API_KEY /Users/joe/dev/ai/.env`
+- **Never use "Bearer" prefix** for personal API keys - Linear personal keys are used directly
+- If auth still fails, try unconditional sourcing pattern above (more reliable than conditional)
 
 **Common Queries:**
 
 - **Get all issues:** `{ issues { nodes { id title description } } }`
 - **Get user's assigned issues:** `{ viewer { assignedIssues { nodes { id title } } } }`
+- **Get user's assigned issues due this week:** `{ viewer { assignedIssues(filter: { dueDate: { gte: "YYYY-MM-DD", lte: "YYYY-MM-DD" } }) { nodes { id identifier title description url priority state { name } dueDate assignee { name } team { name } } } } }`
 - **Get specific issue:** `{ issue(id: "ISSUE-ID") { id title description } }`
 - **Get team issues:** `{ team(id: "TEAM-ID") { issues { nodes { id title } } } }`
+
+**Date Filtering:** Use ISO format (YYYY-MM-DD) for date filters.
+
+**Calculate "This Week" Range (macOS):**
+```bash
+TODAY=$(date +%Y-%m-%d) && \
+DOW=$(date +%w) && \
+if [ "$DOW" = "0" ]; then END_WEEK=$(date -v+7d +%Y-%m-%d); else END_WEEK=$(date -v+Sun +%Y-%m-%d); fi
+```
+**Why:** `date -v+Sun` returns today if today is Sunday. For "this week" queries, if today is Sunday, use next Sunday (+7 days). Otherwise, use `date -v+Sun` to get the upcoming Sunday.
+
+**Complete "This Week" Query Example (Single Command):**
+```bash
+set -a && source /Users/joe/dev/ai/.env && set +a && \
+TODAY=$(date +%Y-%m-%d) && \
+DOW=$(date +%w) && \
+if [ "$DOW" = "0" ]; then END_WEEK=$(date -v+7d +%Y-%m-%d); else END_WEEK=$(date -v+Sun +%Y-%m-%d); fi && \
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"query\": \"{ viewer { assignedIssues(filter: { dueDate: { gte: \\\"$TODAY\\\", lte: \\\"$END_WEEK\\\" } }) { nodes { id identifier title description url priority state { name } dueDate assignee { name } team { name } } } } }\"}" | \
+jq -r '.data.viewer.assignedIssues.nodes[] | "\(.identifier) | \(.title) | Due: \(.dueDate) | Status: \(.state.name) | Priority: \(.priority // "None") | Team: \(.team.name) | \(.url)"'
+```
 
 **Note:** For detailed API documentation, search for Linear API docs using `skills/get-docs.md` or visit https://linear.app/developers/graphql
 
