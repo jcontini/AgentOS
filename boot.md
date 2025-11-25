@@ -3,12 +3,12 @@
 ## Available Skills
 
 - **Search the web / Read URLs** → `skills/web-search.md`
-- **Get or manage contacts** → `skills/contacts.md`
+- **Manage calendar events** → `skills/calendar/README.md`
 - **Task management / Linear** → `skills/linear/README.md`
+- **Get or manage contacts** → `skills/contacts.md`
 - **Handle YouTube links** → `skills/youtube/README.md`
 - **Enrich person/company info** → `skills/enrich/README.md`
 - **Search for flights** → `skills/flights/README.md`
-- **Read calendar events** → `skills/calendar/README.md`
 
 When you need to perform any of these tasks, read the corresponding skill file for detailed instructions.
 
@@ -44,7 +44,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ### Paths & File Exploration
 
 - **Always use absolute paths** - Use `$PROJECT_ROOT` variable: `$PROJECT_ROOT/skills/enrich/enrich.sh` not `./enrich.sh`. Avoid `cd` unless necessary.
-- **Skills data**: Store generated data in `$PROJECT_ROOT/skills-data/` (gitignored, like application data)
+- **Skills data**: Store generated data in `$PROJECT_ROOT/user/skills-data/` (gitignored, like application data)
 - **Use `tree` for file exploration** - `tree -a -L N` (include hidden files). **NEVER use `find` or `grep` to locate files** - `tree` is much faster.
 
 ### Minimizing Calls
@@ -103,14 +103,15 @@ curl ...  # Separate call!
 
 **This is an open-source repository.** The structure is organized as follows:
 
-- **`user/` folder**: Contains user-specific content (personal files, preferences, scripts, reports). This folder is for individual user customization and should not be shared publicly.
+- **`user/` folder**: Contains user-specific content (personal files, preferences, skills, reports). This folder is for individual user customization and should not be shared publicly.
+  - **`user/skills/`**: User-specific skills with their own folders and READMEs (mirrors `skills/` structure)
 - **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
 
 When creating or referencing user-specific files, always place them in the `user/` folder or its subdirectories.
 
 ## Before Responding
 
-**Always read `$PROJECT_ROOT/user/profile.md` before responding to the user.** This contains important context about communication style, preferences, workflows, and personal information that should inform your responses.
+**If the user is asking for personal advice, input, or anything personal:** Always read `$PROJECT_ROOT/user/profile.md` first to understand their context, preferences, goals, and background.
 
-To confirm you read both this file and the profile, prefix your first response with "🙌".
+To confirm you read this file, prefix your first response with "🙌".
 

@@ -4,7 +4,7 @@
 
 Use SerpApi Google Flights API to search for flights. API key stored in `.env` as `SERPAPI_API_KEY`. Use curl to call SerpApi directly.
 
-**Note:** Generated flight data is saved to `$PROJECT_ROOT/skills-data/flights/` (gitignored, like application data).
+**Note:** Generated flight data is saved to `$PROJECT_ROOT/user/skills-data/flights/` (gitignored, like application data).
 
 **Basic Flight Search (Round Trip):**
 ```bash
@@ -152,7 +152,7 @@ For a visual, filterable interface to view flight search results, use the HTML v
 
 ### Generating JSON for Viewer
 
-To generate the JSON file that the viewer loads (saved to `$PROJECT_ROOT/skills-data/flights/flights-results.json`), use this pattern:
+To generate the JSON file that the viewer loads (saved to `$PROJECT_ROOT/user/skills-data/flights/flights-results.json`), use this pattern:
 
 ```bash
 # Example: Search multiple dates and generate viewer JSON
@@ -230,8 +230,8 @@ def get_flight_info(flights):
   }]}
 ] | [.[].flights[]]
 ' /tmp/flights_$DATE1.json /tmp/flights_$DATE2.json /tmp/flights_$DATE3.json > /tmp/flights-results.json && \
-mkdir -p "$PROJECT_ROOT/skills-data/flights" && \
-cp /tmp/flights-results.json "$PROJECT_ROOT/skills-data/flights/flights-results.json"
+mkdir -p "$PROJECT_ROOT/user/skills-data/flights" && \
+cp /tmp/flights-results.json "$PROJECT_ROOT/user/skills-data/flights/flights-results.json"
 ```
 
 **Alternative: Serve from /tmp directory**
@@ -279,5 +279,5 @@ The viewer will automatically load `/tmp/flights-results.json` and display fligh
 - Results grouped by date and stops
 - Click "Book" buttons to open Google Flights booking pages
 
-**Note:** The viewer looks for `flights-results.json` in `skills-data/flights/` (or falls back to same directory as `viewer.html`, then `/tmp/flights-results.json`). The generation script above saves the JSON to `skills-data/flights/` automatically. Make sure to generate this file before opening the viewer.
+**Note:** The viewer looks for `flights-results.json` in `user/skills-data/flights/` (or falls back to same directory as `viewer.html`, then `/tmp/flights-results.json`). The generation script above saves the JSON to `user/skills-data/flights/` automatically. Make sure to generate this file before opening the viewer.
 

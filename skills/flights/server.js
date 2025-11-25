@@ -21,9 +21,9 @@ serve({
     if (path === "/viewer.html" || path === "viewer.html") {
       filePath = resolve(SCRIPT_DIR, "viewer.html");
     } else if (path.startsWith("/skills-data/") || path.startsWith("skills-data/")) {
-      // Serve from skills-data folder
+      // Serve from user/skills-data folder
       const relativePath = path.replace(/^\/?skills-data\//, "");
-      filePath = resolve(PROJECT_ROOT, "skills-data", relativePath);
+      filePath = resolve(PROJECT_ROOT, "user", "skills-data", relativePath);
     } else {
       // Serve from current directory (skills/flights)
       const relativePath = path.startsWith("/") ? path.slice(1) : path;

@@ -14,7 +14,7 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 | Skill | Description | Platform | README |
 |-------|-------------|----------|--------|
-| **Calendar** | Read calendar events, search calendar, add/delete events | macOS | [`calendar/README.md`](skills/calendar/README.md) |
+| **Calendar** | Manage calendar events (read, add, update, delete), search calendar | macOS | [`calendar/README.md`](skills/calendar/README.md) |
 | **Contacts** | Get or manage contacts | macOS | [`contacts.md`](skills/contacts.md) |
 | **Enrich** | Enrich person or company information from emails, domains, LinkedIn | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
 | **Flights** | Search for flights and compare prices | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
@@ -63,6 +63,22 @@ Each skill contains detailed documentation on how to use it, including:
    **Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
 
 4. **Verify installation:** If the AI responds to your initial message with "🙌" then you know it's working.
+
+## Repository Structure
+
+AgentOS follows a clear separation between public/reusable skills and user-specific content:
+
+- **`skills/`** - Public, reusable skills with documentation and scripts. These are part of the open-source repository.
+  - Each skill can be a simple markdown file or a folder with `README.md` and supporting files
+  - Examples: Calendar, Flights, Linear, Web Search
+
+- **`user/`** - User-specific content (gitignored, not shared publicly)
+  - **`user/skills/`** - User-specific skills that mirror the `skills/` structure (e.g., personal automation scripts)
+  - **`user/skills-data/`** - Generated data from skills (e.g., flight search results, cached API responses)
+  - **`user/profile.md`** - User preferences, workflows, and context for the AI
+  - **`user/reports/`** - User-generated reports and analysis
+
+- **`.env`** - API keys and user preferences (gitignored)
 
 ## Philosophy
 

@@ -1,6 +1,6 @@
 # Calendar Skill
 
-## Intention: Read calendar events, search calendar, find upcoming events, add calendar events
+## Intention: Manage calendar events (read, add, update, delete), search calendar, find upcoming events
 
 **✅ PRIMARY METHODS:**
 - **Reading Events:** Use SQLite directly (fast, milliseconds)
@@ -10,12 +10,17 @@
 
 **Add an event:**
 ```bash
-swift "$PROJECT_ROOT/skills/calendar/add-event.swift" "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" add "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
 ```
 
 **Delete an event:**
 ```bash
-swift "$PROJECT_ROOT/skills/calendar/delete-event.swift" "Event Title" ["2025-11-24 14:00"]
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" delete "Event Title" "2025-11-24 14:00"
+```
+
+**Update an event:**
+```bash
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update "Old Title" "2025-11-24 14:00" "New Title"
 ```
 
 **Search for events:**
@@ -193,21 +198,13 @@ SQL
 
 **✅ USE THIS METHOD** - EventKit is the official API that Calendar.app uses internally. It uses CoreData under the hood and syncs properly to Google Calendar/iCloud.
 
-**Scripts:**
-- `$PROJECT_ROOT/skills/calendar/add-event.swift` - Add events
-- `$PROJECT_ROOT/skills/calendar/delete-event.swift` - Delete events
+**Unified Script:**
+- `$PROJECT_ROOT/skills/calendar/calendar-event.swift` - Unified script for add/delete/update operations
 
-### Adding Events
-
-**Usage:**
-```bash
-# Basic usage (uses system default calendar and timezone)
-swift "$PROJECT_ROOT/skills/calendar/add-event.swift" "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
-
-# With .env file (for user-specific calendar)
-set -a && source "$PROJECT_ROOT/.env" && set +a && \
-swift "$PROJECT_ROOT/skills/calendar/add-event.swift" "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
-```
+**Commands:**
+- `add` - Add a new event
+- `delete` - Delete an event
+- `update` - Update an existing event
 
 **Environment Variables (optional, add to `.env` for user-specific preferences):**
 - `CALENDAR_NAME` - Preferred calendar name to match (e.g., "user@example.com")
@@ -217,22 +214,45 @@ swift "$PROJECT_ROOT/skills/calendar/add-event.swift" "Event Title" "2025-11-24 
 - If `CALENDAR_NAME` is not set, script uses system default calendar
 - **Timezone:** Automatically uses system timezone (no configuration needed - works when traveling)
 
+### Adding Events
+
+**Usage:**
+```bash
+# Basic usage (uses system default calendar and timezone)
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" add "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
+
+# With .env file (for user-specific calendar)
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" add "Event Title" "2025-11-24 14:00" "2025-11-24 15:00" "Location" "Description"
+```
+
 **Arguments:**
-1. Event title (required)
-2. Start date/time: `"YYYY-MM-DD HH:MM"` (required)
-3. End date/time: `"YYYY-MM-DD HH:MM"` (optional, defaults to 1 hour after start)
-4. Location (optional)
-5. Description (optional)
+1. Command: `add` (required)
+2. Event title (required)
+3. Start date/time: `"YYYY-MM-DD HH:MM"` (required)
+4. End date/time: `"YYYY-MM-DD HH:MM"` (optional, defaults to 1 hour after start)
+5. Location (optional)
+6. Description (optional)
+7. Reservation URL (optional) - If provided, automatically appended to description as "Reserve: <url>"
 
 **Example:**
 ```bash
 TODAY=$(date +%Y-%m-%d)
-swift "$PROJECT_ROOT/skills/calendar/add-event.swift" \
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" add \
   "Meeting with Team" \
   "$TODAY 14:00" \
   "$TODAY 15:00" \
   "Conference Room A" \
   "Discuss project updates"
+
+# With reservation URL (e.g., for ABP classes)
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" add \
+  "Circuit w/Brian O" \
+  "$TODAY 17:30" \
+  "$TODAY 18:30" \
+  "Austin Bouldering Project - Springdale" \
+  "ABP Fitness Class" \
+  "https://boulderingproject.portal.approach.app/schedule?locationIds=6&date=$TODAY"
 ```
 
 ### Deleting Events
@@ -240,22 +260,70 @@ swift "$PROJECT_ROOT/skills/calendar/add-event.swift" \
 **Usage:**
 ```bash
 # Delete by title (searches today)
-swift "$PROJECT_ROOT/skills/calendar/delete-event.swift" "Event Title"
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" delete "Event Title"
 
 # Delete by title and specific time (more precise)
-swift "$PROJECT_ROOT/skills/calendar/delete-event.swift" "Event Title" "2025-11-24 14:00"
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" delete "Event Title" "2025-11-24 14:00"
 ```
+
+**Arguments:**
+1. Command: `delete` (required)
+2. Event title (required)
+3. Start date/time: `"YYYY-MM-DD HH:MM"` (optional, but recommended for precision)
 
 **Example:**
 ```bash
 # Delete a test event from today
-swift "$PROJECT_ROOT/skills/calendar/delete-event.swift" "Test Event"
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" delete "Test Event"
 
 # Delete specific event by time
-swift "$PROJECT_ROOT/skills/calendar/delete-event.swift" "Meeting" "2025-11-24 14:00"
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" delete "Meeting" "2025-11-24 14:00"
 ```
 
 **Note:** EventKit deletions sync properly to Google Calendar/iCloud, just like additions. Events must have been created via EventKit (not SQLite) to be deletable via EventKit.
+
+### Updating Events
+
+**Usage:**
+```bash
+# Update title only (finds event by old title and time)
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update "Old Title" "2025-11-24 14:00" "New Title"
+
+# Update title and times
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update "Old Title" "2025-11-24 14:00" "New Title" "2025-11-24 15:00" "2025-11-24 16:00"
+
+# Update title, times, location, and description
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update "Old Title" "2025-11-24 14:00" "New Title" "2025-11-24 15:00" "2025-11-24 16:00" "New Location" "New Description"
+```
+
+**Arguments:**
+1. Command: `update` (required)
+2. Old event title (required) - Used to find the event
+3. Old start date/time: `"YYYY-MM-DD HH:MM"` (optional, but recommended for precision)
+4. New title (optional, defaults to old title)
+5. New start date/time: `"YYYY-MM-DD HH:MM"` (optional)
+6. New end date/time: `"YYYY-MM-DD HH:MM"` (optional)
+7. New location (optional)
+8. New description (optional)
+
+**Example:**
+```bash
+# Rename an event
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update "First" "2025-11-25 12:30" "Haircut"
+
+# Update event time and title
+TODAY=$(date +%Y-%m-%d)
+swift "$PROJECT_ROOT/skills/calendar/calendar-event.swift" update \
+  "Meeting" \
+  "$TODAY 14:00" \
+  "Team Meeting" \
+  "$TODAY 15:00" \
+  "$TODAY 16:00" \
+  "Conference Room B" \
+  "Updated agenda"
+```
+
+**Note:** EventKit updates sync properly to Google Calendar/iCloud, just like additions and deletions. Events must have been created via EventKit (not SQLite) to be updatable via EventKit.
 
 **Advantages:**
 - ✅ Uses same API as Calendar.app (EventKit/CoreData)
