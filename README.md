@@ -19,6 +19,7 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 | **Enrich** | Enrich person or company information from emails, domains, LinkedIn | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
 | **Flights** | Search for flights and compare prices | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
 | **Linear** | Create tasks, manage issues, work with Linear | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
+| **Todoist** | Manage personal tasks (create, update, complete, delete, list) | Cross-platform | [`todoist/README.md`](skills/todoist/README.md) |
 | **Web Search** | Search the web and read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
 | **YouTube** | Handle YouTube links (transcript or video download) | Cross-platform | [`youtube/README.md`](skills/youtube/README.md) |
 
@@ -55,6 +56,7 @@ Each skill contains detailed documentation on how to use it, including:
    SERPAPI_API_KEY=your_serpapi_key
    ENRICH_SO_API_KEY=your_enrich_so_api_key
    LINEAR_API_KEY=your_linear_api_key
+   TODOIST_API_TOKEN=your_todoist_api_token
    
    # User preferences (optional)
    CALENDAR_NAME=your-calendar-name@example.com

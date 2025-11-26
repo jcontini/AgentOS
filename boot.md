@@ -5,6 +5,7 @@
 - **Search the web / Read URLs** → `skills/web-search.md`
 - **Manage calendar events** → `skills/calendar/README.md`
 - **Task management / Linear** → `skills/linear/README.md`
+- **Personal task management / Todoist** → `skills/todoist/README.md`
 - **Get or manage contacts** → `skills/contacts.md`
 - **Handle YouTube links** → `skills/youtube/README.md`
 - **Enrich person/company info** → `skills/enrich/README.md`
@@ -105,13 +106,41 @@ curl ...  # Separate call!
 
 - **`user/` folder**: Contains user-specific content (personal files, preferences, skills, reports). This folder is for individual user customization and should not be shared publicly.
   - **`user/skills/`**: User-specific skills with their own folders and READMEs (mirrors `skills/` structure)
+  - **`user/reports/`**: User-generated reports and analysis
 - **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
 
 When creating or referencing user-specific files, always place them in the `user/` folder or its subdirectories.
 
+### Creating Reports
+
+**When creating reports in `user/reports/`, use shell command substitution to generate the date automatically in the filename:**
+
+```bash
+# Generate date-stamped filename automatically (date evaluated inline)
+write "$PROJECT_ROOT/user/reports/$(date +"%Y-%m-%d")-report-name.md" "Report content here"
+```
+
+**⚠️ IMPORTANT:**
+- **DO NOT manually type dates** - LLMs often don't have accurate date context
+- **DO NOT include dates in the file content** - The filename date is the source of truth
+- **Always use shell date command** - `$(date +"%Y-%m-%d")` evaluated inline ensures accuracy
+
+**Example:**
+```bash
+# ✅ CORRECT: Use shell date command substitution inline
+write "$PROJECT_ROOT/user/reports/$(date +"%Y-%m-%d")-mac-llm-clients-comparison.md" "# Report Title
+
+Content here without dates..."
+
+# ❌ WRONG: Manual date (LLM may get it wrong)
+write "$PROJECT_ROOT/user/reports/2025-01-30-report.md" "# Report Title
+
+Date: January 30, 2025  ← Don't include dates in content!"
+```
+
 ## Before Responding
 
-**If the user is asking for personal advice, input, or anything personal:** Always read `$PROJECT_ROOT/user/profile.md` first to understand their context, preferences, goals, and background.
+**ALWAYS read `$PROJECT_ROOT/user/profile.md` first** to understand the user's context, preferences, goals, and background. This is essential for providing relevant, personalized responses.
 
 To confirm you read this file, prefix your first response with "🙌".
 
