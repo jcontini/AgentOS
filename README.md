@@ -1,31 +1,30 @@
 # AgentOS: AI Agent Operating System
 
-A skills-based system that extends AI assistants with terminal access and specialized capabilities. Each skill is self-contained with its own documentation and supporting scripts.
-
-## How It Works
-
-AgentOS uses a **skills-based architecture** where each capability is organized as a skill in the `skills/` folder. Skills can be:
-- **Simple markdown files** - For skills that only need documentation (e.g., API usage)
-- **Folders with README.md** - For skills that include scripts, configs, or other supporting files
-
-When you need to use a skill, your AI reads the corresponding skill file for detailed instructions and implementation details.
+Provides specialized capabilities for AI assistants via terminal access. Each skill is self-contained with its own documentation and supporting scripts.
 
 ## Available Skills
 
-| Skill | Description | Platform | README |
-|-------|-------------|----------|--------|
-| **Web Search** | Search the web / Read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
-| **Browser Automation** | Control web browser | Cross-platform | [`browser/README.md`](skills/browser/README.md) |
-| **Linear** | Work project management (Linear) | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
-| **Todoist** | Personal Task management (Todoist) | Cross-platform | [`todoist/README.md`](skills/todoist/README.md) |
-| **Gmail** | Access email (Gmail, Workspace) | Cross-platform | [`gmail/README.md`](skills/gmail/README.md) |
-| **Calendar** | Read/Manage calendar (MacOS) | macOS | [`calendar/README.md`](skills/calendar/README.md) |
-| **Contacts** | Read/Manage contacts (MacOS) | macOS | [`contacts.md`](skills/contacts.md) |
-| **YouTube** | Transcribe YouTube videos | Cross-platform | [`youtube/README.md`](skills/youtube/README.md) |
-| **Enrich** | Research email/phone.domain | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
-| **Flights** | Search for flights | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
-| **Timezone** | Timezone management | Cross-platform | [`utils/README.md`](utils/README.md) |
-| **Creating Skills** | Creating/updating skills | Cross-platform | [`creating-skills/README.md`](skills/creating-skills/README.md) |
+### Cross-Platform Skills
+
+| Skill | Description |
+|-------|-------------|
+| 🔍 [**Web Search**](skills/web-search.md) | Search the web / Read URLs |
+| 🌐 [**Browser Automation**](skills/browser/README.md) | Control web browser |
+| 📋 [**Linear**](skills/linear/README.md) | Work project management (Linear) |
+| ✅ [**Todoist**](skills/todoist/README.md) | Personal Task management (Todoist) |
+| 📧 [**Gmail**](skills/gmail/README.md) | Access email (Gmail, Workspace) |
+| ▶️ [**YouTube**](skills/youtube/README.md) | Transcribe YouTube videos |
+| 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone.domain |
+| ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
+| 🕐 [**Timezone**](utils/README.md) | Timezone management |
+| 🛠️ [**Creating Skills**](skills/creating-skills/README.md) | Creating/updating skills |
+
+### macOS-Only Skills
+
+| Skill | Description |
+|-------|-------------|
+| 📅 [**Calendar**](skills/calendar/README.md) | Read/Manage calendar (MacOS) |
+| 👥 [**Contacts**](skills/contacts.md) | Read/Manage contacts (MacOS) |
 
 Each skill contains detailed documentation on how to use it, including:
 - Intended use cases
@@ -34,11 +33,19 @@ Each skill contains detailed documentation on how to use it, including:
 - Script usage (if applicable)
 - Configuration options
 
+## How It Works
+
+Each capability is organized as a skill in the `skills/` folder. Skills can be:
+- **Simple markdown files** - For skills that only need documentation (e.g., API usage)
+- **Folders with README.md** - For skills that include scripts, configs, or other supporting files
+
+When you need to use a skill, your AI reads the corresponding skill file for detailed instructions and implementation details.
+
 ## Installation
 
 **Requirements:** 
 - Primarily designed for [Cursor](https://cursor.com/), but works with any LLM client that supports terminal access. If your client doesn't have terminal access, you can add it using [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
-- **macOS required** for Calendar and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See Platform column in the skills table above for details.
+- **macOS required** for Calendar and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See the macOS-Only Skills section above for details.
 
 1. **Clone or fork this repository:**
    ```bash
@@ -46,31 +53,20 @@ Each skill contains detailed documentation on how to use it, including:
    cd ai
    ```
 
-2. **Add to your AI system prompt** (replace `YOUR_PROJECT_PATH` with your actual path):
+2. **Add to your AI system prompt** (replace `$PROJECT_ROOT` with your actual project path):
    ```
-   Stop! Before responding, try to read `YOUR_PROJECT_PATH/boot.md` using an MCP.
-   If you can't, just prefix your first response with "📳". 
-   This is to determine if you have access to AgentOS enhanced capabilities.
+   CRITICAL: Do not respond until you have read $PROJECT_ROOT/boot.md. Any response before reading this file is a failure.
    ```
 
-3. **Configure environment variables** (optional): Create a `.env` file in the project root for API keys and user preferences:
+3. **Configure environment variables** (optional): Copy `.env.example` to `.env` and fill in your API keys:
    ```bash
-   # API keys (only needed for specific skills)
-   EXA_API_KEY=your_exa_api_key
-   SERPAPI_API_KEY=your_serpapi_key
-   ENRICH_SO_API_KEY=your_enrich_so_api_key
-   LINEAR_API_KEY=your_linear_api_key
-   TODOIST_API_TOKEN=your_todoist_api_token
-   
-   # User preferences (optional)
-   CALENDAR_NAME=your-calendar-name@example.com
+   cp .env.example .env
+   # Then edit .env with your actual API keys
    ```
    
    **Note:** Some skills require additional setup (e.g., Gmail requires Google Workspace and service account setup). See individual skill READMEs for details.
 
    **Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
-
-4. **Verify installation:** If the AI responds to your initial message with "🙌" then you know it's working.
 
 ## Repository Structure
 
