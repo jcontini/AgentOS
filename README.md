@@ -14,10 +14,14 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 | Skill | Description | Platform | README |
 |-------|-------------|----------|--------|
+| **Browser Automation** | Automate web browser interactions (use web search skill first for searches) | Cross-platform | [`browser/README.md`](skills/browser/README.md) |
 | **Calendar** | Manage calendar events (read, add, update, delete), search calendar | macOS | [`calendar/README.md`](skills/calendar/README.md) |
 | **Contacts** | Get or manage contacts | macOS | [`contacts.md`](skills/contacts.md) |
+| **Creating Skills** | Guide for creating new skills in this repository | Cross-platform | [`creating-skills/README.md`](skills/creating-skills/README.md) |
 | **Enrich** | Enrich person or company information from emails, domains, LinkedIn | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
 | **Flights** | Search for flights and compare prices | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
+| **Gmail** | Read emails and create drafts from Gmail (requires Google Workspace) | Cross-platform | [`gmail/README.md`](skills/gmail/README.md) |
+| **Instacart** | Order groceries via Instacart | Cross-platform | [`instacart/README.md`](skills/instacart/README.md) |
 | **Linear** | Create tasks, manage issues, work with Linear | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
 | **Todoist** | Manage personal tasks (create, update, complete, delete, list) | Cross-platform | [`todoist/README.md`](skills/todoist/README.md) |
 | **Web Search** | Search the web and read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
@@ -61,6 +65,8 @@ Each skill contains detailed documentation on how to use it, including:
    # User preferences (optional)
    CALENDAR_NAME=your-calendar-name@example.com
    ```
+   
+   **Note:** Some skills require additional setup (e.g., Gmail requires Google Workspace and service account setup). See individual skill READMEs for details.
 
    **Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
 
@@ -87,8 +93,18 @@ AgentOS follows a clear separation between public/reusable skills and user-speci
 AgentOS is designed with speed and simplicity in mind:
 - **Terminal-first**: All operations use terminal commands and direct API calls (no MCP overhead)
 - **Self-contained**: Each skill includes everything needed to use it
-- **Extensible**: Easy to add new skills or modify existing ones
+- **Extensible**: Easy to add new skills or modify existing ones (see `skills/creating-skills/README.md`)
 - **User-specific**: Personal preferences and secrets stay in `user/` folder
+- **Optimized for speed**: Chain commands, batch API calls, and minimize latency
+
+## Future Skills / Backlog
+
+Skills we're planning to add:
+
+- **Uber Rides API** - Request rides, get estimates, track ride status
+- **Uber Consumer Delivery API** - Order from restaurants and grocery stores (Sprouts, Costco, Target, etc.) available on Uber Eats
+
+**Note:** Uber Consumer Delivery API requires early access approval. Uber Rides API is available but may require approval for production use with privileged scopes.
 
 ## License
 
