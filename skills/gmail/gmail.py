@@ -23,7 +23,7 @@ SCOPES = [
 # Path to service account key (relative to project root)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
-SERVICE_ACCOUNT_FILE = os.path.join(PROJECT_ROOT, 'user', 'gmail-service-account-key.json')
+SERVICE_ACCOUNT_FILE = os.path.join(PROJECT_ROOT, 'user', 'skills-data', 'gmail', 'gmail-service-account-key.json')
 
 
 def get_gmail_service(user_email):
@@ -31,7 +31,7 @@ def get_gmail_service(user_email):
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
         raise FileNotFoundError(
             f"Service account key file not found: {SERVICE_ACCOUNT_FILE}\n"
-            "Please ensure the JSON key file is located at user/gmail-service-account-key.json"
+            "Please ensure the JSON key file is located at user/skills-data/gmail/gmail-service-account-key.json"
         )
     
     credentials = service_account.Credentials.from_service_account_file(

@@ -26,12 +26,17 @@ When creating new skills in `skills/`, follow these patterns and best practices.
 
 ## Environment Variables & Secrets
 
-- **All secrets go in `.env`** - API keys, tokens, credentials, and any sensitive configuration must be stored in `$PROJECT_ROOT/.env` (never hardcoded)
+- **API keys/tokens go in `.env`** - Simple API keys, tokens, and credentials should be stored in `$PROJECT_ROOT/.env` (never hardcoded)
+- **Skill-specific data/secrets go in `user/skills-data/`** - Files like service account keys, certificates, or other skill-specific data should be stored in `$PROJECT_ROOT/user/skills-data/SKILL_NAME/` where `SKILL_NAME` matches the skill folder name exactly
+  - **Important:** The folder name in `user/skills-data/` must match the skill folder name (whether in `skills/` or `user/skills/`) to avoid collisions
+  - Example: Skill `skills/gmail/` → Data in `user/skills-data/gmail/`
+  - Example: User skill `user/skills/abp/` → Data in `user/skills-data/abp/`
 - **Document required vars** - In the README, clearly list which environment variables the skill needs (e.g., `LINEAR_API_KEY`, `TODOIST_API_TOKEN`)
+- **Document data files** - If the skill requires files (like service account keys), document the expected path in `user/skills-data/SKILL_NAME/` where `SKILL_NAME` matches the skill folder name
 - **Use env vars in code** - Reference environment variables in scripts (e.g., `$API_KEY` in bash, `os.getenv('API_KEY')` in Python)
 - **Bash sourcing pattern** - For bash scripts, use unconditional sourcing: `set -a && source "$PROJECT_ROOT/.env" && set +a && command`
 - **Python env loading** - For Python scripts, load from `.env` using `python-dotenv` or parse manually
-- **Never commit secrets** - `.env` is gitignored. Never commit API keys or credentials to the repository
+- **Never commit secrets** - Both `.env` and `user/` are gitignored. Never commit API keys, credentials, or user-specific data to the repository
 
 ## Pattern Examples
 
@@ -46,6 +51,7 @@ When creating new skills in `skills/`, follow these patterns and best practices.
 
 - **`user/` folder**: Contains user-specific content (personal files, preferences, skills, reports). This folder is for individual user customization and should not be shared publicly.
   - **`user/skills/`**: User-specific skills with their own folders and READMEs (mirrors `skills/` structure)
+  - **`user/skills-data/`**: Skill-specific data files (service account keys, certificates, cached data, etc.). Each skill should have its own subdirectory matching the skill folder name exactly (e.g., `skills/gmail/` → `user/skills-data/gmail/`, `user/skills/abp/` → `user/skills-data/abp/`). This ensures no naming collisions between system and user skills.
   - **`user/reports/`**: User-generated reports and analysis
 - **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
 

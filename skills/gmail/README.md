@@ -128,7 +128,8 @@ If you see an error dialog "Service account key creation is disabled", an organi
   ls -lt ~/Downloads/*.json | head -1
   
   # Move to project location
-  mv ~/Downloads/gmail-api-access-*-*.json "$PROJECT_ROOT/user/gmail-service-account-key.json"
+  mkdir -p "$PROJECT_ROOT/user/skills-data/gmail"
+  mv ~/Downloads/gmail-api-access-*-*.json "$PROJECT_ROOT/user/skills-data/gmail/gmail-service-account-key.json"
   ```
 
 **Step 1.5: Get Service Account Client ID**
@@ -160,10 +161,11 @@ If you see an error dialog "Service account key creation is disabled", an organi
 #### Phase 3: Local Setup
 
 **Step 3.1: Move Service Account Key to Project**
-- Move the downloaded JSON key file to: `$PROJECT_ROOT/user/gmail-service-account-key.json`
+- Create the Gmail skills-data directory: `mkdir -p "$PROJECT_ROOT/user/skills-data/gmail"`
+- Move the downloaded JSON key file to: `$PROJECT_ROOT/user/skills-data/gmail/gmail-service-account-key.json`
 - Set permissions to `600` (owner read/write only):
   ```bash
-  chmod 600 "$PROJECT_ROOT/user/gmail-service-account-key.json"
+  chmod 600 "$PROJECT_ROOT/user/skills-data/gmail/gmail-service-account-key.json"
   ```
 - **Verification:** File exists at destination with correct permissions
 
@@ -183,7 +185,7 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 
 Use the Python script: `skills/gmail/gmail.py`
 
-**Authentication:** Uses service account JSON key file located at `user/gmail-service-account-key.json`. The script automatically handles service account authentication and user impersonation via domain-wide delegation.
+**Authentication:** Uses service account JSON key file located at `user/skills-data/gmail/gmail-service-account-key.json`. The script automatically handles service account authentication and user impersonation via domain-wide delegation.
 
 **Basic Usage Pattern:**
 ```bash
@@ -293,9 +295,9 @@ python3 "$PROJECT_ROOT/skills/gmail/gmail.py" draft \
 
 1. **Service account key file not found:**
    ```
-   FileNotFoundError: Service account key file not found: /path/to/user/gmail-service-account-key.json
+   FileNotFoundError: Service account key file not found: /path/to/user/skills-data/gmail/gmail-service-account-key.json
    ```
-   **Solution:** Ensure the JSON key file is located at `user/gmail-service-account-key.json`
+   **Solution:** Ensure the JSON key file is located at `user/skills-data/gmail/gmail-service-account-key.json`
 
 2. **Domain-wide delegation not configured:**
    ```
