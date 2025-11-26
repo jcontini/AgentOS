@@ -16,7 +16,6 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 | ▶️ [**YouTube**](skills/youtube/README.md) | Transcribe YouTube videos |
 | 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone.domain |
 | ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
-| 🕐 [**Timezone**](utils/README.md) | Timezone management |
 | 🛠️ [**Creating Skills**](skills/creating-skills/README.md) | Creating/updating skills |
 
 ### macOS-Only Skills
