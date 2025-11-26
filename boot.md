@@ -12,6 +12,7 @@
 - **Transcribe YouTube videos** → `skills/youtube/README.md`
 - **Research email/phone.domain** → `skills/enrich/README.md`
 - **Search for flights** → `skills/flights/README.md`
+- **Timezone management** → `utils/README.md`
 - **Creating/updating skills** → `skills/creating-skills/README.md`
 
 When you need to perform any of these tasks, read the corresponding skill file for detailed instructions.
@@ -68,6 +69,10 @@ curl ...  # Separate call!
 
 - **Skills data**: Store generated data in `$PROJECT_ROOT/user/skills-data/` (gitignored)
 
+### Timezone Conversion
+
+**Always convert UTC timestamps to local timezone when displaying to user.** See `utils/README.md` for detailed usage instructions. The timezone utility provides functions: `utc_to_local()`, `utc_to_local_date()`, `utc_to_local_time()`. Automatically detects system timezone.
+
 ---
 
 ## Repository Structure
@@ -78,6 +83,7 @@ curl ...  # Separate call!
   - **`user/skills/`**: User-specific skills with their own folders and READMEs (mirrors `skills/` structure)
   - **`user/reports/`**: User-generated reports and analysis
 - **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
+- **`utils/` folder**: Utility scripts used across skills (e.g., timezone conversion). These are supporting infrastructure, not user-facing skills. See `utils/README.md` for documentation.
 
 When creating or referencing user-specific files, always place them in the `user/` folder or its subdirectories.
 

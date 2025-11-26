@@ -14,18 +14,18 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 | Skill | Description | Platform | README |
 |-------|-------------|----------|--------|
-| **Browser Automation** | Automate web browser interactions (use web search skill first for searches) | Cross-platform | [`browser/README.md`](skills/browser/README.md) |
-| **Calendar** | Manage calendar events (read, add, update, delete), search calendar | macOS | [`calendar/README.md`](skills/calendar/README.md) |
-| **Contacts** | Get or manage contacts | macOS | [`contacts.md`](skills/contacts.md) |
-| **Creating Skills** | Guide for creating new skills in this repository | Cross-platform | [`creating-skills/README.md`](skills/creating-skills/README.md) |
-| **Enrich** | Enrich person or company information from emails, domains, LinkedIn | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
-| **Flights** | Search for flights and compare prices | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
-| **Gmail** | Read emails and create drafts from Gmail (requires Google Workspace) | Cross-platform | [`gmail/README.md`](skills/gmail/README.md) |
-| **Instacart** | Order groceries via Instacart | Cross-platform | [`instacart/README.md`](skills/instacart/README.md) |
-| **Linear** | Create tasks, manage issues, work with Linear | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
-| **Todoist** | Manage personal tasks (create, update, complete, delete, list) | Cross-platform | [`todoist/README.md`](skills/todoist/README.md) |
-| **Web Search** | Search the web and read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
-| **YouTube** | Handle YouTube links (transcript or video download) | Cross-platform | [`youtube/README.md`](skills/youtube/README.md) |
+| **Web Search** | Search the web / Read URLs | Cross-platform | [`web-search.md`](skills/web-search.md) |
+| **Browser Automation** | Control web browser | Cross-platform | [`browser/README.md`](skills/browser/README.md) |
+| **Linear** | Work project management (Linear) | Cross-platform | [`linear/README.md`](skills/linear/README.md) |
+| **Todoist** | Personal Task management (Todoist) | Cross-platform | [`todoist/README.md`](skills/todoist/README.md) |
+| **Gmail** | Access email (Gmail, Workspace) | Cross-platform | [`gmail/README.md`](skills/gmail/README.md) |
+| **Calendar** | Read/Manage calendar (MacOS) | macOS | [`calendar/README.md`](skills/calendar/README.md) |
+| **Contacts** | Read/Manage contacts (MacOS) | macOS | [`contacts.md`](skills/contacts.md) |
+| **YouTube** | Transcribe YouTube videos | Cross-platform | [`youtube/README.md`](skills/youtube/README.md) |
+| **Enrich** | Research email/phone.domain | Cross-platform | [`enrich/README.md`](skills/enrich/README.md) |
+| **Flights** | Search for flights | Cross-platform | [`flights/README.md`](skills/flights/README.md) |
+| **Timezone** | Timezone management | Cross-platform | [`utils/README.md`](utils/README.md) |
+| **Creating Skills** | Creating/updating skills | Cross-platform | [`creating-skills/README.md`](skills/creating-skills/README.md) |
 
 Each skill contains detailed documentation on how to use it, including:
 - Intended use cases
@@ -79,6 +79,9 @@ AgentOS follows a clear separation between public/reusable skills and user-speci
 - **`skills/`** - Public, reusable skills with documentation and scripts. These are part of the open-source repository.
   - Each skill can be a simple markdown file or a folder with `README.md` and supporting files
   - Examples: Calendar, Flights, Linear, Web Search
+
+- **`utils/`** - Utility scripts used across skills (e.g., timezone conversion)
+  - See `utils/README.md` for documentation on available utilities
 
 - **`user/`** - User-specific content (gitignored, not shared publicly)
   - **`user/skills/`** - User-specific skills that mirror the `skills/` structure (e.g., personal automation scripts)

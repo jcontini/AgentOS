@@ -4,7 +4,21 @@
 
 This skill documents patterns, learnings, and best practices for browser automation using the browser MCP tools.
 
-**⚠️ IMPORTANT: When searching the web, use the web search skill first (`skills/web-search.md`). Only use browser automation if web search doesn't work or if you need to interact with web pages (clicking buttons, filling forms, navigating complex flows).**
+## ⚠️ When to Use Browser Automation vs Web Search
+
+**ALWAYS use web search first (`skills/web-search.md`) for:**
+- Researching APIs, documentation, or information
+- Looking up how to do something
+- Finding documentation or examples
+- General web searches and information gathering
+
+**ONLY use browser automation when:**
+- You need to **interact** with web pages (clicking buttons, filling forms, navigating multi-step flows)
+- You need to **control** the browser to complete a specific task
+- Web search doesn't provide the information you need AND you need to navigate a complex site
+- You're automating a specific workflow that requires page interaction
+
+**Rule of thumb:** If you're just looking things up or researching, use web search. If you need to click, type, or navigate through a process, use browser automation.
 
 ## Known Issues & Patterns
 
@@ -124,7 +138,7 @@ This skill documents patterns, learnings, and best practices for browser automat
    - **Check if there are prerequisites** that need to be completed first
    - **Use browser_evaluate()** to inspect element state and get href/attributes
 9. **When blocked or stuck:** If automation is blocked (permissions, disabled buttons, unclear errors):
-  - **First, try web search skill** (`skills/web-search.md`) to learn how to proceed properly
+  - **First, use web search skill** (`skills/web-search.md`) to research the issue and find solutions
   - **Only if web search doesn't work**, use `browser_navigate()` to Google search: `https://www.google.com/search?q=YOUR_QUESTION`
   - Read documentation links from search results
   - Look for official documentation or Stack Overflow answers
