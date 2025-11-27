@@ -77,18 +77,23 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 If you prefer to set up manually:
 
-1. **Configure environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
+1. **Create `.env`** with your API keys:
    ```bash
-   cp .env.example .env
-   # Then edit .env with your actual API keys
+   cat > .env << 'EOF'
+   EXA_API_KEY=your_key_here
+   LINEAR_API_KEY=your_key_here
+   TODOIST_API_KEY=your_key_here
+   SERPAPI_API_KEY=your_key_here
+   EOF
    ```
+   (Only include the keys you need - see individual skill READMEs for details)
 
-2. **macOS users**: Grant Full Disk Access to your terminal for Calendar, iMessages, and Contacts:
+2. **Create `user/profile.md`** with basic info about yourself
+
+3. **macOS users**: Grant Full Disk Access to your terminal for Calendar, iMessages, and Contacts:
    - System Settings → Privacy & Security → Full Disk Access → Add your terminal app
 
-**Note:** Some skills require additional setup (e.g., Gmail requires Google Workspace and service account setup). See individual skill READMEs for details.
-
-**Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
+**Note:** The `.env` and `user/` folder are gitignored - your secrets and personal data stay local.
 
 ## Repository Structure
 
