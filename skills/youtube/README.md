@@ -13,4 +13,3 @@ When the user provides a YouTube link and asks for transcript or video download:
 
 - Transcripts: `$PROJECT_ROOT/user/youtube/transcripts/`
 - Videos: `$PROJECT_ROOT/user/youtube/videos/`
-

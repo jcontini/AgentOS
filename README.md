@@ -2,6 +2,14 @@
 
 Provides specialized capabilities for AI assistants via terminal access. Each skill is self-contained with its own documentation and supporting scripts.
 
+**Example things you can ask:**
+- "What's on my calendar today?"
+- "Show me my unread emails"
+- "Search for flights to Tokyo next month"
+- "What are my Linear tasks this week?"
+- "Read my recent iMessages from [name]"
+- "Add a contact for John Doe"
+
 ## Available Skills
 
 ### Cross-Platform Skills
@@ -12,7 +20,7 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 | 🌐 [**Browser Automation**](skills/browser/README.md) | Control web browser |
 | 📋 [**Linear**](skills/linear/README.md) | Work project management (Linear) |
 | ✅ [**Todoist**](skills/todoist/README.md) | Personal Task management (Todoist) |
-| 📧 [**Gmail**](skills/gmail/README.md) | Access email (Gmail, Workspace) |
+| 📧 [**Gmail**](skills/gmail/README.md) | Access email (Google Workspace only) |
 | ▶️ [**YouTube**](skills/youtube/README.md) | Transcribe YouTube videos |
 | 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone.domain |
 | ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
@@ -55,15 +63,15 @@ When you need to use a skill, your AI reads the corresponding skill file for det
    cd ai
    ```
 
-2. **Add to your AI system prompt** (replace `$PROJECT_ROOT` with your actual project path):
-   ```
-   CRITICAL: Do not respond until you have read $PROJECT_ROOT/boot.md. Any response before reading this file is a failure.
-   ```
-
-3. **Run AI-guided setup:** Ask your AI to help you set up:
-   > "Help me set up AgentOS. Read `utils/setup.md` and guide me through it."
+2. **Add to your AI system prompt:**
    
-   The AI will detect your OS, show what works out of the box, and walk you through setting up API keys for the skills you want.
+   In Cursor: Settings → "Rules for AI" → Add:
+   ```
+   CRITICAL: Do not respond until you have read /path/to/ai/boot.md. Any response before reading this file is a failure.
+   ```
+   (Replace `/path/to/ai` with wherever you cloned the repo)
+
+3. **Start a new chat and say "hi"** - the AI will detect it's a fresh install and guide you through setup.
 
 ### Manual Setup (Alternative)
 

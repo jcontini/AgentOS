@@ -39,6 +39,12 @@ uname -s  # Darwin = macOS, Linux, MINGW/CYGWIN = Windows
 
 For macOS: Calendar, iMessages, Contacts work out of the box (may need Full Disk Access).
 
+For all platforms: YouTube transcription works but needs `yt-dlp` installed:
+```bash
+which yt-dlp || echo "Not installed"
+```
+If not installed, offer: `brew install yt-dlp` (macOS) or `pip install yt-dlp`
+
 ## 3. Check Full Disk Access (macOS only)
 
 ```bash
