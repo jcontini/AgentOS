@@ -1,12 +1,14 @@
 # Contacts Skill
 
-## Intention: Read and search contacts from macOS Contacts app
+## Intention: Read, search, add, and edit contacts from macOS Contacts app
 
-**✅ PRIMARY METHOD: SQLite Direct Access** (fast, milliseconds)
-
-Query the Contacts SQLite database directly for maximum speed.
+**Methods:**
+- **Reading:** SQLite Direct Access (fast, ~5ms)
+- **Writing:** Swift script with Contacts framework (syncs with iCloud)
 
 ## Quick Reference
+
+### Reading (SQLite - Fast)
 
 **Search contacts by name:**
 ```bash
@@ -20,6 +22,35 @@ done
 for db in ~/Library/Application\ Support/AddressBook/Sources/*/AddressBook-v22.abcddb; do
     sqlite3 "$db" "SELECT r.ZFIRSTNAME, r.ZLASTNAME, r.ZORGANIZATION, p.ZFULLNUMBER FROM ZABCDRECORD r JOIN ZABCDPHONENUMBER p ON p.ZOWNER = r.Z_PK WHERE p.ZLASTFOURDIGITS = '1234' LIMIT 10;" 2>/dev/null
 done
+```
+
+### Writing (Swift Script)
+
+**Add a new contact:**
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" add \
+  --first "John" --last "Doe" \
+  --phone "+15125551234" --phone-label "mobile" \
+  --email "john@example.com" --email-label "work" \
+  --organization "Acme Corp" --job-title "Engineer"
+```
+
+**Update an existing contact:**
+```bash
+# First search to get the contact ID
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --name "John Doe"
+
+# Then update using the ID
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --job-title "Senior Engineer" \
+  --department "Engineering"
+```
+
+**Search contacts (returns JSON):**
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --name "John"
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --phone "5551234"
 ```
 
 ---
@@ -250,11 +281,63 @@ Birthday and other dates use macOS epoch (2001-01-01):
 datetime(ZBIRTHDAY + 978307200, 'unixepoch', 'localtime')
 ```
 
+## Writing Contacts (Swift Script)
+
+The Swift script `contacts.swift` uses the native Contacts framework to add and update contacts. Changes sync automatically with iCloud and other configured contact sources.
+
+### Add Contact
+
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" add [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--first <name>` | First name |
+| `--last <name>` | Last name |
+| `--middle <name>` | Middle name |
+| `--nickname <name>` | Nickname |
+| `--organization <name>` | Company/organization |
+| `--job-title <title>` | Job title |
+| `--department <name>` | Department |
+| `--phone <number>` | Phone number |
+| `--phone-label <label>` | Phone label (mobile, home, work, main, iphone) |
+| `--email <address>` | Email address |
+| `--email-label <label>` | Email label (home, work, icloud) |
+| `--note <text>` | Notes |
+
+**Minimum required:** At least one of `--first`, `--last`, or `--organization`
+
+### Update Contact
+
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update --id "CONTACT_ID" [options]
+```
+
+Uses the same options as `add`. The contact ID can be obtained from the `search` command.
+
+**Additional options:**
+| Option | Description |
+|--------|-------------|
+| `--replace-phones` | Replace all phone numbers (default: append) |
+| `--replace-emails` | Replace all email addresses (default: append) |
+
+### Search Contact
+
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --name "query"
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --phone "5551234"
+```
+
+Returns JSON with contact details including the `id` field needed for updates.
+
 ## Notes
 
 - Multiple contact sources may exist (iCloud, Google, Exchange, local)
 - Each source has its own database in `Sources/UUID/`
-- Use wildcard `*` to query all sources simultaneously
+- Use the bash loop pattern to query all sources via SQLite
 - Phone numbers are stored in various formats - normalize when comparing
 - The `ZLASTFOURDIGITS` field provides fast indexed phone lookups
+- Write operations via Swift automatically sync with iCloud
 
