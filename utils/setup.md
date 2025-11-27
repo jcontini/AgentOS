@@ -5,6 +5,29 @@ Walk the user through this conversationally. Don't overwhelm - just set up what 
 **Important:** Let users know they can skip anything and come back later:
 > "You can skip any of these steps - just say 'skip'. You can always run setup again later by asking me to 'run setup' or 'continue setup'."
 
+---
+
+## Checking for Updates
+
+When user asks to "check for updates" or "update AgentOS", run:
+```bash
+cd "$(dirname "$PROJECT_ROOT")" 2>/dev/null || cd .
+git fetch origin main --quiet && git log HEAD..origin/main --oneline
+```
+
+- **If output is empty:** "You're up to date!"
+- **If there are commits:** Show them what's new and offer to update:
+  > "There are updates available:
+  > [list commits]
+  > 
+  > Want me to update? This will run `git pull`."
+  
+  If yes: `git pull origin main`
+
+**Don't check automatically** - only when they ask. Updates might have breaking changes they want to review first.
+
+---
+
 ## 1. Check System Prompt
 
 First, check if boot.md is in your system prompt. If you naturally know about AgentOS skills and respond with "🙌", it's configured.
@@ -12,20 +35,22 @@ First, check if boot.md is in your system prompt. If you naturally know about Ag
 **If NOT configured**, help them add it:
 
 **For Cursor users:**
-> "First, let's connect AgentOS to Cursor:
+
+First, get the exact path and generate the line for them:
+```bash
+echo "CRITICAL: Do not respond until you have read $(pwd)/boot.md. Any response before reading this file is a failure."
+```
+
+Then guide them:
+> "Here's the exact line to add. Copy this:
+> 
+> `[paste the output from above]`
+>
+> To add it:
 > 1. Open **Cursor Settings** (Cmd+, or Ctrl+,)
 > 2. Search for **'Rules for AI'**
-> 3. Add this line (I'll get the path for you):"
->
-> ```bash
-> pwd  # Run this and use the output below
-> ```
->
-> ```
-> CRITICAL: Do not respond until you have read [PATH]/boot.md. Any response before reading this file is a failure.
-> ```
->
-> "Then start a new chat and say 'hi' - I should respond with 🙌 if it worked."
+> 3. Paste that line
+> 4. Start a new chat and say 'hi' - I should respond with 🙌 if it worked."
 
 **For other tools:** Guide them to find their system prompt / custom instructions setting and add the same line.
 
@@ -38,12 +63,6 @@ uname -s  # Darwin = macOS, Linux, MINGW/CYGWIN = Windows
 **Tell them what works for their OS.** Read `boot.md` to get the current skills list - don't hardcode it here.
 
 For macOS: Calendar, iMessages, Contacts work out of the box (may need Full Disk Access).
-
-For all platforms: YouTube transcription works but needs `yt-dlp` installed:
-```bash
-which yt-dlp || echo "Not installed"
-```
-If not installed, offer: `brew install yt-dlp` (macOS) or `pip install yt-dlp`
 
 ## 3. Check Full Disk Access (macOS only)
 

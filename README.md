@@ -22,7 +22,7 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 | ✅ [**Todoist**](skills/todoist/README.md) | Personal Task management (Todoist) |
 | 📧 [**Gmail**](skills/gmail/README.md) | Access email (Google Workspace only) |
 | ▶️ [**YouTube**](skills/youtube/README.md) | Transcribe YouTube videos |
-| 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone.domain |
+| 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone/domain |
 | ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
 | 🛠️ [**Creating Skills**](skills/creating-skills/README.md) | Creating/updating skills |
 

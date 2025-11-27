@@ -2,6 +2,13 @@
 
 ## Intention: Handle YouTube links (transcript or video download)
 
+### Requirements
+
+Requires `yt-dlp` to be installed:
+```bash
+which yt-dlp || echo "Not installed - install with: brew install yt-dlp (or pip install yt-dlp)"
+```
+
 When the user provides a YouTube link and asks for transcript or video download:
 
 ### Actions
