@@ -93,7 +93,6 @@ If you prefer to set things up yourself:
 **Notes:**
 - `.env` and `user/` are gitignored - your secrets stay local
 - macOS required for Calendar, iMessages, Contacts only - everything else is cross-platform
-- Works with any AI that has terminal access (not just Cursor)
 
 ## Repository Structure
 
