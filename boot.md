@@ -20,7 +20,7 @@
 
 **Utilities:**
 - [**Timezone**](utils/README.md) - Timezone conversion
-- [**Creating Skills**](utils/creating-skills/README.md) - Guide to adding new skills
+- [**Creating Skills**](utils/creating-skills.md) - Guide to adding new skills
 
 When you need to perform any of these tasks, read the corresponding file for instructions.
 

@@ -118,7 +118,7 @@ AgentOS follows a clear separation between public/reusable skills and user-speci
 AgentOS is designed with speed and simplicity in mind:
 - **Terminal-first**: All operations use terminal commands and direct API calls (no MCP overhead)
 - **Self-contained**: Each skill includes everything needed to use it
-- **Extensible**: Easy to add new skills or modify existing ones (see `utils/creating-skills/README.md`)
+- **Extensible**: Easy to add new skills or modify existing ones (see `utils/creating-skills.md`)
 - **User-specific**: Personal preferences and secrets stay in `user/` folder
 - **Optimized for speed**: Chain commands, batch API calls, and minimize latency
 
