@@ -51,49 +51,50 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 ## Installation
 
-**Requirements:** 
-- Primarily designed for [Cursor](https://cursor.com/), but works with any LLM client that supports terminal access. If your client doesn't have terminal access, you can add it using [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
-- **macOS required** for Calendar, iMessages, and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See the macOS-Only Skills section above for details.
-
 ### Quick Start
 
-1. **Clone or fork this repository:**
+Paste this into [Cursor](https://cursor.com/) (or any AI with terminal access):
+
+> Clone AgentOS, read the README, and guide me through setup.
+> ```
+> git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
+> ```
+
+That's it. The AI will handle the rest.
+
+### Manual Setup
+
+If you prefer to set things up yourself:
+
+1. **Clone the repo:**
    ```bash
-   git clone <repository-url>
-   cd ai
+   git clone https://github.com/jcontini/AgentOS.git
+   cd AgentOS
    ```
 
-2. **Add to your AI system prompt:**
-   
-   In Cursor: Settings → "Rules for AI" → Add:
+2. **Add to your AI system prompt** (Cursor: Settings → "Rules for AI"):
    ```
-   CRITICAL: Do not respond until you have read /path/to/ai/boot.md. Any response before reading this file is a failure.
+   CRITICAL: Do not respond until you have read /path/to/AgentOS/boot.md. Any response before reading this file is a failure.
    ```
-   (Replace `/path/to/ai` with wherever you cloned the repo)
 
-3. **Start a new chat and say "hi"** - the AI will detect it's a fresh install and guide you through setup.
-
-### Manual Setup (Alternative)
-
-If you prefer to set up manually:
-
-1. **Create `.env`** with your API keys:
+3. **Create `.env`** with API keys you want:
    ```bash
    cat > .env << 'EOF'
-   EXA_API_KEY=your_key_here
-   LINEAR_API_KEY=your_key_here
-   TODOIST_API_KEY=your_key_here
-   SERPAPI_API_KEY=your_key_here
+   EXA_API_KEY=your_key
+   LINEAR_API_KEY=your_key
+   TODOIST_API_KEY=your_key
+   SERPAPI_API_KEY=your_key
    EOF
    ```
-   (Only include the keys you need - see individual skill READMEs for details)
 
-2. **Create `user/profile.md`** with basic info about yourself
+4. **Create `user/profile.md`** with info about yourself
 
-3. **macOS users**: Grant Full Disk Access to your terminal for Calendar, iMessages, and Contacts:
-   - System Settings → Privacy & Security → Full Disk Access → Add your terminal app
+5. **macOS users**: System Settings → Privacy & Security → Full Disk Access → Add terminal
 
-**Note:** The `.env` and `user/` folder are gitignored - your secrets and personal data stay local.
+**Notes:**
+- `.env` and `user/` are gitignored - your secrets stay local
+- macOS required for Calendar, iMessages, Contacts only - everything else is cross-platform
+- Works with any AI that has terminal access (not just Cursor)
 
 ## Repository Structure
 
