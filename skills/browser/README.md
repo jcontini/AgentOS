@@ -2,6 +2,9 @@
 
 ## Intention: Automate web browser interactions
 
+**Required Skills:**
+- [Web Search](skills/web-search/README.md) - Always use web search first for research before automating
+
 This skill documents patterns, learnings, and best practices for browser automation using the browser MCP tools.
 
 ## ⚠️ When to Use Browser Automation vs Web Search

@@ -28,14 +28,27 @@ curl -s -X POST "https://api.exa.ai/search" \
 
 ## Intention: Read a specific URL
 
+**⚠️ CRITICAL: Always use `livecrawl: "always"` when fetching website content to avoid cached/stale results.**
+
 **URL Content Extraction (when you already have URLs):**
 ```bash
 set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -s -X POST "https://api.exa.ai/contents" \
   -H "x-api-key: $EXA_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"urls": ["https://example.com"], "text": true}' | jq .
+  -d '{"urls": ["https://example.com"], "text": true, "livecrawl": "always"}' | jq .
 ```
+
+**Livecrawl options:**
+- `"always"` - Always fetch fresh content (RECOMMENDED - use this by default)
+- `"never"` - Use cached content only
+- `"fallback"` - Use cache if live crawl fails
+
+**Why `livecrawl: "always"` is critical:**
+- Websites update frequently (event dates, cancellations, schedules)
+- Cached content can be days/weeks old
+- Stale data leads to incorrect information (e.g., showing old event dates)
+- Always use fresh content when verifying event status, dates, or current information
 
 Use `/contents` endpoint only when:
 - You already have specific URLs to extract

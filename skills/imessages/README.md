@@ -2,6 +2,9 @@
 
 ## Intention: Read iMessages/SMS messages from macOS Messages app
 
+**Required Skills:**
+- [Contacts](skills/contacts/README.md) - For resolving phone numbers to contact names
+
 **✅ PRIMARY METHOD: SQLite Direct Access** (fast, milliseconds)
 
 Similar to the Calendar skill, we query the Messages SQLite database directly for maximum speed.
@@ -47,7 +50,7 @@ SELECT
     m.text
 FROM message m
 LEFT JOIN handle h ON m.handle_id = h.ROWID
-WHERE m.date/1000000000 + 978307200 >= strftime('%s', 'now', 'start of day', 'localtime')
+WHERE m.date/1000000000 + 978307200 >= CAST(strftime('%s', 'now', 'start of day', 'localtime') AS INTEGER)
   AND m.text IS NOT NULL AND m.text != ''
 ORDER BY m.date DESC;
 SQL
@@ -72,6 +75,16 @@ datetime(date/1000000000 + 978307200, 'unixepoch', 'localtime')
 
 -- Convert readable date to query format (for filtering)
 (strftime('%s', '2025-01-01') - 978307200) * 1000000000
+```
+
+**⚠️ IMPORTANT:** When using `strftime()` in WHERE clauses for date comparisons, you MUST use `CAST(strftime(...) AS INTEGER)`. SQLite's `strftime()` returns TEXT, causing integer comparisons to fail silently.
+
+```sql
+-- ✅ CORRECT: CAST to INTEGER
+WHERE m.date/1000000000 + 978307200 >= CAST(strftime('%s', 'now', '-3 days') AS INTEGER)
+
+-- ❌ WRONG: Returns empty results (TEXT vs INTEGER comparison)
+WHERE m.date/1000000000 + 978307200 >= strftime('%s', 'now', '-3 days')
 ```
 
 ## Schema: Key Tables
@@ -172,21 +185,21 @@ SELECT
     m.text
 FROM message m
 LEFT JOIN handle h ON m.handle_id = h.ROWID
-WHERE m.date/1000000000 + 978307200 >= strftime('%s', 'now', 'start of day', 'localtime')
+WHERE m.date/1000000000 + 978307200 >= CAST(strftime('%s', 'now', 'start of day', 'localtime') AS INTEGER)
   AND m.text IS NOT NULL AND m.text != ''
 ORDER BY m.date DESC;
 ```
 
 ### Messages from Last N Days
 ```sql
--- Last 7 days
+-- Last 7 days (CAST required: strftime returns TEXT, not INTEGER)
 SELECT 
     datetime(m.date/1000000000 + 978307200, 'unixepoch', 'localtime') as date,
     CASE m.is_from_me WHEN 1 THEN 'Me' ELSE h.id END as sender,
     m.text
 FROM message m
 LEFT JOIN handle h ON m.handle_id = h.ROWID
-WHERE m.date/1000000000 + 978307200 >= strftime('%s', 'now', '-7 days')
+WHERE m.date/1000000000 + 978307200 >= CAST(strftime('%s', 'now', '-7 days') AS INTEGER)
   AND m.text IS NOT NULL AND m.text != ''
 ORDER BY m.date DESC;
 ```
