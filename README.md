@@ -1,67 +1,38 @@
 # AgentOS: AI Agent Operating System
 
-Provides specialized capabilities for AI assistants via terminal access. Each skill is self-contained with its own documentation and supporting scripts.
+Supercharge your AI assistant with real-world skills via terminal access.
 
-**Example things you can ask:**
-- "What's on my calendar today?"
-- "Show me my unread emails"
-- "Search for flights to Tokyo next month"
-- "What are my Linear tasks this week?"
-- "Read my recent iMessages from [name]"
-- "Add a contact for John Doe"
+## Getting Started
+
+Paste this into your AI chat ([Cursor](https://cursor.com/) agent, or any AI with terminal access):
+
+```
+Clone AgentOS, read the README, and guide me through setup:
+git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
+```
+
+That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions](#manual-setup))
 
 ## Available Skills
 
-### Cross-Platform Skills
+| Skill | Example |
+|-------|---------|
+| 📅 [**Calendar**](skills/calendar/README.md) | "What's on my calendar today?" |
+| 👥 [**Contacts**](skills/contacts/README.md) | "Add a contact for John Doe" |
+| 💬 [**iMessages**](skills/imessages/README.md) | "Read my recent messages from Mom" |
+| <img src="https://www.google.com/s2/favicons?domain=gmail.com&sz=32" width="16"> [**Gmail**](skills/gmail/README.md) | "Show me my unread emails" |
+| <img src="https://www.google.com/s2/favicons?domain=todoist.com&sz=32" width="16"> [**Todoist**](skills/todoist/README.md) | "Add 'buy groceries' to my todo list" |
+| 🔍 [**Web Search**](skills/web-search/README.md) | "Search for the latest news on AI" |
+| <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=32" width="16"> [**YouTube**](skills/youtube/README.md) | "Transcribe this YouTube video" |
+| ✈️ [**Flights**](skills/flights/README.md) | "Search for flights to Tokyo next month" |
+| <img src="https://www.google.com/s2/favicons?domain=linear.app&sz=32" width="16"> [**Linear**](skills/linear/README.md) | "What are my Linear tasks this week?" |
+| 🔎 [**Enrich**](skills/enrich/README.md) | "Look up info on john@company.com" |
+| <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" width="16"> [**GitHub**](skills/github/README.md) | "Create an issue for this bug" |
+| 🌐 [**Browser**](skills/browser/README.md) | "Go to example.com and click sign in" |
 
-| Skill | Description |
-|-------|-------------|
-| 🔍 [**Web Search**](skills/web-search/README.md) | Search the web / Read URLs |
-| 🌐 [**Browser Automation**](skills/browser/README.md) | Control web browser |
-| 📋 [**Linear**](skills/linear/README.md) | Work project management (Linear) |
-| ✅ [**Todoist**](skills/todoist/README.md) | Personal Task management (Todoist) |
-| 📧 [**Gmail**](skills/gmail/README.md) | Access email (Google Workspace only) |
-| ▶️ [**YouTube**](skills/youtube/README.md) | Transcribe YouTube videos |
-| 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone/domain |
-| ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
-| 🐙 [**GitHub**](skills/github/README.md) | Manage issues, PRs, repos |
+*Calendar, iMessages, and Contacts are macOS only. Everything else works cross-platform.*
 
-### macOS-Only Skills
-
-| Skill | Description |
-|-------|-------------|
-| 📅 [**Calendar**](skills/calendar/README.md) | Read/Manage calendar (MacOS) |
-| 💬 [**iMessages**](skills/imessages/README.md) | Read iMessages/SMS (MacOS) |
-| 👥 [**Contacts**](skills/contacts/README.md) | Read/Manage contacts (MacOS) |
-
-Each skill contains detailed documentation on how to use it, including:
-- Intended use cases
-- API endpoints and authentication
-- Command examples
-- Script usage (if applicable)
-- Configuration options
-
-## How It Works
-
-Each capability is organized as a skill in the `skills/` folder. Skills can be:
-- **Simple markdown files** - For skills that only need documentation (e.g., API usage)
-- **Folders with README.md** - For skills that include scripts, configs, or other supporting files
-
-When you need to use a skill, your AI reads the corresponding skill file for detailed instructions and implementation details.
-
-## Installation
-
-### Quick Start
-
-Paste this into your AI chat (e.g., [Cursor](https://cursor.com/) agent, or any AI with terminal access):
-
-```
-Clone AgentOS, read the README, and guide me through setup: git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
-```
-
-That's it. The AI will handle the rest.
-
-### Manual Setup
+## Manual Setup
 
 If you prefer to set things up yourself:
 
