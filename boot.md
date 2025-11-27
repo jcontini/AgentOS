@@ -5,24 +5,26 @@
 
 ## Available Skills
 
-- **Search the web / Read URLs** → `skills/web-search/README.md`
-- **Control web browser** → `skills/browser/README.md`
-- **Work project management (Linear)** → `skills/linear/README.md`
-- **Personal Task management (Todoist)** → `skills/todoist/README.md`
-- **Access email (Gmail, Workspace)** → `skills/gmail/README.md`
-- **Read/Manage calendar (MacOS)** → `skills/calendar/README.md`
-- **Read iMessages/SMS (MacOS)** → `skills/imessages/README.md`
-- **Read/Manage contacts (MacOS)** → `skills/contacts/README.md`
-- **Transcribe YouTube videos** → `skills/youtube/README.md`
-- **Research email/phone.domain** → `skills/enrich/README.md`
-- **Search for flights** → `skills/flights/README.md`
-- **GitHub issues/PRs** → `skills/github/README.md`
-- **Timezone management** → `utils/README.md`
-- **Creating/updating skills** → `utils/creating-skills/README.md`
+- [**Web Search**](skills/web-search/README.md) - Search the web, read URLs
+- [**Browser**](skills/browser/README.md) - Control web browser
+- [**Linear**](skills/linear/README.md) - Work project management
+- [**Todoist**](skills/todoist/README.md) - Personal task management
+- [**Gmail**](skills/gmail/README.md) - Email (Google Workspace only)
+- [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS)
+- [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS)
+- [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS)
+- [**YouTube**](skills/youtube/README.md) - Transcribe videos
+- [**Enrich**](skills/enrich/README.md) - Research email/phone/domain
+- [**Flights**](skills/flights/README.md) - Search for flights
+- [**GitHub**](skills/github/README.md) - Manage issues, PRs, repos
 
-When you need to perform any of these tasks, read the corresponding skill file for detailed instructions.
+**Utilities:**
+- [**Timezone**](utils/README.md) - Timezone conversion
+- [**Creating Skills**](utils/creating-skills/README.md) - Guide to adding new skills
 
-**Understanding SDKs/libraries/APIs:** Use web search (see `skills/web-search.md`) to research and find documentation for any library or API you need to understand.
+When you need to perform any of these tasks, read the corresponding file for instructions.
+
+**Understanding SDKs/libraries/APIs:** Use [Web Search](skills/web-search/README.md) to find documentation.
 
 ## Terminal Usage & Best Practices
 
