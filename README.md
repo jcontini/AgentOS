@@ -1,8 +1,5 @@
 # AgentOS: AI Agent Operating System
 
-> **🤖 AI:** Check if setup is needed: `[ -f .env ] && [ -f user/profile.md ] && echo "READY" || echo "NEEDS_SETUP"` 
-> If `NEEDS_SETUP`, read `utils/setup.md` and guide the user through it.
-
 Provides specialized capabilities for AI assistants via terminal access. Each skill is self-contained with its own documentation and supporting scripts.
 
 ## Available Skills
@@ -125,3 +122,18 @@ Skills we're planning to add:
 ## License
 
 See [LICENSE](LICENSE) file for details.
+
+---
+
+## For AI Assistants
+
+**Detecting if setup is needed:**
+```bash
+[ -f .env ] && [ -f user/profile.md ] && echo "READY" || echo "NEEDS_SETUP"
+```
+
+This checks if both `.env` (API keys) and `user/profile.md` (user context) exist. If either is missing, setup hasn't been completed.
+
+**If `NEEDS_SETUP`:** Read `utils/setup.md` and guide the user through interactive setup.
+
+**If `READY`:** Proceed with the user's request. Read `boot.md` for available skills and `user/profile.md` for user context.

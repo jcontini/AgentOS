@@ -2,6 +2,9 @@
 
 Walk the user through this conversationally. Don't overwhelm - just set up what they need.
 
+**Important:** Let users know they can skip anything and come back later:
+> "You can skip any of these steps - just say 'skip'. You can always run setup again later by asking me to 'run setup' or 'continue setup'."
+
 ## 1. Check System Prompt
 
 First, check if boot.md is in your system prompt. If you naturally know about AgentOS skills and respond with "🙌", it's configured.
@@ -46,14 +49,17 @@ If error, guide them: System Settings → Privacy & Security → Full Disk Acces
 
 ## 4. Ask What Skills They Want
 
-Don't set up everything. Ask what they want:
+Don't set up everything. Ask what they want, and explain what each enables:
 
-> "Which of these would you like to set up?"
-> - **Web Search** - Search the web, read URLs
-> - **Linear** - Work task management
-> - **Todoist** - Personal task management  
-> - **Gmail** - Email (requires Google Workspace, ~15 min)
-> - **Flights** - Search for flights
+> "Which of these would you like to set up? (You can skip all of these and add them later)"
+>
+> - **Web Search** - I can search the web and read full pages for you
+> - **Linear** - I can check your work tasks, create issues, update status
+> - **Todoist** - I can manage your personal tasks and to-dos
+> - **Gmail** - I can read your email and draft responses (requires Google Workspace, ~15 min setup)
+> - **Flights** - I can search for flights and compare prices
+
+**If they skip all API keys:** The macOS skills (Calendar, iMessages, Contacts) still work. They just won't have web search, task management, email, or flight search until they add the API keys.
 
 **About web search:** Some AI tools have built-in web search, but it's often limited - it may claim to read pages but actually just see snippets. For reliable full-page reading, we recommend Exa API (has a free tier).
 
@@ -85,9 +91,11 @@ EOF
 
 Build their profile conversationally. Start with essentials, offer to go deeper.
 
+**If they want to skip:** Create a minimal profile with just their name. They can expand it later.
+
 ### Essential Questions (ask these)
 
-> "A few quick questions so I can be more helpful:"
+> "A few quick questions so I can be more helpful (or say 'skip' and we can do this later):"
 
 1. **"What's your name?"**
 
@@ -153,5 +161,9 @@ Don't overwhelm new users with all this - start simple and they can expand over 
 
 Test each skill they set up (read the skill README for test commands).
 
-Then celebrate:
+Then celebrate and remind them about coming back:
+
 > "🎉 You're all set! Try asking me to [contextual suggestion based on what they set up]"
+
+If they skipped anything:
+> "Whenever you want to add more skills, just say 'run setup' and we'll pick up where we left off."
