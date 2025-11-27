@@ -5,7 +5,7 @@
 
 ## Available Skills
 
-- **Search the web / Read URLs** → `skills/web-search.md`
+- **Search the web / Read URLs** → `skills/web-search/README.md`
 - **Control web browser** → `skills/browser/README.md`
 - **Work project management (Linear)** → `skills/linear/README.md`
 - **Personal Task management (Todoist)** → `skills/todoist/README.md`
@@ -18,7 +18,7 @@
 - **Search for flights** → `skills/flights/README.md`
 - **GitHub issues/PRs** → `skills/github/README.md`
 - **Timezone management** → `utils/README.md`
-- **Creating/updating skills** → `skills/creating-skills/README.md`
+- **Creating/updating skills** → `utils/creating-skills/README.md`
 
 When you need to perform any of these tasks, read the corresponding skill file for detailed instructions.
 

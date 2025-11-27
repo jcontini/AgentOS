@@ -16,7 +16,7 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 
 | Skill | Description |
 |-------|-------------|
-| 🔍 [**Web Search**](skills/web-search.md) | Search the web / Read URLs |
+| 🔍 [**Web Search**](skills/web-search/README.md) | Search the web / Read URLs |
 | 🌐 [**Browser Automation**](skills/browser/README.md) | Control web browser |
 | 📋 [**Linear**](skills/linear/README.md) | Work project management (Linear) |
 | ✅ [**Todoist**](skills/todoist/README.md) | Personal Task management (Todoist) |
@@ -25,7 +25,6 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 | 🔎 [**Enrich**](skills/enrich/README.md) | Research email/phone/domain |
 | ✈️ [**Flights**](skills/flights/README.md) | Search for flights |
 | 🐙 [**GitHub**](skills/github/README.md) | Manage issues, PRs, repos |
-| 🛠️ [**Creating Skills**](skills/creating-skills/README.md) | Creating/updating skills |
 
 ### macOS-Only Skills
 
@@ -119,7 +118,7 @@ AgentOS follows a clear separation between public/reusable skills and user-speci
 AgentOS is designed with speed and simplicity in mind:
 - **Terminal-first**: All operations use terminal commands and direct API calls (no MCP overhead)
 - **Self-contained**: Each skill includes everything needed to use it
-- **Extensible**: Easy to add new skills or modify existing ones (see `skills/creating-skills/README.md`)
+- **Extensible**: Easy to add new skills or modify existing ones (see `utils/creating-skills/README.md`)
 - **User-specific**: Personal preferences and secrets stay in `user/` folder
 - **Optimized for speed**: Chain commands, batch API calls, and minimize latency
 
