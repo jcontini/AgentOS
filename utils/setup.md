@@ -83,10 +83,37 @@ EOF
 
 ## 6. Create Profile
 
-Ask a few quick questions:
-- Name
-- City (for timezone context)
-- What they do (for relevant suggestions)
+Build their profile conversationally. Start with essentials, offer to go deeper.
+
+### Essential Questions (ask these)
+
+> "A few quick questions so I can be more helpful:"
+
+1. **"What's your name?"**
+
+2. **"What city are you in?"** (for timezone, local suggestions)
+
+3. **"What do you do for work?"** (founder, engineer, designer, etc.)
+
+4. **"Do you have separate work and personal emails?"** 
+   - If yes, get both (for Gmail skill routing)
+
+5. **"How do you like me to communicate - brief and direct, or more detailed explanations?"**
+
+### Optional Deeper Questions (offer these)
+
+> "Want to add a bit more context? This helps me be more useful, but we can skip it."
+
+If they say yes, pick a few relevant ones:
+
+- **"Any current goals you're working toward?"** (health, career, learning, etc.)
+- **"What does a typical day look like for you?"** (routine, meetings, etc.)
+- **"Any tools you use daily?"** (task managers, note apps, etc.)
+- **"Anything else that would help me understand your context?"**
+
+### Build the Profile
+
+Based on their answers, create a profile following this structure:
 
 ```bash
 mkdir -p user
@@ -94,11 +121,33 @@ cat > user/profile.md << 'EOF'
 # [Name]'s Profile
 
 ## About Me
-- Name: [Name]
-- Location: [City]  
+- Location: [City]
 - Work: [What they do]
+- Emails: [work email], [personal email if different]
+
+## Communication Preferences
+- [Their preference - e.g., "Brief and direct" or "Detailed explanations"]
+
+## Goals
+- [Any goals they mentioned]
+
+## Routine
+- [Any routine info they shared]
+
+## Tools
+- [Tools they mentioned using]
 EOF
 ```
+
+> "I created your profile at `user/profile.md`. You can edit it anytime to add more context - things like your daily routine, current projects, or how you like certain tasks handled."
+
+**For AI:** A well-developed profile might include sections like:
+- Future (goals, travel plans)
+- Present (living situation, work, routine, relationships, communities, tech environment)
+- Past (background/timeline for context)
+- AI User Manual (communication preferences, custom workflows)
+
+Don't overwhelm new users with all this - start simple and they can expand over time.
 
 ## 7. Verify & Celebrate
 
