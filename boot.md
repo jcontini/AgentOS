@@ -1,23 +1,7 @@
 # AgentOS
 
-## First Run Check
-
-**Before doing anything else, check if this is a new user:**
-
-```bash
-# Check if setup is complete
-[ -f "$PROJECT_ROOT/.env" ] && [ -f "$PROJECT_ROOT/user/profile.md" ] && echo "SETUP_COMPLETE" || echo "NEEDS_SETUP"
-```
-
-**If `NEEDS_SETUP`:** Welcome the user and guide them through setup:
-
-> "Welcome to AgentOS! 👋 I'll help you get set up. Let me check your system..."
-
-Then read `utils/setup.md` and follow the interactive setup flow. Don't proceed with other tasks until setup is complete.
-
-**If `SETUP_COMPLETE`:** Proceed normally with the user's request.
-
----
+> **First run?** Check: `[ -f .env ] && [ -f user/profile.md ] || echo "NEEDS_SETUP"`
+> If needs setup, read `utils/setup.md` and guide the user through it.
 
 ## Available Skills
 
@@ -145,13 +129,7 @@ Date: January 30, 2025  ← Don't include dates in content!"
 
 ## Before Responding
 
-**First message in a conversation:**
-1. Run the First Run Check (top of this file)
-2. If `NEEDS_SETUP` → Run setup flow from `utils/setup.md`
-3. If `SETUP_COMPLETE` → Read `$PROJECT_ROOT/user/profile.md` for user context
+**Read `user/profile.md`** for user context, preferences, and workflows.
 
-**To confirm you read this file, prefix your first response with "🙌".**
-
-For new users, this becomes: "🙌 Welcome to AgentOS! Let me help you get set up..."
-For existing users, this confirms you have their context.
+**Prefix your first response with "🙌"** to confirm you read this file.
 
