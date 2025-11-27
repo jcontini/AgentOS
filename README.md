@@ -23,7 +23,8 @@ Provides specialized capabilities for AI assistants via terminal access. Each sk
 | Skill | Description |
 |-------|-------------|
 | 📅 [**Calendar**](skills/calendar/README.md) | Read/Manage calendar (MacOS) |
-| 👥 [**Contacts**](skills/contacts.md) | Read/Manage contacts (MacOS) |
+| 💬 [**iMessages**](skills/imessages/README.md) | Read iMessages/SMS (MacOS) |
+| 👥 [**Contacts**](skills/contacts/README.md) | Read/Manage contacts (MacOS) |
 
 Each skill contains detailed documentation on how to use it, including:
 - Intended use cases
@@ -44,7 +45,7 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 **Requirements:** 
 - Primarily designed for [Cursor](https://cursor.com/), but works with any LLM client that supports terminal access. If your client doesn't have terminal access, you can add it using [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
-- **macOS required** for Calendar and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See the macOS-Only Skills section above for details.
+- **macOS required** for Calendar, iMessages, and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See the macOS-Only Skills section above for details.
 
 1. **Clone or fork this repository:**
    ```bash

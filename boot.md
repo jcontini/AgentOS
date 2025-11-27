@@ -8,7 +8,8 @@
 - **Personal Task management (Todoist)** → `skills/todoist/README.md`
 - **Access email (Gmail, Workspace)** → `skills/gmail/README.md`
 - **Read/Manage calendar (MacOS)** → `skills/calendar/README.md`
-- **Read/Manage contacts (MacOS)** → `skills/contacts.md`
+- **Read iMessages/SMS (MacOS)** → `skills/imessages/README.md`
+- **Read/Manage contacts (MacOS)** → `skills/contacts/README.md`
 - **Transcribe YouTube videos** → `skills/youtube/README.md`
 - **Research email/phone.domain** → `skills/enrich/README.md`
 - **Search for flights** → `skills/flights/README.md`
