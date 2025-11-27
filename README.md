@@ -122,15 +122,6 @@ AgentOS is designed with speed and simplicity in mind:
 - **User-specific**: Personal preferences and secrets stay in `user/` folder
 - **Optimized for speed**: Chain commands, batch API calls, and minimize latency
 
-## Future Skills / Backlog
-
-Skills we're planning to add:
-
-- **Uber Rides API** - Request rides, get estimates, track ride status
-- **Uber Consumer Delivery API** - Order from restaurants and grocery stores (Sprouts, Costco, Target, etc.) available on Uber Eats
-
-**Note:** Uber Consumer Delivery API requires early access approval. Uber Rides API is available but may require approval for production use with privileged scopes.
-
 ## License
 
 See [LICENSE](LICENSE) file for details.
