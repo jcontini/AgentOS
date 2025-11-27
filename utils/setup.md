@@ -56,8 +56,15 @@ Don't set up everything. Ask what they want, and explain what each enables:
 > - **Web Search** - I can search the web and read full pages for you
 > - **Linear** - I can check your work tasks, create issues, update status
 > - **Todoist** - I can manage your personal tasks and to-dos
-> - **Gmail** - I can read your email and draft responses (requires Google Workspace, ~15 min setup)
+> - **Gmail** - I can read your email and draft responses
 > - **Flights** - I can search for flights and compare prices
+
+**Before offering Gmail setup, ask:**
+> "Do you use Google Workspace (like a work email ending in @yourcompany.com), or regular personal Gmail (@gmail.com)?"
+
+- **If Google Workspace:** Great, Gmail skill will work. Proceed with setup (~15 min).
+- **If personal Gmail (@gmail.com):** 
+  > "Unfortunately, the Gmail skill only works with Google Workspace accounts, not personal @gmail.com addresses. This is because it uses a service account which requires Workspace admin access. You can skip this one."
 
 **If they skip all API keys:** The macOS skills (Calendar, iMessages, Contacts) still work. They just won't have web search, task management, email, or flight search until they add the API keys.
 
