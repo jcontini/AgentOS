@@ -199,3 +199,6 @@ Then celebrate and remind them about coming back:
 
 If they skipped anything:
 > "Whenever you want to add more skills, just say 'run setup' and we'll pick up where we left off."
+
+Also mention:
+> "If you have feedback, questions, or want to request a feature, just tell me and I can file a GitHub issue. (Requires the GitHub skill - see `skills/github/README.md`)"

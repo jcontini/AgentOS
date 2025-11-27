@@ -16,6 +16,7 @@
 - **Transcribe YouTube videos** → `skills/youtube/README.md`
 - **Research email/phone.domain** → `skills/enrich/README.md`
 - **Search for flights** → `skills/flights/README.md`
+- **GitHub issues/PRs** → `skills/github/README.md`
 - **Timezone management** → `utils/README.md`
 - **Creating/updating skills** → `skills/creating-skills/README.md`
 
