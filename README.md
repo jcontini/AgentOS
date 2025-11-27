@@ -47,6 +47,8 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 - Primarily designed for [Cursor](https://cursor.com/), but works with any LLM client that supports terminal access. If your client doesn't have terminal access, you can add it using [Terminal Controller MCP](https://github.com/GongRzhe/terminal-controller-mcp).
 - **macOS required** for Calendar, iMessages, and Contacts skills only. All other skills work cross-platform (macOS, Linux, Windows). See the macOS-Only Skills section above for details.
 
+### Quick Start
+
 1. **Clone or fork this repository:**
    ```bash
    git clone <repository-url>
@@ -58,15 +60,27 @@ When you need to use a skill, your AI reads the corresponding skill file for det
    CRITICAL: Do not respond until you have read $PROJECT_ROOT/boot.md. Any response before reading this file is a failure.
    ```
 
-3. **Configure environment variables** (optional): Copy `.env.example` to `.env` and fill in your API keys:
+3. **Run AI-guided setup:** Ask your AI to help you set up:
+   > "Help me set up AgentOS. Read `utils/setup.md` and guide me through it."
+   
+   The AI will detect your OS, show what works out of the box, and walk you through setting up API keys for the skills you want.
+
+### Manual Setup (Alternative)
+
+If you prefer to set up manually:
+
+1. **Configure environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
    ```bash
    cp .env.example .env
    # Then edit .env with your actual API keys
    ```
-   
-   **Note:** Some skills require additional setup (e.g., Gmail requires Google Workspace and service account setup). See individual skill READMEs for details.
 
-   **Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
+2. **macOS users**: Grant Full Disk Access to your terminal for Calendar, iMessages, and Contacts:
+   - System Settings → Privacy & Security → Full Disk Access → Add your terminal app
+
+**Note:** Some skills require additional setup (e.g., Gmail requires Google Workspace and service account setup). See individual skill READMEs for details.
+
+**Note:** The `.env` file is gitignored and contains user-specific secrets/preferences. Never commit it to the repository.
 
 ## Repository Structure
 

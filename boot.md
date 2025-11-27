@@ -1,5 +1,7 @@
 # Skills and How to Use Them
 
+> **New user?** Ask me to help you set up: "Help me set up AgentOS. Read `utils/setup.md` and guide me through it."
+
 ## Available Skills
 
 - **Search the web / Read URLs** → `skills/web-search.md`
