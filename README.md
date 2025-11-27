@@ -53,7 +53,7 @@ When you need to use a skill, your AI reads the corresponding skill file for det
 
 ### Quick Start
 
-Paste this into [Cursor](https://cursor.com/) (or any AI with terminal access):
+Paste this into your AI chat (e.g., [Cursor](https://cursor.com/) agent, or any AI with terminal access):
 
 ```
 Clone AgentOS, read the README, and guide me through setup: git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
