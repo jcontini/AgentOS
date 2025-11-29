@@ -108,6 +108,24 @@ SOCIAL_DOMAINS = {
     "Threads": "threads.net",
 }
 
+# URL templates for constructing URLs from username
+SOCIAL_URL_TEMPLATES = {
+    "Instagram": "https://www.instagram.com/",
+    "LinkedIn": "https://www.linkedin.com/in/",
+    "Twitter": "https://twitter.com/",
+    "Facebook": "https://www.facebook.com/",
+    "TikTok": "https://www.tiktok.com/@",
+    "YouTube": "https://www.youtube.com/@",
+    "GitHub": "https://github.com/",
+    "Flickr": "https://www.flickr.com/people/",
+    "Pinterest": "https://www.pinterest.com/",
+    "Snapchat": "https://www.snapchat.com/add/",
+    "Reddit": "https://www.reddit.com/user/",
+    "Mastodon": "https://mastodon.social/@",
+    "Bluesky": "https://bsky.app/profile/",
+    "Threads": "https://www.threads.net/@",
+}
+
 def normalize_service(service: str) -> str:
     """Normalize service name to proper case (instagram -> Instagram)."""
     return SOCIAL_SERVICES.get(service.lower(), service.capitalize())
@@ -654,6 +672,12 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
         for svc, dom in SOCIAL_DOMAINS.items()
     ])
     
+    # Build URL template lookup
+    url_template_checks = "\n".join([
+        f'if normalizedName is "{svc}" then set urlTemplate to "{template}"'
+        for svc, template in SOCIAL_URL_TEMPLATES.items()
+    ])
+    
     script = f'''
         tell application "Contacts"
             try
@@ -675,6 +699,10 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                     
                     {service_checks}
                     {domain_checks}
+                    
+                    -- Get URL template for this service
+                    set urlTemplate to ""
+                    {url_template_checks}
                     
                     -- CASE 1: Check if username has URL pasted into it (like "WWW.FACEBOOK.COM/PROFILE.PHP?ID=123")
                     set urlPastedAsUsername to false
@@ -780,18 +808,20 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                             end if
                             set user name of sp to usr
                             
-                            -- Check if URL is corrupted (truncated or doesn't contain username)
-                            set urlCorrupted to false
+                            -- Check if URL needs to be constructed
+                            -- (missing, corrupted, or doesn't contain username)
+                            set needsUrl to false
                             if theUrl is missing value or theUrl is "" then
-                                set urlCorrupted to false -- missing is OK, macOS will build it
+                                set needsUrl to true
                             else if expectedDomain is not "" and theUrl does not contain expectedDomain then
-                                set urlCorrupted to true
+                                set needsUrl to true
                             else if theUrl does not contain usr then
-                                set urlCorrupted to true
+                                set needsUrl to true
                             end if
                             
-                            if urlCorrupted then
-                                set url of sp to "" -- clear so macOS rebuilds
+                            if needsUrl and urlTemplate is not "" then
+                                -- Construct URL from template + username
+                                set url of sp to urlTemplate & usr
                             end if
                         end if
                     end if

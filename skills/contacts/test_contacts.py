@@ -155,6 +155,132 @@ def test_crud_lifecycle():
     print("✅ All tests passed!")
     print("=" * 40 + "\n")
 
+def run_applescript(script: str) -> str:
+    """Run AppleScript and return output."""
+    result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+    return result.stdout.strip()
+
+def test_fix_scenarios():
+    """Test fix command handles various corrupted social profile scenarios."""
+    print("\n=== Social Profile Fix Test ===\n")
+    
+    TEST_FIRST = "_FIXTEST_"
+    TEST_LAST = "_DELETE_"
+    
+    # Create test contact via AppleScript with corrupted social profiles
+    print("1. CREATE contact with corrupted social profiles")
+    setup_script = f'''
+        tell application "Contacts"
+            set p to make new person with properties {{first name:"{TEST_FIRST}", last name:"{TEST_LAST}"}}
+            
+            -- Scenario A: Valid username, missing URL (like Isabelle's Instagram)
+            make new social profile at end of social profiles of p with properties {{service name:"Instagram", user name:"testuser123"}}
+            
+            -- Scenario B: Truncated/corrupted URL (like Gustaf's Facebook)
+            make new social profile at end of social profiles of p with properties {{service name:"Facebook", user name:"validuser"}}
+            -- Manually corrupt the URL
+            set url of social profile 2 of p to "https://www.facebook"
+            
+            -- Scenario C: URL pasted as username (like Isabelle's Facebook)
+            make new social profile at end of social profiles of p with properties {{service name:"LinkedIn", user name:"WWW.LINKEDIN.COM/IN/PROFILE?ID=123456"}}
+            
+            -- Scenario D: Garbage username, garbage URL (should be nullified)
+            make new social profile at end of social profiles of p with properties {{service name:"Twitter", user name:"TYPE=PREF"}}
+            
+            save
+            return id of p
+        end tell
+    '''
+    contact_id = run_applescript(setup_script)
+    print(f"    ✓ Created test contact: {contact_id[:30]}...")
+    
+    # Read initial state
+    print("\n2. VERIFY corrupted state")
+    check_script = f'''
+        tell application "Contacts"
+            set p to first person whose first name is "{TEST_FIRST}"
+            set output to ""
+            repeat with sp in social profiles of p
+                set svc to service name of sp
+                if svc is not "" then
+                    set output to output & svc & "|" & user name of sp & "|" & url of sp & ";;;"
+                end if
+            end repeat
+            return output
+        end tell
+    '''
+    before = run_applescript(check_script)
+    print(f"    Before fix: {before[:100]}...")
+    
+    # Run fix
+    print("\n3. RUN fix command")
+    # Get contact ID in proper format
+    search_result = subprocess.run(
+        ["python3", SCRIPT, "search", f"{TEST_FIRST} {TEST_LAST}"],
+        capture_output=True, text=True
+    )
+    contact_data = json.loads(search_result.stdout)
+    if contact_data.get("count", 0) > 0:
+        proper_id = contact_data["contacts"][0]["id"]
+        fix_result = subprocess.run(
+            ["python3", SCRIPT, "fix", proper_id],
+            capture_output=True, text=True
+        )
+        print(f"    Fix result: {fix_result.stdout.strip()}")
+    
+    # Verify fixed state
+    print("\n4. VERIFY fixed state")
+    after = run_applescript(check_script)
+    profiles = [p for p in after.split(";;;") if p.strip()]
+    
+    for profile in profiles:
+        parts = profile.split("|")
+        if len(parts) >= 3:
+            svc, usr, url = parts[0], parts[1], parts[2]
+            print(f"    {svc}: usr={usr}, url={url[:50] if url != 'missing value' else url}")
+    
+    # Verify specific scenarios
+    print("\n5. VERIFY scenario outcomes")
+    
+    # Scenario A: Instagram should have URL constructed
+    if "Instagram" in after and "instagram.com" in after:
+        print("    ✓ Scenario A: Instagram URL constructed from username")
+    else:
+        print("    ⚠ Scenario A: Instagram URL not constructed")
+    
+    # Scenario B: Facebook should have URL fixed
+    if "Facebook" in after and "facebook.com/validuser" in after.lower():
+        print("    ✓ Scenario B: Facebook URL reconstructed")
+    else:
+        print("    ⚠ Scenario B: Facebook URL not fixed")
+    
+    # Scenario C: LinkedIn URL-as-username - this is a weird case
+    # The fix should try to extract profile ID if present
+    if "LinkedIn" in after:
+        print("    ✓ Scenario C: LinkedIn processed")
+    
+    # Scenario D: Twitter garbage should be nullified (not in output)
+    if "Twitter" not in after or "TYPE=PREF" not in after:
+        print("    ✓ Scenario D: Twitter garbage nullified")
+    else:
+        print("    ⚠ Scenario D: Twitter garbage not nullified")
+    
+    # Cleanup
+    print("\n6. CLEANUP")
+    cleanup_script = f'''
+        tell application "Contacts"
+            delete (first person whose first name is "{TEST_FIRST}")
+            save
+        end tell
+    '''
+    run_applescript(cleanup_script)
+    print("    ✓ Deleted test contact")
+    
+    print("\n" + "=" * 40)
+    print("✅ Fix scenarios test complete!")
+    print("=" * 40 + "\n")
+
 if __name__ == "__main__":
     test_crud_lifecycle()
+    test_fix_scenarios()
 
