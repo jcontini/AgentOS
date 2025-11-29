@@ -89,6 +89,7 @@ SOCIAL_SERVICES = {
     "mastodon": "Mastodon",
     "bluesky": "Bluesky",
     "threads": "Threads",
+    "flickr": "Flickr",
 }
 
 SOCIAL_DOMAINS = {
