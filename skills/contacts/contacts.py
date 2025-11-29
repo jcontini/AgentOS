@@ -99,6 +99,13 @@ SOCIAL_DOMAINS = {
     "TikTok": "tiktok.com",
     "YouTube": "youtube.com",
     "GitHub": "github.com",
+    "Flickr": "flickr.com",
+    "Pinterest": "pinterest.com",
+    "Snapchat": "snapchat.com",
+    "Reddit": "reddit.com",
+    "Mastodon": "mastodon.social",
+    "Bluesky": "bsky.app",
+    "Threads": "threads.net",
 }
 
 def normalize_service(service: str) -> str:
@@ -700,10 +707,26 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                         set user name of sp to ""
                         set url of sp to ""
                     else
+                        -- Normalize service name
                         if normalizedName is not "" then
                             set service name of sp to normalizedName
                         end if
                         set user name of sp to usr
+                        
+                        -- Check if URL is corrupted (doesn't contain expected domain or is truncated)
+                        -- Clear it so macOS rebuilds it from service + username
+                        set urlCorrupted to false
+                        if theUrl is missing value or theUrl is "" then
+                            set urlCorrupted to false -- missing is OK, macOS will build it
+                        else if expectedDomain is not "" and theUrl does not contain expectedDomain then
+                            set urlCorrupted to true
+                        else if theUrl does not contain usr then
+                            set urlCorrupted to true
+                        end if
+                        
+                        if urlCorrupted then
+                            set url of sp to "" -- clear so macOS rebuilds
+                        end if
                     end if
                 end repeat
                 
