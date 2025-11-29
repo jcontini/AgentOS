@@ -802,25 +802,32 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                                 set service name of sp to normalizedName
                             end if
                         else
-                            -- Has valid username
+                            -- Has valid username - normalize to lowercase
+                            set usr to do shell script "echo " & quoted form of usr & " | tr '[:upper:]' '[:lower:]'"
+                            
                             if normalizedName is not "" then
                                 set service name of sp to normalizedName
                             end if
                             set user name of sp to usr
                             
                             -- Check if URL needs to be constructed
-                            -- (missing, corrupted, or doesn't contain username)
+                            -- (missing, corrupted, doesn't contain username, or has wrong case)
                             set needsUrl to false
                             if theUrl is missing value or theUrl is "" then
                                 set needsUrl to true
                             else if expectedDomain is not "" and theUrl does not contain expectedDomain then
                                 set needsUrl to true
-                            else if theUrl does not contain usr then
-                                set needsUrl to true
+                            else
+                                -- Check if URL contains lowercase username (case-sensitive check)
+                                considering case
+                                    if theUrl does not contain usr then
+                                        set needsUrl to true
+                                    end if
+                                end considering
                             end if
                             
                             if needsUrl and urlTemplate is not "" then
-                                -- Construct URL from template + username
+                                -- Construct URL from template + lowercase username
                                 set url of sp to urlTemplate & usr
                             end if
                         end if
