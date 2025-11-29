@@ -34,7 +34,6 @@ python3 contacts.py social remove <id> instagram
 
 # Fix corrupted social profiles
 python3 contacts.py fix <id>
-python3 contacts.py fix --all
 ```
 
 ## Commands
@@ -157,14 +156,10 @@ Supported services: Instagram, LinkedIn, Twitter/X, Facebook, TikTok, YouTube, S
 
 ### fix
 
-Fix corrupted social profiles (extracts usernames from URLs, normalizes service names, removes garbage entries).
+Fix corrupted social profiles for a contact (extracts usernames from URLs, normalizes service names, removes garbage entries).
 
 ```bash
-# Fix one contact
 python3 contacts.py fix <id>
-
-# Fix all contacts (batch cleanup)
-python3 contacts.py fix --all
 ```
 
 ## Note Format Convention

@@ -716,26 +716,6 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
     '''
     return run_applescript(script)
 
-def fix_all_contacts() -> tuple[int, int]:
-    """Fix social profiles for all contacts. Returns (fixed, errors)."""
-    # Get all contacts with social profiles
-    sql = """
-        SELECT DISTINCT r.ZUNIQUEID as id, r.ZFIRSTNAME as firstName, r.ZLASTNAME as lastName
-        FROM ZABCDRECORD r
-        WHERE r.ZFIRSTNAME IS NOT NULL OR r.ZLASTNAME IS NOT NULL
-    """
-    contacts = query_contacts(sql)
-    
-    fixed = 0
-    errors = 0
-    for contact in contacts:
-        success, _ = fix_contact_socials(contact["id"])
-        if success:
-            fixed += 1
-        else:
-            errors += 1
-    
-    return fixed, errors
 
 # =============================================================================
 # CLI
@@ -791,8 +771,7 @@ def main():
     
     # fix
     fix_parser = subparsers.add_parser("fix", help="Fix corrupted social profiles")
-    fix_parser.add_argument("id", nargs="?", help="Contact ID (omit for --all)")
-    fix_parser.add_argument("--all", action="store_true", help="Fix all contacts")
+    fix_parser.add_argument("id", help="Contact ID")
     
     # phone subcommands
     phone_parser = subparsers.add_parser("phone", help="Phone operations")
@@ -906,18 +885,12 @@ def main():
             sys.exit(1)
     
     elif args.command == "fix":
-        if args.all:
-            fixed, errors = fix_all_contacts()
-            output_json({"success": True, "fixed": fixed, "errors": errors})
-        elif args.id:
-            success, result = fix_contact_socials(args.id)
-            if success:
-                output_json({"success": True, "message": "Social profiles fixed"})
-            else:
-                output_json({"success": False, "error": result})
-                sys.exit(1)
+        success, result = fix_contact_socials(args.id)
+        if success:
+            output_json({"success": True, "message": "Social profiles fixed"})
         else:
-            parser.error("Provide contact ID or --all")
+            output_json({"success": False, "error": result})
+            sys.exit(1)
     
     elif args.command == "phone":
         if args.action == "add":
