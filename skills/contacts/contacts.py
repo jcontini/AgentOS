@@ -687,6 +687,13 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                     
                     {service_checks}
                     
+                    -- CASE 0: Remove defunct services (Google+)
+                    if svcLower contains "plus.goo" or svcLower contains "google+" or svcLower is "googleplus" then
+                        set service name of sp to ""
+                        set user name of sp to ""
+                        set url of sp to ""
+                    else
+                    
                     -- CASE 1: Check if username has URL pasted into it (like "WWW.FACEBOOK.COM/PROFILE.PHP?ID=123")
                     set urlPastedAsUsername to false
                     set extractedProfileId to ""
@@ -815,6 +822,7 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                             end if
                         end if
                     end if
+                    end if -- end Google+ check
                 end repeat
                 
                 save
