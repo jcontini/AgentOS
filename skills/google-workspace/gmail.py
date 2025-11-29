@@ -9,35 +9,11 @@ import json
 import argparse
 import base64
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-# Scopes required for Gmail API
-SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.compose'
-]
-
-# Path to service account key (relative to project root)
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
-SERVICE_ACCOUNT_FILE = os.path.join(PROJECT_ROOT, 'user', 'skills-data', 'gmail', 'gmail-service-account-key.json')
-
-
-def get_gmail_service(user_email):
-    """Get Gmail API service for a specific user using service account delegation."""
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        raise FileNotFoundError(
-            f"Service account key file not found: {SERVICE_ACCOUNT_FILE}\n"
-            "Please ensure the JSON key file is located at user/skills-data/gmail/gmail-service-account-key.json"
-        )
-    
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-    delegated_credentials = credentials.with_subject(user_email)
-    return build('gmail', 'v1', credentials=delegated_credentials)
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from auth import get_gmail_service
 
 
 def list_messages(user_email, query=None, max_results=10):
@@ -259,4 +235,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 

@@ -5,11 +5,11 @@
 
 ## Available Skills
 
-- [**Web Search**](skills/web-search/README.md) - Search the web, read URLs
-- [**Browser**](skills/browser/README.md) - Control web browser
+- [**Search**](skills/search/README.md) - Semantic web search, discover URLs (Exa)
+- [**Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
 - [**Linear**](skills/linear/README.md) - Work project management
 - [**Todoist**](skills/todoist/README.md) - Personal task management
-- [**Gmail**](skills/gmail/README.md) - Email (Google Workspace only)
+- [**Google Workspace**](skills/google-workspace/README.md) - Gmail & Google Drive
 - [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS)
 - [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS)
 - [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS)
@@ -24,7 +24,30 @@
 
 When you need to perform any of these tasks, read the corresponding file for instructions.
 
-**Understanding SDKs/libraries/APIs:** Use [Web Search](skills/web-search/README.md) to find documentation.
+**Understanding SDKs/libraries/APIs:** Use [Search](skills/search/README.md) to find documentation.
+
+## Search vs Extract
+
+**Decision tree for web tasks:**
+
+```
+Need to FIND information or discover URLs?
+  → Use search/ (Exa semantic search)
+
+Have specific URLs to read/extract content from?
+  → Use extract/ (Exa first, Firecrawl fallback)
+     Firecrawl when: Exa fails, JS-heavy site, need more content
+```
+
+| Task | Skill | API |
+|------|-------|-----|
+| Research a topic | `search/` | Exa |
+| Find documentation | `search/` | Exa |
+| Discover niche content | `search/` | Exa (neural) |
+| Read a specific URL | `extract/` | Exa → Firecrawl |
+| Scrape JS-heavy site (Notion, React) | `extract/` | Firecrawl |
+
+**⚠️ Always surface API errors to the user** - credit exhaustion (402), rate limits (429), auth failures (401). Don't silently fail.
 
 ## Terminal Usage & Best Practices
 

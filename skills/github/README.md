@@ -109,3 +109,4 @@ gh issue create --repo jcontini/AgentOS --title "[topic]" --body "..."
 - JSON output: Add `--json field1,field2` to most commands
 - Web view: Add `--web` to open in browser instead of terminal
 
+

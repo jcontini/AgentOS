@@ -62,7 +62,7 @@ curl -s -X POST "https://api.linear.app/graphql" \
 jq -r '.data.viewer.assignedIssues.nodes[] | "\(.identifier) | \(.title) | Due: \(.dueDate) | Status: \(.state.name) | Priority: \(.priority // "None") | Team: \(.team.name) | \(.url)"'
 ```
 
-**Note:** For detailed API documentation, use web search (see `skills/web-search.md`) to find Linear API docs or visit https://linear.app/developers/graphql
+**Note:** For detailed API documentation, use search (see `skills/search/README.md`) to find Linear API docs or visit https://linear.app/developers/graphql
 
 ### Issue Creation Best Practices
 

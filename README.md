@@ -20,15 +20,15 @@ That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions]
 | <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="20" height="20" style="vertical-align:middle"> [Apple Calendar](skills/calendar/README.md) | "What's on my calendar today?" |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="20" height="20" style="vertical-align:middle"> [Apple Contacts](skills/contacts/README.md) | "Add a contact for John Doe" |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="20" height="20" style="vertical-align:middle"> [iMessages](skills/imessages/README.md) | "Read my recent messages from Mom" |
-| <img src="https://img.icons8.com/fluency/48/gmail.png" width="20" height="20" style="vertical-align:middle"> [Gmail](skills/gmail/README.md) | "Show me my unread emails" |
+| <img src="https://img.icons8.com/fluency/48/google-logo.png" width="20" height="20" style="vertical-align:middle"> [Google Workspace](skills/google-workspace/README.md) | "Show me my unread emails", "Find my meeting notes doc" |
 | <img src="https://cdn.simpleicons.org/todoist" width="20" height="20" style="vertical-align:middle"> [Todoist](skills/todoist/README.md) | "Add 'buy groceries' to my todo list" |
-| 🔍 [Web Search](skills/web-search/README.md) | "Search for the latest news on AI" |
+| 🔍 [Search](skills/search/README.md) | "Search for the latest news on AI" |
+| 📄 [Extract](skills/extract/README.md) | "Read this URL and summarize it" |
 | <img src="https://cdn.simpleicons.org/youtube" width="20" height="20" style="vertical-align:middle"> [YouTube](skills/youtube/README.md) | "Transcribe this YouTube video" |
 | ✈️ [Flights](skills/flights/README.md) | "Search for flights to Tokyo next month" |
 | <img src="https://cdn.simpleicons.org/linear" width="20" height="20" style="vertical-align:middle"> [Linear](skills/linear/README.md) | "What are my Linear tasks this week?" |
 | <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="20" height="20" style="vertical-align:middle"> [Enrich](skills/enrich/README.md) | "Look up info on john@company.com" |
 | <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="20" height="20" style="vertical-align:middle"> [GitHub](skills/github/README.md) | "Create an issue for this bug" |
-| <img src="https://img.icons8.com/?size=100&id=103413&format=png&color=000000" width="20" height="20" style="vertical-align:middle"> [Browser](skills/browser/README.md) | "Go to example.com and click sign in" |
 
 *Calendar, iMessages, and Contacts are macOS only. Everything else works cross-platform.*
 

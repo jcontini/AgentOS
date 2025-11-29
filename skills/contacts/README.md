@@ -28,13 +28,31 @@ python3 contacts.py phone remove <id> +15125551234
 python3 contacts.py email add <id> john@example.com work
 python3 contacts.py email remove <id> john@example.com
 
-# Social profile operations
-python3 contacts.py social add <id> instagram johndoe
-python3 contacts.py social remove <id> instagram
+# URL operations (for GitHub, Instagram, etc.)
+python3 contacts.py url add <id> "https://github.com/johndoe" GitHub
+python3 contacts.py url remove <id> github.com
+
+# Social profile operations (Apple-official only)
+python3 contacts.py social add <id> twitter johndoe
+python3 contacts.py social remove <id> twitter
 
 # Fix corrupted social profiles
 python3 contacts.py fix <id>
 ```
+
+## Social Profiles vs URLs
+
+**Use Social Profiles for Apple-official services only:**
+- Twitter, LinkedIn, Facebook, Flickr, Yelp, MySpace, SinaWeibo, TencentWeibo, GameCenter
+
+These get **native "View Profile" / "View Tweets" click actions** in Contacts.app.
+
+**Use URLs for everything else:**
+- GitHub, Instagram, TikTok, YouTube, Keybase, AngelList, Quora, Pinterest, Threads, Bluesky, Mastodon, etc.
+
+URLs are **clickable in Contacts.app** and more universal. Custom social profiles (like "GitHub") display text but have no click action.
+
+> **Why?** Apple's social service list hasn't been updated since 2015. See `/System/Library/Frameworks/Contacts.framework/.../CNSocialProfile.h`
 
 ## Commands
 
@@ -67,7 +85,7 @@ Get full contact details by ID.
 python3 contacts.py get ABC123-DEF456-GHI789
 ```
 
-Returns JSON with all fields including phones, emails, note, and social profiles.
+Returns JSON with all fields including phones, emails, urls, note, and social profiles.
 
 ### create
 
@@ -83,7 +101,7 @@ python3 contacts.py create \
   --phone-label mobile \
   --email "john@example.com" \
   --email-label work \
-  --social "instagram:johndoe" \
+  --social "twitter:johndoe" \
   --note "Met at conference 2025"
 ```
 
@@ -102,11 +120,11 @@ Options:
 | `--phone-label` | Phone label (mobile, home, work) |
 | `--email` | Email address |
 | `--email-label` | Email label (home, work) |
-| `--social` | Social profile as `service:username` |
+| `--social` | Social profile as `service:username` (Apple-official only) |
 
 ### update
 
-Update contact fields. Use resource subcommands (`phone`, `email`, `social`) for multi-value fields.
+Update contact fields. Use resource subcommands (`phone`, `email`, `url`, `social`) for multi-value fields.
 
 ```bash
 python3 contacts.py update ABC123 --org "New Company" --job-title "Senior Engineer"
@@ -138,21 +156,50 @@ python3 contacts.py email add <id> john@work.com work
 python3 contacts.py email remove <id> john@example.com
 ```
 
+### url
+
+Add or remove URLs. Use this for non-Apple social profiles (GitHub, Instagram, etc.) - they'll be clickable in Contacts.app.
+
+```bash
+# Add URL with label
+python3 contacts.py url add <id> "https://github.com/johndoe" GitHub
+python3 contacts.py url add <id> "https://instagram.com/johndoe" Instagram
+python3 contacts.py url add <id> "https://keybase.io/johndoe" Keybase
+
+# Remove URL (partial match works)
+python3 contacts.py url remove <id> github.com
+```
+
+Common URL templates:
+| Service | URL Format |
+|---------|------------|
+| GitHub | `https://github.com/{username}` |
+| Instagram | `https://instagram.com/{username}` |
+| YouTube | `https://youtube.com/@{username}` |
+| TikTok | `https://tiktok.com/@{username}` |
+| Keybase | `https://keybase.io/{username}` |
+| AngelList | `https://angel.co/u/{username}` |
+| Quora | `https://quora.com/profile/{username}` |
+| Pinterest | `https://pinterest.com/{username}` |
+| Threads | `https://threads.net/@{username}` |
+| Bluesky | `https://bsky.app/profile/{handle}` |
+| Mastodon | `https://mastodon.social/@{username}` |
+
 ### social
 
-Add or remove social profiles. Service names are automatically normalized (instagram → Instagram).
+Add or remove social profiles. **Only use for Apple-official services** (these get native click actions).
 
 ```bash
 # Add/update social profile
-python3 contacts.py social add <id> instagram johndoe
+python3 contacts.py social add <id> twitter johndoe
 python3 contacts.py social add <id> linkedin john-doe
-python3 contacts.py social add <id> twitter johnd
+python3 contacts.py social add <id> facebook johnd
 
 # Remove social profile
-python3 contacts.py social remove <id> instagram
+python3 contacts.py social remove <id> twitter
 ```
 
-Supported services: Instagram, LinkedIn, Twitter/X, Facebook, TikTok, YouTube, Snapchat, Pinterest, Reddit, WhatsApp, Telegram, Signal, Discord, Slack, GitHub, Mastodon, Bluesky, Threads.
+**Apple-official services:** Twitter, LinkedIn, Facebook, Flickr, Yelp, MySpace, SinaWeibo, TencentWeibo, GameCenter
 
 ### fix
 
@@ -205,5 +252,7 @@ Key tables in AddressBook SQLite:
 - `ZABCDRECORD` - Main contacts table (names, org, job title)
 - `ZABCDPHONENUMBER` - Phone numbers (ZLASTFOURDIGITS is indexed)
 - `ZABCDEMAILADDRESS` - Email addresses
+- `ZABCDURLADDRESS` - URLs with labels
+- `ZABCDSOCIALPROFILE` - Social profiles
 - `ZABCDPOSTALADDRESS` - Physical addresses
 - `ZABCDNOTE` - Notes

@@ -15,6 +15,8 @@ Usage:
     contacts.py phone remove <id> <number>
     contacts.py email add <id> <address> [<label>]
     contacts.py email remove <id> <address>
+    contacts.py url add <id> <url> [<label>]
+    contacts.py url remove <id> <url>
     contacts.py social add <id> <service> <username>
     contacts.py social remove <id> <service>
 
@@ -51,6 +53,11 @@ class Social:
     username: str
 
 @dataclass
+class URL:
+    url: str
+    label: str = "homepage"
+
+@dataclass
 class Contact:
     id: str = ""
     firstName: str = ""
@@ -63,35 +70,49 @@ class Contact:
     note: str = ""
     phones: list[Phone] = field(default_factory=list)
     emails: list[Email] = field(default_factory=list)
+    urls: list[URL] = field(default_factory=list)
     socials: list[Social] = field(default_factory=list)
 
 # =============================================================================
 # Social Service Normalization
 # =============================================================================
 
-# Single source of truth for social services
-# Keys are lowercase for lookup, values have name and url template
+# Apple-official social services - these get native "View Profile" actions in Contacts.app
+# See: /System/Library/Frameworks/Contacts.framework/.../CNSocialProfile.h
+# For everything else (GitHub, Instagram, etc.), use URLs instead - they're clickable!
 SOCIAL_SERVICES = {
-    "instagram": {"name": "Instagram", "url": "https://www.instagram.com/"},
+    "facebook": {"name": "Facebook", "url": "https://www.facebook.com/"},
+    "flickr": {"name": "Flickr", "url": "https://www.flickr.com/people/"},
     "linkedin": {"name": "LinkedIn", "url": "https://www.linkedin.com/in/"},
+    "myspace": {"name": "MySpace", "url": "https://myspace.com/"},
+    "sinaweibo": {"name": "SinaWeibo", "url": "https://weibo.com/"},
+    "tencentweibo": {"name": "TencentWeibo", "url": ""},
     "twitter": {"name": "Twitter", "url": "https://twitter.com/"},
     "x": {"name": "Twitter", "url": "https://twitter.com/"},  # Alias
-    "facebook": {"name": "Facebook", "url": "https://www.facebook.com/"},
-    "tiktok": {"name": "TikTok", "url": "https://www.tiktok.com/@"},
-    "youtube": {"name": "YouTube", "url": "https://www.youtube.com/@"},
-    "github": {"name": "GitHub", "url": "https://github.com/"},
-    "flickr": {"name": "Flickr", "url": "https://www.flickr.com/people/"},
-    "pinterest": {"name": "Pinterest", "url": "https://www.pinterest.com/"},
-    "snapchat": {"name": "Snapchat", "url": "https://www.snapchat.com/add/"},
-    "reddit": {"name": "Reddit", "url": "https://www.reddit.com/user/"},
-    "whatsapp": {"name": "WhatsApp", "url": ""},
-    "telegram": {"name": "Telegram", "url": ""},
-    "signal": {"name": "Signal", "url": ""},
-    "discord": {"name": "Discord", "url": ""},
-    "slack": {"name": "Slack", "url": ""},
-    "mastodon": {"name": "Mastodon", "url": "https://mastodon.social/@"},
-    "bluesky": {"name": "Bluesky", "url": "https://bsky.app/profile/"},
-    "threads": {"name": "Threads", "url": "https://www.threads.net/@"},
+    "yelp": {"name": "Yelp", "url": "https://www.yelp.com/user_details?userid="},
+    "gamecenter": {"name": "GameCenter", "url": ""},
+}
+
+# URL templates for non-Apple services - use `url add` command with these
+URL_TEMPLATES = {
+    "github": "https://github.com/",
+    "gitlab": "https://gitlab.com/",
+    "instagram": "https://www.instagram.com/",
+    "tiktok": "https://www.tiktok.com/@",
+    "youtube": "https://www.youtube.com/@",
+    "threads": "https://www.threads.net/@",
+    "bluesky": "https://bsky.app/profile/",
+    "mastodon": "https://mastodon.social/@",
+    "keybase": "https://keybase.io/",
+    "angellist": "https://angel.co/u/",
+    "producthunt": "https://www.producthunt.com/@",
+    "pinterest": "https://www.pinterest.com/",
+    "quora": "https://www.quora.com/profile/",
+    "medium": "https://medium.com/@",
+    "reddit": "https://www.reddit.com/user/",
+    "snapchat": "https://www.snapchat.com/add/",
+    "twitch": "https://www.twitch.tv/",
+    "telegram": "https://t.me/",
 }
 
 def get_service_info(service: str) -> dict:
@@ -124,10 +145,6 @@ def get_service_domain(service: str) -> str:
         return domain
     except:
         return ""
-
-def normalize_service(service: str) -> str:
-    """Normalize service name to proper case (instagram -> Instagram)."""
-    return SOCIAL_SERVICES.get(service.lower(), service.capitalize())
 
 # =============================================================================
 # SQLite Queries (READ)
@@ -250,6 +267,14 @@ def get_contact_details(contact_id: str) -> Optional[dict]:
                 end repeat
                 set output to output & "|||emails:::" & emailList
                 
+                -- URLs: url,label;url,label;...
+                set urlList to ""
+                repeat with u in urls of thePerson
+                    if urlList is not "" then set urlList to urlList & ";"
+                    set urlList to urlList & value of u & "," & label of u
+                end repeat
+                set output to output & "|||urls:::" & urlList
+                
                 -- Socials: service,username;service,username;...
                 set socialList to ""
                 repeat with sp in social profiles of thePerson
@@ -297,6 +322,13 @@ def get_contact_details(contact_id: str) -> Optional[dict]:
                     if "," in item:
                         address, label = item.rsplit(",", 1)
                         contact["emails"].append({"address": address, "label": label})
+        elif key == "urls":
+            contact["urls"] = []
+            if value:
+                for item in value.split(";"):
+                    if "," in item:
+                        url, label = item.rsplit(",", 1)
+                        contact["urls"].append({"url": url, "label": label})
         elif key == "socials":
             contact["socials"] = []
             if value:
@@ -573,6 +605,53 @@ def remove_email_applescript(contact_id: str, address: str) -> tuple[bool, str]:
                     set e to email i of thePerson
                     if value of e is "{escape_applescript(address)}" then
                         delete email i of thePerson
+                        exit repeat
+                    end if
+                end repeat
+                save
+                return "success"
+            on error errMsg
+                return errMsg
+            end try
+        end tell
+    '''
+    return run_applescript(script)
+
+def add_url_applescript(contact_id: str, url_obj: URL) -> tuple[bool, str]:
+    """Add URL to contact via AppleScript."""
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found"
+    
+    script = f'''
+        tell application "Contacts"
+            try
+                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
+                make new url at end of urls of thePerson with properties {{label:"{escape_applescript(url_obj.label)}", value:"{escape_applescript(url_obj.url)}"}}
+                save
+                return "success"
+            on error errMsg
+                return errMsg
+            end try
+        end tell
+    '''
+    return run_applescript(script)
+
+def remove_url_applescript(contact_id: str, url: str) -> tuple[bool, str]:
+    """Remove URL from contact via AppleScript."""
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found"
+    
+    script = f'''
+        tell application "Contacts"
+            try
+                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
+                set urlCount to count of urls of thePerson
+                repeat with i from urlCount to 1 by -1
+                    set u to url i of thePerson
+                    if value of u contains "{escape_applescript(url)}" then
+                        delete url i of thePerson
                         exit repeat
                     end if
                 end repeat
@@ -917,13 +996,26 @@ def main():
     email_remove.add_argument("id", help="Contact ID")
     email_remove.add_argument("address", help="Email address")
     
+    # url subcommands
+    url_parser = subparsers.add_parser("url", help="URL operations")
+    url_sub = url_parser.add_subparsers(dest="action", required=True)
+    
+    url_add = url_sub.add_parser("add", help="Add URL")
+    url_add.add_argument("id", help="Contact ID")
+    url_add.add_argument("url", help="URL")
+    url_add.add_argument("label", nargs="?", default="homepage", help="Label (GitHub, Instagram, homepage, etc.)")
+    
+    url_remove = url_sub.add_parser("remove", help="Remove URL")
+    url_remove.add_argument("id", help="Contact ID")
+    url_remove.add_argument("url", help="URL (or partial match)")
+    
     # social subcommands
     social_parser = subparsers.add_parser("social", help="Social profile operations")
     social_sub = social_parser.add_subparsers(dest="action", required=True)
     
-    social_add = social_sub.add_parser("add", help="Add social profile")
+    social_add = social_sub.add_parser("add", help="Add social profile (Apple-official only: twitter, linkedin, facebook, flickr, yelp)")
     social_add.add_argument("id", help="Contact ID")
-    social_add.add_argument("service", help="Service name (instagram, linkedin, etc.)")
+    social_add.add_argument("service", help="Service name (twitter, linkedin, facebook, flickr, yelp)")
     social_add.add_argument("username", help="Username")
     
     social_remove = social_sub.add_parser("remove", help="Remove social profile")
@@ -1032,6 +1124,19 @@ def main():
         
         if success:
             output_json({"success": True, "message": f"Email {'removed' if args.action == 'remove' else 'added'}"})
+        else:
+            output_json({"success": False, "error": result})
+            sys.exit(1)
+    
+    elif args.command == "url":
+        if args.action == "add":
+            url_obj = URL(url=args.url, label=args.label)
+            success, result = add_url_applescript(args.id, url_obj)
+        elif args.action == "remove":
+            success, result = remove_url_applescript(args.id, args.url)
+        
+        if success:
+            output_json({"success": True, "message": f"URL {'removed' if args.action == 'remove' else 'added'}"})
         else:
             output_json({"success": False, "error": result})
             sys.exit(1)

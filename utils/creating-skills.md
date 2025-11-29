@@ -29,7 +29,7 @@ When creating new skills in `skills/`, follow these patterns and best practices.
 - **API keys/tokens go in `.env`** - Simple API keys, tokens, and credentials should be stored in `$PROJECT_ROOT/.env` (never hardcoded)
 - **Skill-specific data/secrets go in `user/skills-data/`** - Files like service account keys, certificates, or other skill-specific data should be stored in `$PROJECT_ROOT/user/skills-data/SKILL_NAME/` where `SKILL_NAME` matches the skill folder name exactly
   - **Important:** The folder name in `user/skills-data/` must match the skill folder name (whether in `skills/` or `user/skills/`) to avoid collisions
-  - Example: Skill `skills/gmail/` → Data in `user/skills-data/gmail/`
+  - Example: Skill `skills/google-workspace/` → Data in `user/skills-data/google-workspace/`
   - Example: User skill `user/skills/abp/` → Data in `user/skills-data/abp/`
 - **Document required vars** - In the README, clearly list which environment variables the skill needs (e.g., `LINEAR_API_KEY`, `TODOIST_API_TOKEN`)
 - **Document data files** - If the skill requires files (like service account keys), document the expected path in `user/skills-data/SKILL_NAME/` where `SKILL_NAME` matches the skill folder name
@@ -42,7 +42,7 @@ When creating new skills in `skills/`, follow these patterns and best practices.
 
 - **Swift skill:** `skills/calendar/` → `README.md` + `calendar-event.swift` (macOS EventKit API)
 - **Bash skill:** `skills/enrich/` → `README.md` + `enrich.sh` (Bash calls curl directly)
-- **Python skill:** `skills/gmail/` → `README.md` + `gmail.py` (Python handles CLI, API client)
+- **Python skill:** `skills/google-workspace/` → `README.md` + `gmail.py` + `drive.py` (Python handles CLI, API client)
 - **SQLite skill:** `skills/calendar/` → Uses SQLite directly in README examples (no wrapper needed)
 
 ## Repository Structure Context
@@ -51,7 +51,7 @@ When creating new skills in `skills/`, follow these patterns and best practices.
 
 - **`user/` folder**: Contains user-specific content (personal files, preferences, skills, reports). This folder is for individual user customization and should not be shared publicly.
   - **`user/skills/`**: User-specific skills with their own folders and READMEs (mirrors `skills/` structure)
-  - **`user/skills-data/`**: Skill-specific data files (service account keys, certificates, cached data, etc.). Each skill should have its own subdirectory matching the skill folder name exactly (e.g., `skills/gmail/` → `user/skills-data/gmail/`, `user/skills/abp/` → `user/skills-data/abp/`). This ensures no naming collisions between system and user skills.
+  - **`user/skills-data/`**: Skill-specific data files (service account keys, certificates, cached data, etc.). Each skill should have its own subdirectory matching the skill folder name exactly (e.g., `skills/google-workspace/` → `user/skills-data/google-workspace/`, `user/skills/abp/` → `user/skills-data/abp/`). This ensures no naming collisions between system and user skills.
   - **`user/reports/`**: User-generated reports and analysis
 - **`skills/` folder**: Contains skill documentation and scripts. Each skill has its own folder with `README.md` and supporting files (scripts, configs, etc.). This is system/public content that should be part of the open-source repository.
 

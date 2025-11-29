@@ -355,5 +355,5 @@ Todoist API has rate limits. If you receive 429 errors, wait before retrying. Th
 
 ### Note
 
-For detailed API documentation, use web search (see `skills/web-search.md`) to find Todoist API docs or visit https://developer.todoist.com/rest/v2/
+For detailed API documentation, use search (see `skills/search/README.md`) to find Todoist API docs or visit https://developer.todoist.com/rest/v2/
 

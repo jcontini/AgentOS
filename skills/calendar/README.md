@@ -2,8 +2,8 @@
 
 ## Intention: Manage calendar events (read, add, update, delete), search calendar, find upcoming events
 
-**Required Skills:**
-- [Web Search](skills/web-search/README.md) - For researching event URLs and verifying event status
+**Related Skills:**
+- [Extract](skills/extract/README.md) - For verifying event URLs (cancellations, venue changes)
 
 **✅ Uses EventKit framework** - Same API as Calendar.app, sees ALL calendars including subscriptions, syncs immediately.
 
@@ -118,7 +118,7 @@ swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" | jq '[.[] | select(.u
    - `notes` field (may contain URLs as text)
    - Extract URLs from notes using regex or text parsing
 
-2. **Follow URLs to research** - Use the [Web Search skill](skills/web-search/README.md) to fetch fresh content from event URLs and search for event details.
+2. **Follow URLs to research** - Use the [Extract skill](skills/extract/README.md) to fetch fresh content from event URLs.
 
 3. **Verify event status** - Always check:
    - **Cancellations** - Look for "cancelled", "postponed", "rescheduled" notices
@@ -138,7 +138,7 @@ if [ -z "$EVENT_URL" ]; then
   EVENT_URL=$(echo "$EVENT" | jq -r '.notes // ""' | grep -oE 'https?://[^[:space:]]+' | head -1)
 fi
 
-# Research event using Web Search skill (see skills/web-search/README.md)
+# Research event using Extract skill (see skills/extract/README.md)
 # The Web Search skill handles fetching fresh content with livecrawl
 ```
 

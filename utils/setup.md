@@ -106,7 +106,7 @@ For each skill they choose, read that skill's README (e.g., `skills/linear/READM
 | Linear | Linear → Settings → API → Personal API Keys |
 | Todoist | Todoist → Settings → Integrations → Developer |
 | Flights | https://serpapi.com → API Key |
-| Gmail | Complex - follow `skills/gmail/README.md` |
+| Google Workspace | Complex - follow `skills/google-workspace/README.md` |
 
 As they give you keys, build the `.env` file:
 ```bash
