@@ -676,56 +676,123 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                     {service_checks}
                     {domain_checks}
                     
-                    -- Check if username is garbage
-                    set hasValidUsername to false
-                    if usr is not missing value and usr is not "" and usr is not "TYPE=PREF" then
-                        if expectedDomain is "" or expectedDomain does not contain usr then
-                            set hasValidUsername to true
-                        end if
-                    end if
-                    
-                    -- Try to extract username from URL if needed
-                    if not hasValidUsername and theUrl is not missing value and theUrl is not "" then
-                        set AppleScript's text item delimiters to "/"
-                        set urlParts to text items of theUrl
-                        set extractedUser to last item of urlParts
-                        set AppleScript's text item delimiters to ""
-                        if extractedUser is "" and (count of urlParts) > 1 then
-                            set extractedUser to item -2 of urlParts
-                        end if
-                        if (count of extractedUser) > 0 then
-                            if expectedDomain is "" or expectedDomain does not contain extractedUser then
-                                set usr to extractedUser
-                                set hasValidUsername to true
+                    -- CASE 1: Check if username has URL pasted into it (like "WWW.FACEBOOK.COM/PROFILE.PHP?ID=123")
+                    set urlPastedAsUsername to false
+                    set extractedProfileId to ""
+                    if usr is not missing value and usr is not "" then
+                        if usr contains "profile.php" or usr contains "facebook.com" or usr contains "http" then
+                            set urlPastedAsUsername to true
+                            -- Try to extract profile ID
+                            if usr contains "id=" then
+                                set AppleScript's text item delimiters to "id="
+                                set idParts to text items of usr
+                                if (count of idParts) > 1 then
+                                    set extractedProfileId to item 2 of idParts
+                                    -- Clean up any trailing garbage
+                                    set AppleScript's text item delimiters to "&"
+                                    set extractedProfileId to text item 1 of extractedProfileId
+                                end if
+                                set AppleScript's text item delimiters to ""
                             end if
                         end if
                     end if
                     
-                    -- Apply fix or nullify
-                    if not hasValidUsername then
-                        set service name of sp to ""
-                        set user name of sp to ""
-                        set url of sp to ""
+                    if urlPastedAsUsername then
+                        -- Fix the pasted URL: clear username, set proper URL
+                        if extractedProfileId is not "" then
+                            set user name of sp to ""
+                            set url of sp to "https://www.facebook.com/profile.php?id=" & extractedProfileId
+                            if normalizedName is not "" then
+                                set service name of sp to normalizedName
+                            end if
+                        else
+                            -- Can't recover, nullify
+                            set service name of sp to ""
+                            set user name of sp to ""
+                            set url of sp to ""
+                        end if
                     else
-                        -- Normalize service name
-                        if normalizedName is not "" then
-                            set service name of sp to normalizedName
+                        -- CASE 2: Normal processing
+                        -- Check if username is garbage
+                        set hasValidUsername to false
+                        if usr is not missing value and usr is not "" and usr is not "TYPE=PREF" then
+                            -- Username is garbage if:
+                            -- 1. It's a substring of the expected domain (like "facebook" in "facebook.com")
+                            -- 2. It looks like a domain itself (contains www, .com, .org, etc)
+                            set usrLower to do shell script "echo " & quoted form of usr & " | tr '[:upper:]' '[:lower:]'"
+                            set looksLikeDomain to false
+                            if usrLower contains "www." or usrLower contains ".com" or usrLower contains ".org" or usrLower contains "facebook.com" or usrLower contains "twitter.com" or usrLower contains "linkedin.com" or usrLower contains "instagram.com" then
+                                set looksLikeDomain to true
+                            end if
+                            
+                            if not looksLikeDomain then
+                                if expectedDomain is "" or expectedDomain does not contain usrLower then
+                                    set hasValidUsername to true
+                                end if
+                            end if
                         end if
-                        set user name of sp to usr
                         
-                        -- Check if URL is corrupted (doesn't contain expected domain or is truncated)
-                        -- Clear it so macOS rebuilds it from service + username
-                        set urlCorrupted to false
-                        if theUrl is missing value or theUrl is "" then
-                            set urlCorrupted to false -- missing is OK, macOS will build it
-                        else if expectedDomain is not "" and theUrl does not contain expectedDomain then
-                            set urlCorrupted to true
-                        else if theUrl does not contain usr then
-                            set urlCorrupted to true
+                        -- Try to extract username from URL if needed
+                        if not hasValidUsername and theUrl is not missing value and theUrl is not "" then
+                            set AppleScript's text item delimiters to "/"
+                            set urlParts to text items of theUrl
+                            set extractedUser to last item of urlParts
+                            set AppleScript's text item delimiters to ""
+                            if extractedUser is "" and (count of urlParts) > 1 then
+                                set extractedUser to item -2 of urlParts
+                            end if
+                            -- Validate extracted username is not garbage
+                            set extractedIsValid to false
+                            if (count of extractedUser) > 2 then
+                                -- Must not be domain-like (www, com, facebook, etc)
+                                set extractedLower to do shell script "echo " & quoted form of extractedUser & " | tr '[:upper:]' '[:lower:]'"
+                                if extractedLower is not "www" and extractedLower does not contain ".com" and extractedLower does not contain ".org" and extractedLower does not contain "facebook" and extractedLower does not contain "twitter" and extractedLower does not contain "linkedin" and extractedLower does not contain "instagram" and extractedLower does not contain "flickr" and extractedLower is not "people" and extractedLower is not "in" then
+                                    set extractedIsValid to true
+                                end if
+                            end if
+                            if extractedIsValid then
+                                set usr to extractedUser
+                                set hasValidUsername to true
+                            end if
                         end if
                         
-                        if urlCorrupted then
-                            set url of sp to "" -- clear so macOS rebuilds
+                        -- CASE 3: Check if URL is a profile.php URL (preserve these!)
+                        set isProfilePhpUrl to false
+                        if theUrl is not missing value and theUrl contains "profile.php?id=" then
+                            set isProfilePhpUrl to true
+                        end if
+                        
+                        -- Apply fix or nullify
+                        if not hasValidUsername and not isProfilePhpUrl then
+                            -- No valid username and no profile.php URL - nullify
+                            set service name of sp to ""
+                            set user name of sp to ""
+                            set url of sp to ""
+                        else if isProfilePhpUrl then
+                            -- Preserve profile.php URLs, just normalize service name
+                            if normalizedName is not "" then
+                                set service name of sp to normalizedName
+                            end if
+                        else
+                            -- Has valid username
+                            if normalizedName is not "" then
+                                set service name of sp to normalizedName
+                            end if
+                            set user name of sp to usr
+                            
+                            -- Check if URL is corrupted (truncated or doesn't contain username)
+                            set urlCorrupted to false
+                            if theUrl is missing value or theUrl is "" then
+                                set urlCorrupted to false -- missing is OK, macOS will build it
+                            else if expectedDomain is not "" and theUrl does not contain expectedDomain then
+                                set urlCorrupted to true
+                            else if theUrl does not contain usr then
+                                set urlCorrupted to true
+                            end if
+                            
+                            if urlCorrupted then
+                                set url of sp to "" -- clear so macOS rebuilds
+                            end if
                         end if
                     end if
                 end repeat
