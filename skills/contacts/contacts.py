@@ -69,63 +69,61 @@ class Contact:
 # Social Service Normalization
 # =============================================================================
 
+# Single source of truth for social services
+# Keys are lowercase for lookup, values have name and url template
 SOCIAL_SERVICES = {
-    "instagram": "Instagram",
-    "linkedin": "LinkedIn",
-    "twitter": "Twitter",
-    "x": "Twitter",  # Alias
-    "facebook": "Facebook",
-    "tiktok": "TikTok",
-    "youtube": "YouTube",
-    "snapchat": "Snapchat",
-    "pinterest": "Pinterest",
-    "reddit": "Reddit",
-    "whatsapp": "WhatsApp",
-    "telegram": "Telegram",
-    "signal": "Signal",
-    "discord": "Discord",
-    "slack": "Slack",
-    "github": "GitHub",
-    "mastodon": "Mastodon",
-    "bluesky": "Bluesky",
-    "threads": "Threads",
-    "flickr": "Flickr",
+    "instagram": {"name": "Instagram", "url": "https://www.instagram.com/"},
+    "linkedin": {"name": "LinkedIn", "url": "https://www.linkedin.com/in/"},
+    "twitter": {"name": "Twitter", "url": "https://twitter.com/"},
+    "x": {"name": "Twitter", "url": "https://twitter.com/"},  # Alias
+    "facebook": {"name": "Facebook", "url": "https://www.facebook.com/"},
+    "tiktok": {"name": "TikTok", "url": "https://www.tiktok.com/@"},
+    "youtube": {"name": "YouTube", "url": "https://www.youtube.com/@"},
+    "github": {"name": "GitHub", "url": "https://github.com/"},
+    "flickr": {"name": "Flickr", "url": "https://www.flickr.com/people/"},
+    "pinterest": {"name": "Pinterest", "url": "https://www.pinterest.com/"},
+    "snapchat": {"name": "Snapchat", "url": "https://www.snapchat.com/add/"},
+    "reddit": {"name": "Reddit", "url": "https://www.reddit.com/user/"},
+    "whatsapp": {"name": "WhatsApp", "url": ""},
+    "telegram": {"name": "Telegram", "url": ""},
+    "signal": {"name": "Signal", "url": ""},
+    "discord": {"name": "Discord", "url": ""},
+    "slack": {"name": "Slack", "url": ""},
+    "mastodon": {"name": "Mastodon", "url": "https://mastodon.social/@"},
+    "bluesky": {"name": "Bluesky", "url": "https://bsky.app/profile/"},
+    "threads": {"name": "Threads", "url": "https://www.threads.net/@"},
 }
 
-SOCIAL_DOMAINS = {
-    "Instagram": "instagram.com",
-    "LinkedIn": "linkedin.com",
-    "Twitter": "twitter.com",
-    "Facebook": "facebook.com",
-    "TikTok": "tiktok.com",
-    "YouTube": "youtube.com",
-    "GitHub": "github.com",
-    "Flickr": "flickr.com",
-    "Pinterest": "pinterest.com",
-    "Snapchat": "snapchat.com",
-    "Reddit": "reddit.com",
-    "Mastodon": "mastodon.social",
-    "Bluesky": "bsky.app",
-    "Threads": "threads.net",
-}
+def get_service_info(service: str) -> dict:
+    """Get service info by name (case-insensitive)."""
+    return SOCIAL_SERVICES.get(service.lower(), {})
 
-# URL templates for constructing URLs from username
-SOCIAL_URL_TEMPLATES = {
-    "Instagram": "https://www.instagram.com/",
-    "LinkedIn": "https://www.linkedin.com/in/",
-    "Twitter": "https://twitter.com/",
-    "Facebook": "https://www.facebook.com/",
-    "TikTok": "https://www.tiktok.com/@",
-    "YouTube": "https://www.youtube.com/@",
-    "GitHub": "https://github.com/",
-    "Flickr": "https://www.flickr.com/people/",
-    "Pinterest": "https://www.pinterest.com/",
-    "Snapchat": "https://www.snapchat.com/add/",
-    "Reddit": "https://www.reddit.com/user/",
-    "Mastodon": "https://mastodon.social/@",
-    "Bluesky": "https://bsky.app/profile/",
-    "Threads": "https://www.threads.net/@",
-}
+def normalize_service(service: str) -> str:
+    """Normalize service name to proper case (instagram -> Instagram)."""
+    info = get_service_info(service)
+    return info.get("name", service.capitalize())
+
+def get_service_url_template(service: str) -> str:
+    """Get URL template for a service."""
+    info = get_service_info(service)
+    return info.get("url", "")
+
+def get_service_domain(service: str) -> str:
+    """Extract domain from URL template."""
+    url = get_service_url_template(service)
+    if not url:
+        return ""
+    # Extract domain from URL like "https://www.instagram.com/" -> "instagram.com"
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        domain = parsed.netloc
+        # Remove www. prefix if present
+        if domain.startswith("www."):
+            domain = domain[4:]
+        return domain
+    except:
+        return ""
 
 def normalize_service(service: str) -> str:
     """Normalize service name to proper case (instagram -> Instagram)."""
@@ -661,22 +659,10 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
     first = contact.get("firstName", "")
     last = contact.get("lastName", "")
     
-    # Build service normalization map for AppleScript
+    # Build AppleScript checks from unified SOCIAL_SERVICES
     service_checks = "\n".join([
-        f'if svcLower is "{k}" then set normalizedName to "{v}"'
-        for k, v in SOCIAL_SERVICES.items()
-    ])
-    
-    # Build domain checks for garbage detection
-    domain_checks = "\n".join([
-        f'if normalizedName is "{svc}" then set expectedDomain to "{dom}"'
-        for svc, dom in SOCIAL_DOMAINS.items()
-    ])
-    
-    # Build URL template lookup
-    url_template_checks = "\n".join([
-        f'if normalizedName is "{svc}" then set urlTemplate to "{template}"'
-        for svc, template in SOCIAL_URL_TEMPLATES.items()
+        f'if svcLower is "{key}" then\nset normalizedName to "{info["name"]}"\nset expectedDomain to "{get_service_domain(key)}"\nset urlTemplate to "{info["url"]}"\nend if'
+        for key, info in SOCIAL_SERVICES.items()
     ])
     
     script = f'''
@@ -689,21 +675,17 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
                     set usr to user name of sp
                     set theUrl to url of sp
                     
-                    -- Normalize service name
+                    -- Normalize service name and get domain/URL template
                     set svcLower to ""
                     set normalizedName to ""
                     set expectedDomain to ""
+                    set urlTemplate to ""
                     
                     if svc is not missing value then
                         set svcLower to do shell script "echo " & quoted form of svc & " | tr '[:upper:]' '[:lower:]'"
                     end if
                     
                     {service_checks}
-                    {domain_checks}
-                    
-                    -- Get URL template for this service
-                    set urlTemplate to ""
-                    {url_template_checks}
                     
                     -- CASE 1: Check if username has URL pasted into it (like "WWW.FACEBOOK.COM/PROFILE.PHP?ID=123")
                     set urlPastedAsUsername to false
