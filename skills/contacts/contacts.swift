@@ -104,6 +104,425 @@ func findContacts(query: String, byPhone: Bool = false) -> [CNContact] {
     return results
 }
 
+// Helper to get note via AppleScript (Contacts framework has bugs with notes)
+func getNoteViaAppleScript(firstName: String, lastName: String) -> String {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            return note of thePerson
+        on error
+            return ""
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+            return output == "missing value" ? "" : output
+        }
+    } catch {}
+    return ""
+}
+
+// Helper to set note via AppleScript (Contacts framework has bugs with notes)
+func setNoteViaAppleScript(firstName: String, lastName: String, note: String) -> Bool {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedNote = note.replacingOccurrences(of: "\"", with: "\\\"")
+    
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            set the note of thePerson to "\(escapedNote)"
+            save
+            return "success"
+        on error errMsg
+            return errMsg
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+        return task.terminationStatus == 0
+    } catch {}
+    return false
+}
+
+// Social services: (normalizedName, domain) - single source of truth
+let socialServices: [(name: String, domain: String)] = [
+    ("Instagram", "instagram.com"),
+    ("LinkedIn", "linkedin.com"),
+    ("Twitter", "twitter.com"),
+    ("Facebook", "facebook.com"),
+    ("TikTok", "tiktok.com"),
+    ("YouTube", "youtube.com"),
+    ("Snapchat", "snapchat.com"),
+    ("Pinterest", "pinterest.com"),
+    ("Reddit", "reddit.com"),
+    ("WhatsApp", "whatsapp.com"),
+    ("Telegram", "telegram.org"),
+    ("Signal", "signal.org"),
+    ("Discord", "discord.com"),
+    ("Slack", "slack.com"),
+    ("GitHub", "github.com"),
+    ("Mastodon", "mastodon.social"),
+    ("Bluesky", "bsky.app"),
+    ("Threads", "threads.net"),
+]
+
+// Normalize service name to proper case (macOS Contacts displays ALL CAPS as garbage)
+func normalizeServiceName(_ service: String) -> String {
+    let lower = service.lowercased()
+    // Handle X -> Twitter alias
+    if lower == "x" { return "Twitter" }
+    // Look up in socialServices
+    if let match = socialServices.first(where: { $0.name.lowercased() == lower }) {
+        return match.name
+    }
+    // Default: capitalize first letter
+    return service.prefix(1).uppercased() + service.dropFirst().lowercased()
+}
+
+// Get domain for a service (for garbage detection)
+func getDomainForService(_ service: String) -> String? {
+    let lower = service.lowercased()
+    if lower == "x" { return "twitter.com" }
+    return socialServices.first(where: { $0.name.lowercased() == lower })?.domain
+}
+
+// Helper to get social profiles via AppleScript (Contacts framework has bugs)
+func getSocialProfilesViaAppleScript(firstName: String, lastName: String) -> [[String: String]] {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    
+    // Use ||| as delimiter to avoid conflicts with usernames containing commas or colons
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            set profileList to ""
+            repeat with sp in social profiles of thePerson
+                set serviceName to service name of sp
+                set userName to user name of sp
+                if userName is not missing value then
+                    if profileList is not "" then
+                        set profileList to profileList & "|||"
+                    end if
+                    set profileList to profileList & serviceName & ":::" & userName
+                end if
+            end repeat
+            return profileList
+        on error
+            return ""
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    task.standardError = FileHandle.nullDevice
+    
+    var profiles: [[String: String]] = []
+    do {
+        try task.run()
+        task.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !output.isEmpty && output != "missing value" {
+            // Parse "service:::username|||service:::username" format
+            let items = output.components(separatedBy: "|||")
+            for item in items {
+                let parts = item.components(separatedBy: ":::")
+                if parts.count >= 2 {
+                    let service = parts[0].trimmingCharacters(in: .whitespaces)
+                    let username = parts.dropFirst().joined(separator: ":::").trimmingCharacters(in: .whitespaces)
+                    if !service.isEmpty && !username.isEmpty {
+                        profiles.append(["service": service, "username": username])
+                    }
+                }
+            }
+        }
+    } catch {}
+    return profiles
+}
+
+// Helper to upsert social profile via AppleScript (finds existing by service name, updates or adds)
+func upsertSocialProfileViaAppleScript(firstName: String, lastName: String, service: String, username: String) -> Bool {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    let normalizedService = normalizeServiceName(service)
+    let escapedUsername = username.replacingOccurrences(of: "\"", with: "\\\"")
+    
+    // AppleScript is case-insensitive by default, so "Instagram" matches "INSTAGRAM"
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            set didUpdate to false
+            repeat with sp in social profiles of thePerson
+                if service name of sp is "\(normalizedService)" then
+                    set service name of sp to "\(normalizedService)"
+                    set user name of sp to "\(escapedUsername)"
+                    set didUpdate to true
+                    exit repeat
+                end if
+            end repeat
+            if not didUpdate then
+                make new social profile at end of social profiles of thePerson with properties {service name:"\(normalizedService)", user name:"\(escapedUsername)"}
+            end if
+            save
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    task.standardOutput = FileHandle.nullDevice
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+        return task.terminationStatus == 0
+    } catch {}
+    return false
+}
+
+// Helper to auto-fix ALL corrupted social profiles for a contact (runs after any update)
+func autoFixAllSocialProfilesViaAppleScript(firstName: String, lastName: String) {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    
+    // Build service mappings for AppleScript: {lowercase: {name, domain}}
+    var serviceMappings = ""
+    for svc in socialServices {
+        let lower = svc.name.lowercased()
+        serviceMappings += "if svcLower is \"\(lower)\" then\n"
+        serviceMappings += "    set normalizedName to \"\(svc.name)\"\n"
+        serviceMappings += "    set expectedDomain to \"www.\(svc.domain)\"\n"
+        serviceMappings += "end if\n"
+    }
+    
+    // Scan all profiles: normalize service names, fix usernames, nullify garbage
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            repeat with sp in social profiles of thePerson
+                set svc to service name of sp
+                set usr to user name of sp
+                set theUrl to url of sp
+                
+                -- Get lowercase service name for lookups
+                set svcLower to ""
+                if svc is not missing value then
+                    set svcLower to do shell script "echo " & quoted form of svc & " | tr '[:upper:]' '[:lower:]'"
+                end if
+                
+                -- Look up normalized name and expected domain
+                set normalizedName to ""
+                set expectedDomain to ""
+                \(serviceMappings)
+                
+                -- Step 1: Check if username is garbage (missing, TYPE=PREF, or substring of domain)
+                set hasValidUsername to false
+                if usr is not missing value and usr is not "" and usr is not "TYPE=PREF" then
+                    -- Check if username is a substring of expected domain (garbage like "www.facebook")
+                    if expectedDomain is not "" and expectedDomain contains usr then
+                        set hasValidUsername to false
+                    else
+                        set hasValidUsername to true
+                    end if
+                end if
+                
+                -- Step 2: If no valid username, try to extract from URL (after last /)
+                if not hasValidUsername and theUrl is not missing value and theUrl is not "" then
+                    set AppleScript's text item delimiters to "/"
+                    set urlParts to text items of theUrl
+                    set extractedUser to last item of urlParts
+                    set AppleScript's text item delimiters to ""
+                    if extractedUser is "" and (count of urlParts) > 1 then
+                        set extractedUser to item -2 of urlParts
+                    end if
+                    -- Check extracted value is not domain garbage
+                    if (count of extractedUser) > 0 then
+                        if expectedDomain is "" or expectedDomain does not contain extractedUser then
+                            set usr to extractedUser
+                            set hasValidUsername to true
+                        end if
+                    end if
+                end if
+                
+                -- Step 3: Apply fix or nullify
+                if not hasValidUsername then
+                    -- No valid username anywhere, nullify the profile
+                    set service name of sp to ""
+                    set user name of sp to ""
+                    set url of sp to ""
+                else
+                    -- Valid username found, normalize service name
+                    if normalizedName is not "" then
+                        set service name of sp to normalizedName
+                    end if
+                    set user name of sp to usr
+                end if
+            end repeat
+            save
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    task.standardOutput = FileHandle.nullDevice
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+    } catch {}
+}
+
+// Helper to fix corrupted social profile via AppleScript (extracts username from URL, normalizes service name)
+func fixSocialProfileViaAppleScript(firstName: String, lastName: String, service: String) -> Bool {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    let normalizedService = normalizeServiceName(service)
+    let expectedDomain = getDomainForService(service).map { "www.\($0)" } ?? ""
+    
+    // Find profile, fix it using same logic as auto-fix
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            set expectedDomain to "\(expectedDomain)"
+            repeat with sp in social profiles of thePerson
+                if service name of sp is "\(normalizedService)" then
+                    set usr to user name of sp
+                    set theUrl to url of sp
+                    
+                    -- Check if existing username is valid (not garbage)
+                    set hasValidUsername to false
+                    if usr is not missing value and usr is not "" and usr is not "TYPE=PREF" then
+                        if expectedDomain is "" or expectedDomain does not contain usr then
+                            set hasValidUsername to true
+                        end if
+                    end if
+                    
+                    -- If no valid username, try to extract from URL
+                    if not hasValidUsername and theUrl is not missing value and theUrl is not "" then
+                        set AppleScript's text item delimiters to "/"
+                        set urlParts to text items of theUrl
+                        set extractedUser to last item of urlParts
+                        set AppleScript's text item delimiters to ""
+                        if extractedUser is "" and (count of urlParts) > 1 then
+                            set extractedUser to item -2 of urlParts
+                        end if
+                        if (count of extractedUser) > 0 and (expectedDomain is "" or expectedDomain does not contain extractedUser) then
+                            set usr to extractedUser
+                            set hasValidUsername to true
+                        end if
+                    end if
+                    
+                    -- Apply fix or nullify
+                    if hasValidUsername then
+                        set service name of sp to "\(normalizedService)"
+                        set user name of sp to usr
+                    else
+                        set service name of sp to ""
+                        set user name of sp to ""
+                        set url of sp to ""
+                    end if
+                    exit repeat
+                end if
+            end repeat
+            save
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    task.standardOutput = FileHandle.nullDevice
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+        return task.terminationStatus == 0
+    } catch {}
+    return false
+}
+
+// Helper to remove social profile via AppleScript (nullifies fields since delete isn't supported)
+func removeSocialProfileViaAppleScript(firstName: String, lastName: String, service: String) -> Bool {
+    let escapedFirst = firstName.replacingOccurrences(of: "\"", with: "\\\"")
+    let escapedLast = lastName.replacingOccurrences(of: "\"", with: "\\\"")
+    let normalizedService = normalizeServiceName(service)
+    
+    let script = """
+    tell application "Contacts"
+        try
+            set thePerson to first person whose first name is "\(escapedFirst)" and last name is "\(escapedLast)"
+            repeat with sp in social profiles of thePerson
+                if service name of sp is "\(normalizedService)" then
+                    set service name of sp to ""
+                    set user name of sp to ""
+                    set url of sp to ""
+                end if
+            end repeat
+            save
+        end try
+    end tell
+    """
+    
+    let task = Process()
+    task.launchPath = "/usr/bin/osascript"
+    task.arguments = ["-e", script]
+    task.standardOutput = FileHandle.nullDevice
+    task.standardError = FileHandle.nullDevice
+    
+    do {
+        try task.run()
+        task.waitUntilExit()
+        return task.terminationStatus == 0
+    } catch {}
+    return false
+}
+
 // Helper to convert contact to dictionary
 func contactToDict(_ contact: CNContact) -> [String: Any] {
     var dict: [String: Any] = [
@@ -117,9 +536,15 @@ func contactToDict(_ contact: CNContact) -> [String: Any] {
     if !contact.organizationName.isEmpty { dict["organization"] = contact.organizationName }
     if !contact.jobTitle.isEmpty { dict["jobTitle"] = contact.jobTitle }
     if !contact.departmentName.isEmpty { dict["department"] = contact.departmentName }
-    // Note field requires explicit key fetch - check if available
-    if contact.isKeyAvailable(CNContactNoteKey), !contact.note.isEmpty { 
-        dict["note"] = contact.note 
+    
+    // Note field - use AppleScript since Contacts framework is buggy with notes
+    let note = getNoteViaAppleScript(firstName: contact.givenName, lastName: contact.familyName)
+    dict["note"] = note
+    
+    // Social profiles - use AppleScript since Contacts framework is buggy
+    let socialProfiles = getSocialProfilesViaAppleScript(firstName: contact.givenName, lastName: contact.familyName)
+    if !socialProfiles.isEmpty {
+        dict["socialProfiles"] = socialProfiles
     }
     
     if !contact.phoneNumbers.isEmpty {
@@ -186,7 +611,11 @@ guard CommandLine.arguments.count > 1 else {
     
     Examples:
       swift contacts.swift add --first "John" --last "Doe" --phone "+15125551234" --phone-label "mobile"
+      swift contacts.swift add --first "Jane" --last "Smith" --social "instagram:janesmith"
       swift contacts.swift update --id "ABC123" --organization "New Company"
+      swift contacts.swift update --id "ABC123" --social "linkedin:johndoe"
+      swift contacts.swift update --id "ABC123" --remove-social "INSTAGRAM"
+      swift contacts.swift update --id "ABC123" --fix-social "instagram"
       swift contacts.swift search --name "John"
       swift contacts.swift search --phone "5551234"
     """)
@@ -233,6 +662,7 @@ case "add":
         fputs("  --email <address>      Email address\n", stderr)
         fputs("  --email-label <label>  Email label (home, work, icloud)\n", stderr)
         fputs("  --note <text>          Notes\n", stderr)
+        fputs("  --social <svc:user>    Social profile (e.g., instagram:username, linkedin:johndoe)\n", stderr)
         exit(1)
     }
     
@@ -262,6 +692,17 @@ case "add":
     
     do {
         try contactStore.execute(saveRequest)
+        
+        // Add social profile after contact is saved (AppleScript needs contact to exist)
+        if let social = argDict["social"] {
+            let parts = social.components(separatedBy: ":")
+            if parts.count >= 2 {
+                let service = parts[0]
+                let username = parts.dropFirst().joined(separator: ":")
+                _ = upsertSocialProfileViaAppleScript(firstName: contact.givenName, lastName: contact.familyName, service: service, username: username)
+            }
+        }
+        
         let name = [contact.givenName, contact.familyName].filter { !$0.isEmpty }.joined(separator: " ")
         let displayName = name.isEmpty ? contact.organizationName : name
         outputJSON([
@@ -284,6 +725,7 @@ case "update":
         exit(1)
     }
     
+    // Fetch contact with all necessary keys including URLs and notes
     let keysToFetch: [CNKeyDescriptor] = [
         CNContactIdentifierKey as CNKeyDescriptor,
         CNContactGivenNameKey as CNKeyDescriptor,
@@ -298,6 +740,178 @@ case "update":
         CNContactNoteKey as CNKeyDescriptor
     ]
     
+    // Handle social profile update via AppleScript (Contacts framework has bugs)
+    if let social = argDict["social"] {
+        // First get the contact to find its name
+        guard let existingContact = try? contactStore.unifiedContact(withIdentifier: contactId, keysToFetch: keysToFetch) else {
+            outputJSON(["success": false, "error": "Contact not found with ID: \(contactId)"])
+            exit(1)
+        }
+        
+        let firstName = existingContact.givenName
+        let lastName = existingContact.familyName
+        
+        let parts = social.components(separatedBy: ":")
+        if parts.count >= 2 {
+            let service = parts[0]
+            let username = parts.dropFirst().joined(separator: ":")
+            
+            if upsertSocialProfileViaAppleScript(firstName: firstName, lastName: lastName, service: service, username: username) {
+                // Continue to handle other updates if present
+                if argDict["note"] == nil && argDict["first"] == nil && argDict["last"] == nil &&
+                   argDict["organization"] == nil && argDict["phone"] == nil && argDict["email"] == nil {
+                    let name = [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+                    let displayName = name.isEmpty ? existingContact.organizationName : name
+                    outputJSON([
+                        "success": true,
+                        "message": "Social profile updated for '\(displayName)'",
+                        "contact": contactToDict(existingContact)
+                    ])
+                    exit(0)
+                }
+            } else {
+                outputJSON(["success": false, "error": "Failed to add social profile via AppleScript"])
+                exit(1)
+            }
+        } else {
+            outputJSON(["success": false, "error": "Invalid --social format. Use: service:username (e.g., instagram:johndoe)"])
+            exit(1)
+        }
+    }
+    
+    // Handle social profile removal via AppleScript (nullifies fields since delete isn't supported)
+    if let removeService = argDict["remove-social"] {
+        guard let existingContact = try? contactStore.unifiedContact(withIdentifier: contactId, keysToFetch: keysToFetch) else {
+            outputJSON(["success": false, "error": "Contact not found with ID: \(contactId)"])
+            exit(1)
+        }
+        
+        let firstName = existingContact.givenName
+        let lastName = existingContact.familyName
+        
+        if removeSocialProfileViaAppleScript(firstName: firstName, lastName: lastName, service: removeService) {
+            // If no other updates, return success
+            if argDict["note"] == nil && argDict["first"] == nil && argDict["last"] == nil &&
+               argDict["organization"] == nil && argDict["phone"] == nil && argDict["email"] == nil && argDict["social"] == nil {
+                let name = [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+                let displayName = name.isEmpty ? existingContact.organizationName : name
+                outputJSON([
+                    "success": true,
+                    "message": "Social profile '\(removeService)' removed from '\(displayName)'",
+                    "contact": contactToDict(existingContact)
+                ])
+                exit(0)
+            }
+        } else {
+            outputJSON(["success": false, "error": "Failed to remove social profile '\(removeService)' - may not exist or AppleScript error"])
+            exit(1)
+        }
+    }
+    
+    // Handle social profile fix via AppleScript (auto-extracts username from URL, normalizes service name)
+    if let fixService = argDict["fix-social"] {
+        guard let existingContact = try? contactStore.unifiedContact(withIdentifier: contactId, keysToFetch: keysToFetch) else {
+            outputJSON(["success": false, "error": "Contact not found with ID: \(contactId)"])
+            exit(1)
+        }
+        
+        let firstName = existingContact.givenName
+        let lastName = existingContact.familyName
+        
+        if fixSocialProfileViaAppleScript(firstName: firstName, lastName: lastName, service: fixService) {
+            let name = [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+            let displayName = name.isEmpty ? existingContact.organizationName : name
+            outputJSON([
+                "success": true,
+                "message": "Social profile '\(fixService)' fixed for '\(displayName)'",
+                "contact": contactToDict(existingContact)
+            ])
+            exit(0)
+        } else {
+            outputJSON(["success": false, "error": "Failed to fix social profile '\(fixService)'"])
+            exit(1)
+        }
+    }
+    
+    // Handle note update via AppleScript (Contacts framework has bugs with notes)
+    if let noteText = argDict["note"] {
+        // First get the contact to find its name
+        guard let existingContact = try? contactStore.unifiedContact(withIdentifier: contactId, keysToFetch: keysToFetch) else {
+            outputJSON(["success": false, "error": "Contact not found with ID: \(contactId)"])
+            exit(1)
+        }
+        
+        let firstName = argDict["first"] ?? existingContact.givenName
+        let lastName = argDict["last"] ?? existingContact.familyName
+        
+        // Build the final note (handle append)
+        var finalNote = noteText
+        if argDict["append-note"] != nil {
+            let existingNote = getNoteViaAppleScript(firstName: firstName, lastName: lastName)
+            if !existingNote.isEmpty {
+                finalNote = existingNote + "\n\n" + noteText
+            }
+        }
+        
+        // Update note via AppleScript
+        if setNoteViaAppleScript(firstName: firstName, lastName: lastName, note: finalNote) {
+            // Now update other fields if needed via Swift
+            let contact = existingContact.mutableCopy() as! CNMutableContact
+            
+            if let first = argDict["first"] { contact.givenName = first }
+            if let last = argDict["last"] { contact.familyName = last }
+            if let middle = argDict["middle"] { contact.middleName = middle }
+            if let nickname = argDict["nickname"] { contact.nickname = nickname }
+            if let org = argDict["organization"] { contact.organizationName = org }
+            if let jobTitle = argDict["job-title"] { contact.jobTitle = jobTitle }
+            if let dept = argDict["department"] { contact.departmentName = dept }
+            
+            if let phone = argDict["phone"] {
+                let label = argDict["phone-label"] ?? "mobile"
+                let newPhone = CNLabeledValue(label: parsePhoneLabel(label), value: CNPhoneNumber(stringValue: phone))
+                if argDict["replace-phones"] != nil {
+                    contact.phoneNumbers = [newPhone]
+                } else {
+                    contact.phoneNumbers.append(newPhone)
+                }
+            }
+            
+            if let email = argDict["email"] {
+                let label = argDict["email-label"] ?? "home"
+                let newEmail = CNLabeledValue(label: parseEmailLabel(label), value: email as NSString)
+                if argDict["replace-emails"] != nil {
+                    contact.emailAddresses = [newEmail]
+                } else {
+                    contact.emailAddresses.append(newEmail)
+                }
+            }
+            
+            // Save other fields via Swift
+            let saveRequest = CNSaveRequest()
+            saveRequest.update(contact)
+            do {
+                try contactStore.execute(saveRequest)
+            } catch {
+                // Note was saved, other fields might have failed
+            }
+            
+            // Auto-fix any corrupted social profiles
+            autoFixAllSocialProfilesViaAppleScript(firstName: contact.givenName, lastName: contact.familyName)
+            let name = [contact.givenName, contact.familyName].filter { !$0.isEmpty }.joined(separator: " ")
+            let displayName = name.isEmpty ? contact.organizationName : name
+            outputJSON([
+                "success": true,
+                "message": "Contact '\(displayName)' updated",
+                "contact": contactToDict(contact)
+            ])
+            exit(0)
+        } else {
+            outputJSON(["success": false, "error": "Failed to update note via AppleScript"])
+            exit(1)
+        }
+    }
+    
+    // No note update - use standard path
     guard let existingContact = try? contactStore.unifiedContact(withIdentifier: contactId, keysToFetch: keysToFetch) else {
         outputJSON(["success": false, "error": "Contact not found with ID: \(contactId)"])
         exit(1)
@@ -305,6 +919,7 @@ case "update":
     
     let contact = existingContact.mutableCopy() as! CNMutableContact
     
+    // Update basic fields
     if let first = argDict["first"] { contact.givenName = first }
     if let last = argDict["last"] { contact.familyName = last }
     if let middle = argDict["middle"] { contact.middleName = middle }
@@ -312,9 +927,8 @@ case "update":
     if let org = argDict["organization"] { contact.organizationName = org }
     if let jobTitle = argDict["job-title"] { contact.jobTitle = jobTitle }
     if let dept = argDict["department"] { contact.departmentName = dept }
-    if let note = argDict["note"] { contact.note = note }
     
-    // For phone/email updates, we add to existing (use --replace-phones or --replace-emails to replace)
+    // For phone/email/URL updates, we add to existing (use --replace-phones, --replace-emails, --replace-urls to replace)
     if let phone = argDict["phone"] {
         let label = argDict["phone-label"] ?? "mobile"
         let newPhone = CNLabeledValue(label: parsePhoneLabel(label), value: CNPhoneNumber(stringValue: phone))
@@ -340,6 +954,8 @@ case "update":
     
     do {
         try contactStore.execute(saveRequest)
+        // Auto-fix any corrupted social profiles
+        autoFixAllSocialProfilesViaAppleScript(firstName: contact.givenName, lastName: contact.familyName)
         let name = [contact.givenName, contact.familyName].filter { !$0.isEmpty }.joined(separator: " ")
         let displayName = name.isEmpty ? contact.organizationName : name
         outputJSON([
@@ -375,4 +991,3 @@ default:
     fputs("Available commands: add, update, search\n", stderr)
     exit(1)
 }
-

@@ -3,8 +3,25 @@
 ## Intention: Read, search, add, and edit contacts from macOS Contacts app
 
 **Methods:**
-- **Reading:** SQLite Direct Access (fast, ~5ms)
-- **Writing:** Swift script with Contacts framework (syncs with iCloud)
+- **Reading:** Swift script (uses AppleScript for notes/social profiles due to framework bugs)
+- **Writing:** Swift script with Contacts framework + AppleScript for notes/social profiles (syncs with iCloud)
+
+## Note Format Convention
+
+When adding notes to contacts, use this format:
+```
+YYYY-MM-DD Met @ [place] via [person/context].
+
+[Social media URLs on separate lines]
+```
+
+**Example:**
+```
+2025-11-28 Met @ Friendsgiving via friends.
+
+Instagram: https://www.instagram.com/username
+LinkedIn: https://linkedin.com/in/username
+```
 
 ## Quick Reference
 
@@ -45,6 +62,42 @@ swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
   --id "CONTACT_ID_HERE" \
   --job-title "Senior Engineer" \
   --department "Engineering"
+
+# Update with a note (use the standard format)
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --note "2025-11-28 Met @ conference via mutual friend."
+```
+
+**Add social profiles:**
+```bash
+# Add Instagram profile
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --social "instagram:username"
+
+# Add LinkedIn profile  
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --social "linkedin:johndoe"
+
+# Add when creating a new contact
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" add \
+  --first "Jane" --last "Smith" \
+  --social "instagram:janesmith"
+```
+
+**Remove social profiles:**
+```bash
+# Remove a corrupted or unwanted social profile by service name
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --remove-social "INSTAGRAM"
+
+# Works with any case (instagram, INSTAGRAM, Instagram all match)
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update \
+  --id "CONTACT_ID_HERE" \
+  --remove-social "linkedin"
 ```
 
 **Search contacts (returns JSON):**
@@ -306,6 +359,7 @@ swift "$PROJECT_ROOT/skills/contacts/contacts.swift" add [options]
 | `--email <address>` | Email address |
 | `--email-label <label>` | Email label (home, work, icloud) |
 | `--note <text>` | Notes |
+| `--social <svc:user>` | Social profile (e.g., `instagram:username`, `linkedin:johndoe`) |
 
 **Minimum required:** At least one of `--first`, `--last`, or `--organization`
 
@@ -322,6 +376,8 @@ Uses the same options as `add`. The contact ID can be obtained from the `search`
 |--------|-------------|
 | `--replace-phones` | Replace all phone numbers (default: append) |
 | `--replace-emails` | Replace all email addresses (default: append) |
+| `--append-note` | Append to existing note instead of replacing |
+| `--remove-social <svc>` | Remove social profile by service name (e.g., `INSTAGRAM`) |
 
 ### Search Contact
 
@@ -332,12 +388,40 @@ swift "$PROJECT_ROOT/skills/contacts/contacts.swift" search --phone "5551234"
 
 Returns JSON with contact details including the `id` field needed for updates.
 
-## Notes
+## Technical Notes
 
 - Multiple contact sources may exist (iCloud, Google, Exchange, local)
 - Each source has its own database in `Sources/UUID/`
-- Use the bash loop pattern to query all sources via SQLite
 - Phone numbers are stored in various formats - normalize when comparing
 - The `ZLASTFOURDIGITS` field provides fast indexed phone lookups
 - Write operations via Swift automatically sync with iCloud
+
+### Notes Field Workaround
+
+The macOS Contacts framework has a bug where `mutableCopy()` doesn't preserve `CNContactNoteKey`, causing `CNPropertyNotFetchedException` when trying to set notes. 
+
+**Solution:** The Swift script uses AppleScript (`osascript`) under the hood for all note operations:
+- Reading notes: AppleScript queries the Contacts app directly
+- Writing notes: AppleScript sets the note via the Contacts app
+
+This is transparent to users - just use `--note` flag as normal.
+
+### Social Profiles
+
+The macOS Contacts framework has the same `mutableCopy()` bug for social profiles.
+
+**Solution:** The Swift script uses AppleScript for social profile operations:
+- Reading: Returns `socialProfiles` array in search results
+- Writing: Use `--social service:username` format
+
+**Supported services:** Instagram, LinkedIn, Twitter, Facebook, TikTok, YouTube, Snapchat, Pinterest, Reddit, WhatsApp, Telegram, Signal, Discord, Slack, GitHub, Mastodon, Bluesky, Threads (and any custom service).
+
+**Important:** Service names are automatically normalized to proper case (e.g., `instagram` → `Instagram`). Using ALL CAPS service names directly in macOS Contacts displays garbage (raw vCard metadata).
+
+**Removal workaround:** AppleScript doesn't support `delete` for social profiles, but we can nullify them by clearing `service name`, `user name`, and `url`. Use `--remove-social` flag:
+```bash
+swift "$PROJECT_ROOT/skills/contacts/contacts.swift" update --id "ID" --remove-social "INSTAGRAM"
+```
+
+This matches case-insensitively (`instagram`, `INSTAGRAM`, `Instagram` all work). The ghost entry remains in the database but is invisible/empty.
 
