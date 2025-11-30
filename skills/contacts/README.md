@@ -30,15 +30,13 @@ python3 contacts.py phone remove <id> +15125551234
 python3 contacts.py email add <id> john@example.com work
 python3 contacts.py email remove <id> john@example.com
 
-# URL operations (for GitHub, Instagram, etc.)
-python3 contacts.py url add <id> "https://github.com/johndoe" GitHub
+# URL operations (for all social profiles)
+python3 contacts.py url add <id> "https://twitter.com/johndoe"       # auto-detects label: "Twitter"
+python3 contacts.py url add <id> "https://github.com/johndoe"        # auto-detects label: "GitHub"
+python3 contacts.py url add <id> "https://example.com" "My Website"  # explicit label
 python3 contacts.py url remove <id> github.com
 
-# Social profile operations (Apple-official only)
-python3 contacts.py social add <id> twitter johndoe
-python3 contacts.py social remove <id> twitter
-
-# Fix corrupted social profiles
+# Migrate social profiles to URLs
 python3 contacts.py fix <id>
 
 # Photo operations
@@ -47,19 +45,16 @@ python3 contacts.py photo set <id> /path/to/photo.jpg
 python3 contacts.py photo clear <id>
 ```
 
-## Social Profiles vs URLs
+## Why URLs Instead of Social Profiles?
 
-**Use Social Profiles for Apple-official services only:**
-- Twitter, LinkedIn, Facebook, Flickr, Yelp, MySpace, SinaWeibo, TencentWeibo, GameCenter
+**URLs are used for ALL social profiles** (Twitter, LinkedIn, GitHub, Instagram, etc.) because:
 
-These get **native "View Profile" / "View Tweets" click actions** in Contacts.app.
+1. **Better sync compatibility** — Apple's `X-SOCIALPROFILE` vCard property is non-standard and gets lost or corrupted when syncing with Google Contacts, Outlook, and other services
+2. **Universal** — URLs work everywhere and sync reliably via CardDAV
+3. **Still clickable** — URLs are clickable in Contacts.app
+4. **Auto-labeled** — Service names are auto-detected from URLs (e.g., `https://twitter.com/johndoe` → label "Twitter")
 
-**Use URLs for everything else:**
-- GitHub, Instagram, TikTok, YouTube, Keybase, AngelList, Quora, Pinterest, Threads, Bluesky, Mastodon, etc.
-
-URLs are **clickable in Contacts.app** and more universal. Custom social profiles (like "GitHub") display text but have no click action.
-
-> **Why?** Apple's social service list hasn't been updated since 2015. See `/System/Library/Frameworks/Contacts.framework/.../CNSocialProfile.h`
+The `fix` command migrates existing Apple social profiles to URLs for better cross-platform compatibility.
 
 ## Commands
 
@@ -73,8 +68,7 @@ python3 contacts.py search "Acme Corp"
 python3 contacts.py search --phone 5551234
 python3 contacts.py search --where "no_photo = true"
 python3 contacts.py search --where "organization IS NOT NULL"
-python3 contacts.py search --where "service = 'twitter'"
-python3 contacts.py search --where "username LIKE '%johndoe%'"
+python3 contacts.py search --where "url LIKE '%twitter%'"
 ```
 
 **Virtual fields for `--where`:**
@@ -83,7 +77,7 @@ python3 contacts.py search --where "username LIKE '%johndoe%'"
 | `no_photo = true` | Contacts with no photo at all |
 | `has_photo = true` | Contacts with any photo (embedded or reference) |
 
-**Standard fields:** `firstName`, `lastName`, `organization`, `jobTitle`, `photo`, `thumbnail`, `url`, `number`, `service`, `username`
+**Standard fields:** `firstName`, `lastName`, `organization`, `jobTitle`, `photo`, `thumbnail`, `url`, `number`
 
 Returns JSON:
 ```json
@@ -132,7 +126,7 @@ python3 contacts.py create \
   --phone-label mobile \
   --email "john@example.com" \
   --email-label work \
-  --social "twitter:johndoe" \
+  --url "https://twitter.com/johndoe" \
   --note "Met at conference 2025"
 ```
 
@@ -151,11 +145,12 @@ Options:
 | `--phone-label` | Phone label (mobile, home, work) |
 | `--email` | Email address |
 | `--email-label` | Email label (home, work) |
-| `--social` | Social profile as `service:username` (Apple-official only) |
+| `--url` | URL (auto-detects label from known services) |
+| `--url-label` | URL label (Twitter, LinkedIn, homepage, etc.) |
 
 ### update
 
-Update contact fields. Use resource subcommands (`phone`, `email`, `url`, `social`) for multi-value fields.
+Update contact fields. Use resource subcommands (`phone`, `email`, `url`) for multi-value fields.
 
 ```bash
 python3 contacts.py update ABC123 --org "New Company" --job-title "Senior Engineer"
@@ -197,64 +192,54 @@ python3 contacts.py email remove <id> john@example.com
 
 ### url
 
-Add or remove URLs. Use this for non-Apple social profiles (GitHub, Instagram, etc.) - they'll be clickable in Contacts.app.
+Add or remove URLs. **Labels are auto-detected from known services.**
 
 ```bash
-# Add URL with label
-python3 contacts.py url add <id> "https://github.com/johndoe" GitHub
-python3 contacts.py url add <id> "https://instagram.com/johndoe" Instagram
-python3 contacts.py url add <id> "https://keybase.io/johndoe" Keybase
+# Add URL (label auto-detected from URL)
+python3 contacts.py url add <id> "https://twitter.com/johndoe"      # → label: "Twitter"
+python3 contacts.py url add <id> "https://github.com/johndoe"       # → label: "GitHub"
+python3 contacts.py url add <id> "https://linkedin.com/in/johndoe"  # → label: "LinkedIn"
+
+# Add URL with explicit label
+python3 contacts.py url add <id> "https://example.com" "My Website"
 
 # Remove URL (partial match works)
 python3 contacts.py url remove <id> github.com
 ```
 
-Common URL templates:
-| Service | URL Format |
-|---------|------------|
-| GitHub | `https://github.com/{username}` |
-| Instagram | `https://instagram.com/{username}` |
-| YouTube | `https://youtube.com/@{username}` |
-| TikTok | `https://tiktok.com/@{username}` |
-| Keybase | `https://keybase.io/{username}` |
-| AngelList | `https://angel.co/u/{username}` |
-| Quora | `https://quora.com/profile/{username}` |
-| Pinterest | `https://pinterest.com/{username}` |
-| Threads | `https://threads.net/@{username}` |
-| Bluesky | `https://bsky.app/profile/{handle}` |
-| Mastodon | `https://mastodon.social/@{username}` |
-
-### social
-
-Add or remove social profiles. **Only use for Apple-official services** (these get native click actions).
-
-```bash
-# Add/update social profile
-python3 contacts.py social add <id> twitter johndoe
-python3 contacts.py social add <id> linkedin john-doe
-python3 contacts.py social add <id> facebook johnd
-
-# Remove social profile
-python3 contacts.py social remove <id> twitter
-```
-
-**Apple-official services:** Twitter, LinkedIn, Facebook, Flickr, Yelp, MySpace, SinaWeibo, TencentWeibo, GameCenter
+**Supported services for auto-detection:**
+| Service | URL Pattern |
+|---------|-------------|
+| Twitter | `twitter.com/{username}` |
+| LinkedIn | `linkedin.com/in/{username}` |
+| Facebook | `facebook.com/{username}` |
+| GitHub | `github.com/{username}` |
+| Instagram | `instagram.com/{username}` |
+| YouTube | `youtube.com/@{username}` |
+| TikTok | `tiktok.com/@{username}` |
+| Bluesky | `bsky.app/profile/{handle}` |
+| Mastodon | `mastodon.social/@{username}` |
+| Threads | `threads.net/@{username}` |
+| Keybase | `keybase.io/{username}` |
+| Pinterest | `pinterest.com/{username}` |
+| And more... |
 
 ### fix
 
-Fix social profiles for a contact:
-- **Migrates social URLs to proper social profiles** (e.g., Instagram URL → Instagram social)
-- Extracts usernames from URLs
-- Normalizes service names
-- Removes garbage entries (Google+, corrupted data)
+Migrate social profiles to URLs for better cross-platform sync compatibility.
 
 ```bash
 python3 contacts.py fix <id>
 ```
 
+This command:
+- Converts Apple social profiles (Twitter, LinkedIn, Facebook, etc.) to clickable URLs
+- Preserves the service name as the URL label
+- Clears the original social profile entries
+
 Returns which services were migrated:
 ```json
-{"success": true, "message": "Social profiles fixed. Migrated URLs to socials: Instagram", "migrated": ["Instagram"]}
+{"success": true, "message": "Contact fixed. Migrated socials to URLs: Twitter, LinkedIn", "migrated": ["Twitter", "LinkedIn"]}
 ```
 
 ### photo
@@ -340,6 +325,6 @@ Key tables in AddressBook SQLite:
 - `ZABCDPHONENUMBER` - Phone numbers (ZLASTFOURDIGITS is indexed)
 - `ZABCDEMAILADDRESS` - Email addresses
 - `ZABCDURLADDRESS` - URLs with labels
-- `ZABCDSOCIALPROFILE` - Social profiles
+- `ZABCDSOCIALPROFILE` - Social profiles (legacy, migrated to URLs)
 - `ZABCDPOSTALADDRESS` - Physical addresses
 - `ZABCDNOTE` - Notes

@@ -94,13 +94,13 @@ To file feedback, bugs, or feature requests for AgentOS:
 
 ```bash
 # Bug report
-gh issue create --repo jcontini/AgentOS --title "Bug: [description]" --body "..." --label "bug"
+gh issue create --repo yourusername/yourrepo --title "Bug: [description]" --body "..." --label "bug"
 
 # Feature request
-gh issue create --repo jcontini/AgentOS --title "Feature: [description]" --body "..." --label "enhancement"
+gh issue create --repo yourusername/yourrepo --title "Feature: [description]" --body "..." --label "enhancement"
 
 # Question/feedback
-gh issue create --repo jcontini/AgentOS --title "[topic]" --body "..."
+gh issue create --repo yourusername/yourrepo --title "[topic]" --body "..."
 ```
 
 ### Tips

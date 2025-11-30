@@ -829,14 +829,21 @@ def create_contact_applescript(contact: Contact) -> tuple[bool, str]:
             make new email at end of emails of newPerson with properties {{label:"{label}", value:"{escape_applescript(address)}"}}
         '''
     
-    # Build social profile additions
-    social_cmds = ""
-    for social in contact.socials:
-        service = social.service if isinstance(social, Social) else social.get("service", "")
-        username = social.username if isinstance(social, Social) else social.get("username", "")
-        service = normalize_service(service)
-        social_cmds += f'''
-            make new social profile at end of social profiles of newPerson with properties {{service name:"{service}", user name:"{escape_applescript(username)}"}}
+    # Build URL additions
+    url_cmds = ""
+    for url_entry in contact.urls:
+        url = url_entry.url if isinstance(url_entry, URL) else url_entry.get("url", "")
+        label = url_entry.label if isinstance(url_entry, URL) else url_entry.get("label", "homepage")
+        # Auto-detect label from URL if using default
+        if label == "homepage":
+            result = get_service_from_url(url)
+            if result:
+                service_key, _ = result
+                service_info = get_service(service_key)
+                if service_info:
+                    label = service_info["name"]
+        url_cmds += f'''
+            make new url at end of urls of newPerson with properties {{label:"{escape_applescript(label)}", value:"{escape_applescript(url)}"}}
         '''
     
     script = f'''
@@ -844,7 +851,7 @@ def create_contact_applescript(contact: Contact) -> tuple[bool, str]:
             set newPerson to make new person with properties {{{props_str}}}
             {phone_cmds}
             {email_cmds}
-            {social_cmds}
+            {url_cmds}
             save
             return id of newPerson
         end tell
@@ -998,17 +1005,31 @@ def remove_email_applescript(contact_id: str, address: str) -> tuple[bool, str]:
     '''
     return run_applescript(script)
 
-def add_url_applescript(contact_id: str, url_obj: URL) -> tuple[bool, str]:
-    """Add URL to contact via AppleScript."""
+def add_url_applescript(contact_id: str, url_obj: URL, auto_label: bool = True) -> tuple[bool, str]:
+    """Add URL to contact via AppleScript.
+    
+    If auto_label is True and label is 'homepage', attempts to detect 
+    the service from the URL and use that as the label.
+    """
     contact = get_contact_details(contact_id)
     if not contact:
         return False, "Contact not found"
+    
+    # Auto-detect label from URL if using default label
+    label = url_obj.label
+    if auto_label and label == "homepage":
+        result = get_service_from_url(url_obj.url)
+        if result:
+            service_key, _ = result
+            service_info = get_service(service_key)
+            if service_info:
+                label = service_info["name"]
     
     script = f'''
         tell application "Contacts"
             try
                 set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
-                make new url at end of urls of thePerson with properties {{label:"{escape_applescript(url_obj.label)}", value:"{escape_applescript(url_obj.url)}"}}
+                make new url at end of urls of thePerson with properties {{label:"{escape_applescript(label)}", value:"{escape_applescript(url_obj.url)}"}}
                 save
                 return "success"
             on error errMsg
@@ -1034,67 +1055,6 @@ def remove_url_applescript(contact_id: str, url: str) -> tuple[bool, str]:
                     if value of u contains "{escape_applescript(url)}" then
                         delete url i of thePerson
                         exit repeat
-                    end if
-                end repeat
-                save
-                return "success"
-            on error errMsg
-                return errMsg
-            end try
-        end tell
-    '''
-    return run_applescript(script)
-
-def add_social_applescript(contact_id: str, social: Social) -> tuple[bool, str]:
-    """Add or update social profile via AppleScript."""
-    contact = get_contact_details(contact_id)
-    if not contact:
-        return False, "Contact not found"
-    
-    service = normalize_service(social.service)
-    
-    # Upsert: update if exists, add if not
-    script = f'''
-        tell application "Contacts"
-            try
-                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
-                set didUpdate to false
-                repeat with sp in social profiles of thePerson
-                    if service name of sp is "{service}" then
-                        set user name of sp to "{escape_applescript(social.username)}"
-                        set didUpdate to true
-                        exit repeat
-                    end if
-                end repeat
-                if not didUpdate then
-                    make new social profile at end of social profiles of thePerson with properties {{service name:"{service}", user name:"{escape_applescript(social.username)}"}}
-                end if
-                save
-                return "success"
-            on error errMsg
-                return errMsg
-            end try
-        end tell
-    '''
-    return run_applescript(script)
-
-def remove_social_applescript(contact_id: str, service: str) -> tuple[bool, str]:
-    """Remove social profile via AppleScript (nullifies since delete not supported)."""
-    contact = get_contact_details(contact_id)
-    if not contact:
-        return False, "Contact not found"
-    
-    service = normalize_service(service)
-    
-    script = f'''
-        tell application "Contacts"
-            try
-                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
-                repeat with sp in social profiles of thePerson
-                    if service name of sp is "{service}" then
-                        set service name of sp to ""
-                        set user name of sp to ""
-                        set url of sp to ""
                     end if
                 end repeat
                 save
@@ -1189,12 +1149,12 @@ def clear_photo(contact_id: str) -> tuple[bool, str]:
     return run_applescript(script)
 
 # =============================================================================
-# Fix Command (Social Profile Cleanup)
+# Fix Command (Social Profile → URL Migration)
 # =============================================================================
 
-def migrate_urls_to_socials(contact_id: str) -> list[str]:
+def migrate_socials_to_urls(contact_id: str) -> list[str]:
     """
-    Scan contact's URLs for recognized social profiles and migrate them.
+    Migrate social profiles to URLs for better cross-platform compatibility.
     Returns list of services that were migrated.
     """
     contact = get_contact_details(contact_id)
@@ -1202,42 +1162,85 @@ def migrate_urls_to_socials(contact_id: str) -> list[str]:
         return []
     
     migrated = []
-    urls_to_remove = []
+    first = contact.get("firstName", "")
+    last = contact.get("lastName", "")
     
-    for url_entry in contact.get("urls", []):
-        url = url_entry.get("url", "")
-        if not url:
+    # Get existing URLs to avoid duplicates
+    existing_urls = [u.get("url", "").lower() for u in contact.get("urls", [])]
+    
+    for social in contact.get("socials", []):
+        service = social.get("service", "")
+        username = social.get("username", "")
+        
+        if not service:
             continue
         
-        # Check if this URL matches a known social service
-        result = get_service_from_url(url)
-        if result:
-            service_key, username = result
-            service_info = get_service(service_key)
-            
-            if service_info and username:
-                # Check if this social already exists
-                existing_socials = [s.get("service", "").lower() for s in contact.get("socials", [])]
-                service_name = service_info["name"]
-                
-                if service_name.lower() not in existing_socials:
-                    # Add as social profile
-                    social = Social(service=service_key, username=username)
-                    success, _ = add_social_applescript(contact_id, social)
-                    
-                    if success:
-                        migrated.append(service_name)
-                        urls_to_remove.append(url)
+        # Get service info to construct URL
+        service_key = service.lower()
+        service_info = get_service(service_key)
+        
+        # Construct URL from service + username
+        url = None
+        label = service  # Use service name as label
+        
+        if service_info:
+            label = service_info["name"]
+            profile_url = service_info.get("profile_url", "")
+            if profile_url and username:
+                url = profile_url.replace("{username}", username)
+        
+        # If we couldn't construct URL from template but have username, try common patterns
+        if not url and username:
+            # Try to construct URL from known services
+            if service_key in ["twitter", "x"]:
+                url = f"https://twitter.com/{username}"
+                label = "Twitter"
+            elif service_key == "linkedin":
+                url = f"https://www.linkedin.com/in/{username}"
+                label = "LinkedIn"
+            elif service_key == "facebook":
+                url = f"https://www.facebook.com/{username}"
+                label = "Facebook"
+            elif service_key == "instagram":
+                url = f"https://www.instagram.com/{username}"
+                label = "Instagram"
+            elif service_key == "flickr":
+                url = f"https://www.flickr.com/people/{username}"
+                label = "Flickr"
+        
+        # Add URL if we have one and it's not a duplicate
+        if url and url.lower() not in existing_urls:
+            url_obj = URL(url=url, label=label)
+            success, result = add_url_applescript(contact_id, url_obj, auto_label=False)
+            if success and result == "success":
+                migrated.append(label)
+                existing_urls.append(url.lower())
     
-    # Remove migrated URLs
-    for url in urls_to_remove:
-        remove_url_applescript(contact_id, url)
+    # Now nullify the social profiles (can't delete them, but can clear them)
+    if migrated:
+        script = f'''
+            tell application "Contacts"
+                try
+                    set thePerson to first person whose first name is "{escape_applescript(first)}" and last name is "{escape_applescript(last)}"
+                    repeat with sp in social profiles of thePerson
+                        set service name of sp to ""
+                        set user name of sp to ""
+                        set url of sp to ""
+                    end repeat
+                    save
+                    return "success"
+                on error errMsg
+                    return errMsg
+                end try
+            end tell
+        '''
+        run_applescript(script)
     
     return migrated
 
 
-def fix_contact_socials(contact_id: str) -> tuple[bool, str, list[str]]:
-    """Fix corrupted social profiles and migrate social URLs for a contact.
+def fix_contact(contact_id: str) -> tuple[bool, str, list[str]]:
+    """Migrate social profiles to URLs for better cross-platform sync.
     
     Returns (success, message, migrated_services).
     """
@@ -1245,192 +1248,10 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str, list[str]]:
     if not contact:
         return False, "Contact not found", []
     
-    # First, migrate any social URLs to proper social profiles
-    migrated = migrate_urls_to_socials(contact_id)
+    # Migrate social profiles to URLs
+    migrated = migrate_socials_to_urls(contact_id)
     
-    # Re-fetch contact after migration
-    contact = get_contact_details(contact_id)
-    if not contact:
-        return False, "Contact not found", []
-    
-    first = contact.get("firstName", "")
-    last = contact.get("lastName", "")
-    
-    # Build AppleScript checks from unified SOCIAL_SERVICES
-    service_checks = "\n".join([
-        f'if svcLower is "{key}" then\nset normalizedName to "{info["name"]}"\nset expectedDomain to "{get_service_domain(key)}"\nset urlTemplate to "{info["url"]}"\nend if'
-        for key, info in SOCIAL_SERVICES.items()
-    ])
-    
-    script = f'''
-        tell application "Contacts"
-            try
-                set thePerson to first person whose first name is "{escape_applescript(first)}" and last name is "{escape_applescript(last)}"
-                
-                repeat with sp in social profiles of thePerson
-                    set svc to service name of sp
-                    set usr to user name of sp
-                    set theUrl to url of sp
-                    
-                    -- Normalize service name and get domain/URL template
-                    set svcLower to ""
-                    set normalizedName to ""
-                    set expectedDomain to ""
-                    set urlTemplate to ""
-                    
-                    if svc is not missing value then
-                        set svcLower to do shell script "echo " & quoted form of svc & " | tr '[:upper:]' '[:lower:]'"
-                    end if
-                    
-                    {service_checks}
-                    
-                    -- CASE 0: Remove defunct services (Google+)
-                    if svcLower contains "plus.goo" or svcLower contains "google+" or svcLower is "googleplus" then
-                        set service name of sp to ""
-                        set user name of sp to ""
-                        set url of sp to ""
-                    else
-                    
-                    -- CASE 1: Check if username has URL pasted into it (like "WWW.FACEBOOK.COM/PROFILE.PHP?ID=123")
-                    set urlPastedAsUsername to false
-                    set extractedProfileId to ""
-                    if usr is not missing value and usr is not "" then
-                        if usr contains "profile.php" or usr contains "facebook.com" or usr contains "http" then
-                            set urlPastedAsUsername to true
-                            -- Try to extract profile ID
-                            if usr contains "id=" then
-                                set AppleScript's text item delimiters to "id="
-                                set idParts to text items of usr
-                                if (count of idParts) > 1 then
-                                    set extractedProfileId to item 2 of idParts
-                                    -- Clean up any trailing garbage
-                                    set AppleScript's text item delimiters to "&"
-                                    set extractedProfileId to text item 1 of extractedProfileId
-                                end if
-                                set AppleScript's text item delimiters to ""
-                            end if
-                        end if
-                    end if
-                    
-                    if urlPastedAsUsername then
-                        -- Fix the pasted URL: clear username, set proper URL
-                        if extractedProfileId is not "" then
-                            set user name of sp to ""
-                            set url of sp to "https://www.facebook.com/profile.php?id=" & extractedProfileId
-                            if normalizedName is not "" then
-                                set service name of sp to normalizedName
-                            end if
-                        else
-                            -- Can't recover, nullify
-                            set service name of sp to ""
-                            set user name of sp to ""
-                            set url of sp to ""
-                        end if
-                    else
-                        -- CASE 2: Normal processing
-                        -- Check if username is garbage
-                        set hasValidUsername to false
-                        if usr is not missing value and usr is not "" and usr is not "TYPE=PREF" then
-                            -- Username is garbage if:
-                            -- 1. It's a substring of the expected domain (like "facebook" in "facebook.com")
-                            -- 2. It looks like a domain itself (contains www, .com, .org, etc)
-                            set usrLower to do shell script "echo " & quoted form of usr & " | tr '[:upper:]' '[:lower:]'"
-                            set looksLikeDomain to false
-                            if usrLower contains "www." or usrLower contains ".com" or usrLower contains ".org" or usrLower contains "facebook.com" or usrLower contains "twitter.com" or usrLower contains "linkedin.com" or usrLower contains "instagram.com" then
-                                set looksLikeDomain to true
-                            end if
-                            
-                            if not looksLikeDomain then
-                                if expectedDomain is "" or expectedDomain does not contain usrLower then
-                                    set hasValidUsername to true
-                                end if
-                            end if
-                        end if
-                        
-                        -- Try to extract username from URL if needed
-                        if not hasValidUsername and theUrl is not missing value and theUrl is not "" then
-                            set AppleScript's text item delimiters to "/"
-                            set urlParts to text items of theUrl
-                            set extractedUser to last item of urlParts
-                            set AppleScript's text item delimiters to ""
-                            if extractedUser is "" and (count of urlParts) > 1 then
-                                set extractedUser to item -2 of urlParts
-                            end if
-                            -- Validate extracted username is not garbage
-                            set extractedIsValid to false
-                            if (count of extractedUser) > 2 then
-                                -- Must not be domain-like (www, com, facebook, etc)
-                                set extractedLower to do shell script "echo " & quoted form of extractedUser & " | tr '[:upper:]' '[:lower:]'"
-                                if extractedLower is not "www" and extractedLower does not contain ".com" and extractedLower does not contain ".org" and extractedLower does not contain "facebook" and extractedLower does not contain "twitter" and extractedLower does not contain "linkedin" and extractedLower does not contain "instagram" and extractedLower does not contain "flickr" and extractedLower is not "people" and extractedLower is not "in" then
-                                    set extractedIsValid to true
-                                end if
-                            end if
-                            if extractedIsValid then
-                                set usr to extractedUser
-                                set hasValidUsername to true
-                            end if
-                        end if
-                        
-                        -- CASE 3: Check if URL is a profile.php URL (preserve these!)
-                        set isProfilePhpUrl to false
-                        if theUrl is not missing value and theUrl contains "profile.php?id=" then
-                            set isProfilePhpUrl to true
-                        end if
-                        
-                        -- Apply fix or nullify
-                        if not hasValidUsername and not isProfilePhpUrl then
-                            -- No valid username and no profile.php URL - nullify
-                            set service name of sp to ""
-                            set user name of sp to ""
-                            set url of sp to ""
-                        else if isProfilePhpUrl then
-                            -- Preserve profile.php URLs, just normalize service name
-                            if normalizedName is not "" then
-                                set service name of sp to normalizedName
-                            end if
-                        else
-                            -- Has valid username - normalize to lowercase
-                            set usr to do shell script "echo " & quoted form of usr & " | tr '[:upper:]' '[:lower:]'"
-                            
-                            if normalizedName is not "" then
-                                set service name of sp to normalizedName
-                            end if
-                            set user name of sp to usr
-                            
-                            -- Check if URL needs to be constructed
-                            -- (missing, corrupted, doesn't contain username, or has wrong case)
-                            set needsUrl to false
-                            if theUrl is missing value or theUrl is "" then
-                                set needsUrl to true
-                            else if expectedDomain is not "" and theUrl does not contain expectedDomain then
-                                set needsUrl to true
-                            else
-                                -- Check if URL contains lowercase username (case-sensitive check)
-                                considering case
-                                    if theUrl does not contain usr then
-                                        set needsUrl to true
-                                    end if
-                                end considering
-                            end if
-                            
-                            if needsUrl and urlTemplate is not "" then
-                                -- Construct URL from template + lowercase username
-                                set url of sp to urlTemplate & usr
-                            end if
-                        end if
-                    end if
-                    end if -- end Google+ check
-                end repeat
-                
-                save
-                return "success"
-            on error errMsg
-                return errMsg
-            end try
-        end tell
-    '''
-    success, result = run_applescript(script)
-    return success, result, migrated
+    return True, "Contact fixed", migrated
 
 
 # =============================================================================
@@ -1472,7 +1293,8 @@ def main():
     create_parser.add_argument("--phone-label", default="mobile", help="Phone label")
     create_parser.add_argument("--email", help="Email address")
     create_parser.add_argument("--email-label", default="home", help="Email label")
-    create_parser.add_argument("--social", help="Social profile (service:username)")
+    create_parser.add_argument("--url", help="URL (auto-detects label from known services)")
+    create_parser.add_argument("--url-label", default="homepage", help="URL label (Twitter, LinkedIn, homepage, etc.)")
     
     # update
     update_parser = subparsers.add_parser("update", help="Update contact fields")
@@ -1487,7 +1309,7 @@ def main():
     update_parser.add_argument("--note", help="Note")
     
     # fix
-    fix_parser = subparsers.add_parser("fix", help="Fix corrupted social profiles")
+    fix_parser = subparsers.add_parser("fix", help="Migrate social profiles to URLs")
     fix_parser.add_argument("id", help="Contact ID")
     
     # phone subcommands
@@ -1528,19 +1350,6 @@ def main():
     url_remove = url_sub.add_parser("remove", help="Remove URL")
     url_remove.add_argument("id", help="Contact ID")
     url_remove.add_argument("url", help="URL (or partial match)")
-    
-    # social subcommands
-    social_parser = subparsers.add_parser("social", help="Social profile operations")
-    social_sub = social_parser.add_subparsers(dest="action", required=True)
-    
-    social_add = social_sub.add_parser("add", help="Add social profile (Apple-official only: twitter, linkedin, facebook, flickr, yelp)")
-    social_add.add_argument("id", help="Contact ID")
-    social_add.add_argument("service", help="Service name (twitter, linkedin, facebook, flickr, yelp)")
-    social_add.add_argument("username", help="Username")
-    
-    social_remove = social_sub.add_parser("remove", help="Remove social profile")
-    social_remove.add_argument("id", help="Contact ID")
-    social_remove.add_argument("service", help="Service name")
     
     # photo subcommands
     photo_parser = subparsers.add_parser("photo", help="Photo operations")
@@ -1594,9 +1403,8 @@ def main():
             contact.phones.append(Phone(number=args.phone, label=args.phone_label))
         if args.email:
             contact.emails.append(Email(address=args.email, label=args.email_label))
-        if args.social and ":" in args.social:
-            service, username = args.social.split(":", 1)
-            contact.socials.append(Social(service=service, username=username))
+        if args.url:
+            contact.urls.append(URL(url=args.url, label=args.url_label))
         
         success, result = create_contact_applescript(contact)
         if success:
@@ -1628,11 +1436,11 @@ def main():
             sys.exit(1)
     
     elif args.command == "fix":
-        success, result, migrated = fix_contact_socials(args.id)
+        success, result, migrated = fix_contact(args.id)
         if success:
-            msg = "Social profiles fixed"
+            msg = "Contact fixed"
             if migrated:
-                msg += f". Migrated URLs to socials: {', '.join(migrated)}"
+                msg += f". Migrated socials to URLs: {', '.join(migrated)}"
             output_json({"success": True, "message": msg, "migrated": migrated})
         else:
             output_json({"success": False, "error": result})
@@ -1673,19 +1481,6 @@ def main():
         
         if success:
             output_json({"success": True, "message": f"URL {'removed' if args.action == 'remove' else 'added'}"})
-        else:
-            output_json({"success": False, "error": result})
-            sys.exit(1)
-    
-    elif args.command == "social":
-        if args.action == "add":
-            social = Social(service=args.service, username=args.username)
-            success, result = add_social_applescript(args.id, social)
-        elif args.action == "remove":
-            success, result = remove_social_applescript(args.id, args.service)
-        
-        if success:
-            output_json({"success": True, "message": f"Social profile {'removed' if args.action == 'remove' else 'added'}"})
         else:
             output_json({"success": False, "error": result})
             sys.exit(1)

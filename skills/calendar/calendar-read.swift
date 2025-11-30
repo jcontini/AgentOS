@@ -4,13 +4,13 @@
 //
 // Arguments:
 //   days            - Number of days to fetch (default: 1 for today only)
-//   calendar_filter - Optional calendar name to filter (e.g., "Extras", "Adavia")
+//   calendar_filter - Optional calendar name to filter (e.g., "Work", "Personal")
 //
 // Examples:
 //   swift calendar-read.swift              # Today's events from all calendars
 //   swift calendar-read.swift 7            # Next 7 days from all calendars
-//   swift calendar-read.swift 1 Extras     # Today's events from Extras calendar only
-//   swift calendar-read.swift 7 Adavia     # Next 7 days from Adavia calendar only
+//   swift calendar-read.swift 1 Work       # Today's events from Work calendar only
+//   swift calendar-read.swift 7 Personal   # Next 7 days from Personal calendar only
 
 import EventKit
 import Foundation

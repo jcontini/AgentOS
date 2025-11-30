@@ -5,8 +5,8 @@
 
 ## Available Skills
 
-- [**Search**](skills/search/README.md) - Semantic web search, discover URLs (Exa)
-- [**Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
+- [**ExaSearch**](skills/search/README.md) - Semantic web search, discover URLs (Exa)
+- [**Firecrawl Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
 - [**Linear**](skills/linear/README.md) - Work project management
 - [**Todoist**](skills/todoist/README.md) - Personal task management
 - [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
@@ -18,6 +18,7 @@
 - [**Enrich**](skills/enrich/README.md) - Research email/phone/domain
 - [**Flights**](skills/flights/README.md) - Search for flights
 - [**GitHub**](skills/github/README.md) - Manage issues, PRs, repos
+- [**Raindrop**](skills/raindrop/README.md) - Manage bookmarks and collections
 
 **Utilities:**
 - [**Timezone**](utils/README.md) - Timezone conversion
@@ -25,7 +26,7 @@
 
 When you need to perform any of these tasks, read the corresponding file for instructions.
 
-**Understanding SDKs/libraries/APIs:** Use [Search](skills/search/README.md) to find documentation.
+**Understanding SDKs/libraries/APIs:** Use [ExaSearch](skills/search/README.md) to find documentation.
 
 ## Search vs Extract
 

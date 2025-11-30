@@ -67,8 +67,8 @@ swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" 7
 # Today's events from Extras calendar only
 swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" 1 Extras
 
-# Next 7 days from Adavia calendar only
-swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" 7 Adavia
+# Next 7 days from specific calendar only
+swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" 7 "Work"
 ```
 
 **Output format (JSON):**
@@ -81,7 +81,7 @@ swift "$PROJECT_ROOT/skills/calendar/calendar-read.swift" 7 Adavia
     "start_time": "10:00",
     "end_time": "11:00",
     "date": "2025-11-27",
-    "calendar": "Adavia",
+    "calendar": "Work",
     "all_day": false,
     "location": "Zoom",
     "notes": "Weekly sync meeting",

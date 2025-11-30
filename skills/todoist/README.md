@@ -6,6 +6,25 @@ When the user mentions adding a task, creating a task, getting tasks, completing
 
 **Important:** When retrieving a task, always check for and display its subtasks. Subtasks are tasks with a `parent_id` matching the parent task's ID. Use the `parent_id` query parameter to fetch subtasks.
 
+### AI Task Creation Defaults
+
+When creating tasks on behalf of the user:
+1. **Default due date:** If user doesn't specify a date, set `"due_string": "today"`
+2. **AI label:** Always include `"labels": ["AI"]` so user knows the task was created by AI
+
+**Example (AI-created task):**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+curl -s -X POST "https://api.todoist.com/rest/v2/tasks" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Task content here",
+    "due_string": "today",
+    "labels": ["AI"]
+  }' | jq .
+```
+
 ### Todoist API Integration
 
 Use the Todoist REST API endpoint: `https://api.todoist.com/rest/v2`
