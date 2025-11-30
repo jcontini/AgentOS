@@ -73,6 +73,8 @@ python3 contacts.py search "Acme Corp"
 python3 contacts.py search --phone 5551234
 python3 contacts.py search --where "no_photo = true"
 python3 contacts.py search --where "organization IS NOT NULL"
+python3 contacts.py search --where "service = 'twitter'"
+python3 contacts.py search --where "username LIKE '%johndoe%'"
 ```
 
 **Virtual fields for `--where`:**
@@ -81,7 +83,7 @@ python3 contacts.py search --where "organization IS NOT NULL"
 | `no_photo = true` | Contacts with no photo at all |
 | `has_photo = true` | Contacts with any photo (embedded or reference) |
 
-**Standard fields:** `firstName`, `lastName`, `organization`, `jobTitle`, `photo`, `thumbnail`, `url`, `number`
+**Standard fields:** `firstName`, `lastName`, `organization`, `jobTitle`, `photo`, `thumbnail`, `url`, `number`, `service`, `username`
 
 Returns JSON:
 ```json

@@ -9,7 +9,8 @@
 - [**Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
 - [**Linear**](skills/linear/README.md) - Work project management
 - [**Todoist**](skills/todoist/README.md) - Personal task management
-- [**Google Workspace**](skills/google-workspace/README.md) - Gmail & Google Drive
+- [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
+- [**Google Drive**](skills/google-workspace/README.md) - List files, search files, read file content
 - [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS)
 - [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS)
 - [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS)

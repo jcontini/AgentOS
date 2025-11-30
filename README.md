@@ -2,25 +2,15 @@
 
 Supercharge your AI assistant with real-world skills via terminal access.
 
-## Getting Started
-
-Paste this into your AI chat ([Cursor](https://cursor.com/) agent, or any AI with terminal access):
-
-```
-Clone AgentOS, read the README, and guide me through setup:
-git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
-```
-
-That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions](#manual-setup))
-
 ## Available Skills
 
 | Skill | Example |
 |-------|---------|
 | <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="20" height="20" style="vertical-align:middle"> [Apple Calendar](skills/calendar/README.md) | "What's on my calendar today?" |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="20" height="20" style="vertical-align:middle"> [Apple Contacts](skills/contacts/README.md) | "Add a contact for John Doe" |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="20" height="20" style="vertical-align:middle"> [Apple Contacts](skills/contacts/README.md) | "Add contact for John Doe", "Search contacts" |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="20" height="20" style="vertical-align:middle"> [iMessages](skills/imessages/README.md) | "Read my recent messages from Mom" |
-| <img src="https://img.icons8.com/fluency/48/google-logo.png" width="20" height="20" style="vertical-align:middle"> [Google Workspace](skills/google-workspace/README.md) | "Show me my unread emails", "Find my meeting notes doc" |
+| <img src="https://img.icons8.com/fluency/48/gmail.png" width="20" height="20" style="vertical-align:middle"> [Gmail](skills/google-workspace/README.md) | "Show me my unread emails", "Create a draft email" |
+| <img src="https://img.icons8.com/fluency/48/google-drive.png" width="20" height="20" style="vertical-align:middle"> [Google Drive](skills/google-workspace/README.md) | "Find my meeting notes doc", "Read my Google Doc" |
 | <img src="https://cdn.simpleicons.org/todoist" width="20" height="20" style="vertical-align:middle"> [Todoist](skills/todoist/README.md) | "Add 'buy groceries' to my todo list" |
 | 🔍 [Search](skills/search/README.md) | "Search for the latest news on AI" |
 | 📄 [Extract](skills/extract/README.md) | "Read this URL and summarize it" |
@@ -31,6 +21,17 @@ That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions]
 | <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="20" height="20" style="vertical-align:middle"> [GitHub](skills/github/README.md) | "Create an issue for this bug" |
 
 *Calendar, iMessages, and Contacts are macOS only. Everything else works cross-platform.*
+
+## Getting Started
+
+Paste this into your AI chat ([Cursor](https://cursor.com/) agent, or any AI with terminal access):
+
+```
+Clone AgentOS, read the README, and guide me through setup:
+git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
+```
+
+That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions](#manual-setup))
 
 ## Manual Setup
 
