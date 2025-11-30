@@ -6,10 +6,11 @@ Contacts CLI - CRUD interface for macOS Contacts.app
 Usage:
     contacts.py search <query>
     contacts.py search --phone <digits>
+    contacts.py search --where "no_photo = true AND url LIKE '%instagram%'"
     contacts.py get <id>
     contacts.py create --first <name> [--last <name>] [--org <name>] ...
     contacts.py update <id> --field <value> ...
-    contacts.py fix [<id> | --all]
+    contacts.py fix <id>
     
     contacts.py phone add <id> <number> [<label>]
     contacts.py phone remove <id> <number>
@@ -19,7 +20,13 @@ Usage:
     contacts.py url remove <id> <url>
     contacts.py social add <id> <service> <username>
     contacts.py social remove <id> <service>
+    contacts.py photo set <id> <url_or_path>
+    contacts.py photo clear <id>
 
+Field names for --where queries: id, firstName, lastName, middleName, nickname,
+organization, jobTitle, department, photo, thumbnail, url, number, address
+Virtual fields: has_photo=true/false, no_photo=true (checks both photo and thumbnail)
+Phone numbers are auto-normalized to include country code (+1 for US by default).
 Reads use SQLite (fast). Writes use AppleScript (reliable, syncs with iCloud).
 """
 
@@ -41,6 +48,32 @@ from typing import Optional
 class Phone:
     number: str
     label: str = "mobile"
+
+def normalize_phone(number: str, default_country: str = "+1") -> str:
+    """
+    Normalize phone number to include country code.
+    - If starts with +, keep as-is (already has country code)
+    - Otherwise, strip non-digits and prepend default country code
+    """
+    number = number.strip()
+    if number.startswith("+"):
+        return number
+    
+    # Strip everything except digits
+    digits = ''.join(c for c in number if c.isdigit())
+    
+    # US numbers: if 10 digits, add +1
+    # If 11 digits starting with 1, add +
+    if len(digits) == 10:
+        return f"{default_country}{digits}"
+    elif len(digits) == 11 and digits.startswith("1"):
+        return f"+{digits}"
+    elif len(digits) > 10:
+        # Assume already has country code, just add +
+        return f"+{digits}"
+    else:
+        # Short number (local/extension), return as-is
+        return number
 
 @dataclass
 class Email:
@@ -74,72 +107,281 @@ class Contact:
     socials: list[Social] = field(default_factory=list)
 
 # =============================================================================
-# Social Service Normalization
+# Schema Mapping (SQLite ↔ Our API ↔ AppleScript)
+# =============================================================================
+# Single source of truth for field name translations.
+# Our field names are camelCase, SQLite uses Z-prefixed UPPERCASE, AppleScript uses spaces.
+
+SCHEMA = {
+    # Main contact fields (ZABCDRECORD table)
+    "id":           {"sql": "ZUNIQUEID", "applescript": "id"},
+    "firstName":    {"sql": "ZFIRSTNAME", "applescript": "first name"},
+    "lastName":     {"sql": "ZLASTNAME", "applescript": "last name"},
+    "middleName":   {"sql": "ZMIDDLENAME", "applescript": "middle name"},
+    "nickname":     {"sql": "ZNICKNAME", "applescript": "nickname"},
+    "organization": {"sql": "ZORGANIZATION", "applescript": "organization"},
+    "jobTitle":     {"sql": "ZJOBTITLE", "applescript": "job title"},
+    "department":   {"sql": "ZDEPARTMENT", "applescript": "department"},
+    "photo":        {"sql": "ZIMAGEDATA", "applescript": "image"},           # Full image BLOB
+    "thumbnail":    {"sql": "ZTHUMBNAILIMAGEDATA", "applescript": None},     # Thumbnail BLOB (main storage for API-set photos)
+}
+
+# Related tables (one-to-many, joined via ZOWNER → Z_PK)
+SCHEMA_RELATIONS = {
+    "phones": {
+        "table": "ZABCDPHONENUMBER",
+        "fields": {"number": "ZFULLNUMBER", "label": "ZLABEL"},
+    },
+    "emails": {
+        "table": "ZABCDEMAILADDRESS",
+        "fields": {"address": "ZADDRESS", "label": "ZLABEL"},
+    },
+    "urls": {
+        "table": "ZABCDURLADDRESS",
+        "fields": {"url": "ZURL", "label": "ZLABEL"},
+    },
+    "socials": {
+        "table": "ZABCDSOCIALPROFILE",
+        "fields": {"service": "ZSERVICENAME", "username": "ZUSERNAME"},
+    },
+}
+
+def sql_column(field: str) -> str:
+    """Convert our field name to SQLite column name."""
+    if field in SCHEMA:
+        return SCHEMA[field]["sql"]
+    return field  # Pass through unknown fields
+
+def sql_select(fields: list[str], table_alias: str = "r") -> str:
+    """Generate SELECT clause: 'ZFIRSTNAME as firstName, ZLASTNAME as lastName'"""
+    parts = []
+    for f in fields:
+        if f in SCHEMA:
+            parts.append(f'{table_alias}.{SCHEMA[f]["sql"]} as {f}')
+    return ", ".join(parts)
+
+def applescript_prop(field: str) -> str:
+    """Convert our field name to AppleScript property name."""
+    if field in SCHEMA:
+        return SCHEMA[field]["applescript"]
+    return field
+
+# =============================================================================
+# Unified Social Services Registry
+# =============================================================================
+# 
+# All social services in one place. Fields:
+#   - name: Display name (required)
+#   - profile_url: Profile URL template with {username} placeholder (required)
+#   - photo_url: Direct avatar URL template (optional, omit if auth required)
+#   - photo_api: API endpoint returning JSON with avatar (optional)
+#   - apple_native: True if Apple-official social service (optional, defaults False)
+
+SERVICES = {
+    # Apple-native services (use `social add`)
+    "twitter":     {"name": "Twitter", "profile_url": "https://twitter.com/{username}", "apple_native": True},
+    "x":           {"name": "Twitter", "profile_url": "https://twitter.com/{username}", "apple_native": True},
+    "linkedin":    {"name": "LinkedIn", "profile_url": "https://www.linkedin.com/in/{username}", "apple_native": True},
+    "facebook":    {"name": "Facebook", "profile_url": "https://www.facebook.com/{username}", "photo_url": "https://graph.facebook.com/{username}/picture?type=large", "apple_native": True},
+    "flickr":      {"name": "Flickr", "profile_url": "https://www.flickr.com/people/{username}", "apple_native": True},
+    "myspace":     {"name": "MySpace", "profile_url": "https://myspace.com/{username}", "apple_native": True},
+    "sinaweibo":   {"name": "SinaWeibo", "profile_url": "https://weibo.com/{username}", "apple_native": True},
+    "tencentweibo": {"name": "TencentWeibo", "profile_url": "", "apple_native": True},
+    "yelp":        {"name": "Yelp", "profile_url": "https://www.yelp.com/user_details?userid={username}", "apple_native": True},
+    "gamecenter":  {"name": "GameCenter", "profile_url": "", "apple_native": True},
+    
+    # Non-Apple services (use `url add`)
+    "github":      {"name": "GitHub", "profile_url": "https://github.com/{username}", "photo_url": "https://github.com/{username}.png", "photo_api": "https://api.github.com/users/{username}"},
+    "gitlab":      {"name": "GitLab", "profile_url": "https://gitlab.com/{username}", "photo_api": "https://gitlab.com/api/v4/users?username={username}"},
+    "instagram":   {"name": "Instagram", "profile_url": "https://www.instagram.com/{username}"},
+    "tiktok":      {"name": "TikTok", "profile_url": "https://www.tiktok.com/@{username}"},
+    "youtube":     {"name": "YouTube", "profile_url": "https://www.youtube.com/@{username}"},
+    "threads":     {"name": "Threads", "profile_url": "https://www.threads.net/@{username}"},
+    "bluesky":     {"name": "Bluesky", "profile_url": "https://bsky.app/profile/{username}", "photo_api": "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor={username}"},
+    "mastodon":    {"name": "Mastodon", "profile_url": "https://mastodon.social/@{username}"},
+    "keybase":     {"name": "Keybase", "profile_url": "https://keybase.io/{username}", "photo_url": "https://keybase.io/{username}/photo.png"},
+    "angellist":   {"name": "AngelList", "profile_url": "https://angel.co/u/{username}"},
+    "producthunt": {"name": "ProductHunt", "profile_url": "https://www.producthunt.com/@{username}"},
+    "pinterest":   {"name": "Pinterest", "profile_url": "https://www.pinterest.com/{username}"},
+    "quora":       {"name": "Quora", "profile_url": "https://www.quora.com/profile/{username}"},
+    "medium":      {"name": "Medium", "profile_url": "https://medium.com/@{username}"},
+    "reddit":      {"name": "Reddit", "profile_url": "https://www.reddit.com/user/{username}"},
+    "snapchat":    {"name": "Snapchat", "profile_url": "https://www.snapchat.com/add/{username}", "photo_url": "https://app.snapchat.com/web/deeplink/snapcode?username={username}&type=PNG"},
+    "twitch":      {"name": "Twitch", "profile_url": "https://www.twitch.tv/{username}"},
+    "telegram":    {"name": "Telegram", "profile_url": "https://t.me/{username}"},
+    "gravatar":    {"name": "Gravatar", "profile_url": "https://gravatar.com/{username}", "photo_url": "https://gravatar.com/avatar/{username}?s=400&d=404"},
+    "goodreads":   {"name": "Goodreads", "profile_url": "https://www.goodreads.com/{username}"},
+    "spotify":     {"name": "Spotify", "profile_url": "https://open.spotify.com/user/{username}"},
+    "soundcloud":  {"name": "SoundCloud", "profile_url": "https://soundcloud.com/{username}"},
+    "dribbble":    {"name": "Dribbble", "profile_url": "https://dribbble.com/{username}"},
+    "behance":     {"name": "Behance", "profile_url": "https://www.behance.net/{username}"},
+    "devto":       {"name": "DEV", "profile_url": "https://dev.to/{username}"},
+    "stackoverflow": {"name": "StackOverflow", "profile_url": "https://stackoverflow.com/users/{username}"},
+    "hackernews":  {"name": "HackerNews", "profile_url": "https://news.ycombinator.com/user?id={username}"},
+    "discord":     {"name": "Discord", "profile_url": ""},
+    "slack":       {"name": "Slack", "profile_url": ""},
+    "whatsapp":    {"name": "WhatsApp", "profile_url": "https://wa.me/{username}"},
+    "signal":      {"name": "Signal", "profile_url": ""},
+}
+
+# Legacy compatibility: map old SOCIAL_SERVICES lookups
+SOCIAL_SERVICES = {k: {"name": v["name"], "url": v["profile_url"].replace("{username}", "")} 
+                   for k, v in SERVICES.items() if v.get("apple_native")}
+
+# Legacy compatibility: URL_TEMPLATES for non-Apple services
+URL_TEMPLATES = {k: v["profile_url"].replace("{username}", "") 
+                 for k, v in SERVICES.items() if not v.get("apple_native")}
+
+# =============================================================================
+# Service Helper Functions
 # =============================================================================
 
-# Apple-official social services - these get native "View Profile" actions in Contacts.app
-# See: /System/Library/Frameworks/Contacts.framework/.../CNSocialProfile.h
-# For everything else (GitHub, Instagram, etc.), use URLs instead - they're clickable!
-SOCIAL_SERVICES = {
-    "facebook": {"name": "Facebook", "url": "https://www.facebook.com/"},
-    "flickr": {"name": "Flickr", "url": "https://www.flickr.com/people/"},
-    "linkedin": {"name": "LinkedIn", "url": "https://www.linkedin.com/in/"},
-    "myspace": {"name": "MySpace", "url": "https://myspace.com/"},
-    "sinaweibo": {"name": "SinaWeibo", "url": "https://weibo.com/"},
-    "tencentweibo": {"name": "TencentWeibo", "url": ""},
-    "twitter": {"name": "Twitter", "url": "https://twitter.com/"},
-    "x": {"name": "Twitter", "url": "https://twitter.com/"},  # Alias
-    "yelp": {"name": "Yelp", "url": "https://www.yelp.com/user_details?userid="},
-    "gamecenter": {"name": "GameCenter", "url": ""},
-}
+def get_service(name: str) -> Optional[dict]:
+    """Get service info by name (case-insensitive)."""
+    return SERVICES.get(name.lower())
 
-# URL templates for non-Apple services - use `url add` command with these
-URL_TEMPLATES = {
-    "github": "https://github.com/",
-    "gitlab": "https://gitlab.com/",
-    "instagram": "https://www.instagram.com/",
-    "tiktok": "https://www.tiktok.com/@",
-    "youtube": "https://www.youtube.com/@",
-    "threads": "https://www.threads.net/@",
-    "bluesky": "https://bsky.app/profile/",
-    "mastodon": "https://mastodon.social/@",
-    "keybase": "https://keybase.io/",
-    "angellist": "https://angel.co/u/",
-    "producthunt": "https://www.producthunt.com/@",
-    "pinterest": "https://www.pinterest.com/",
-    "quora": "https://www.quora.com/profile/",
-    "medium": "https://medium.com/@",
-    "reddit": "https://www.reddit.com/user/",
-    "snapchat": "https://www.snapchat.com/add/",
-    "twitch": "https://www.twitch.tv/",
-    "telegram": "https://t.me/",
-}
+def get_service_from_url(url: str) -> Optional[tuple[str, str]]:
+    """
+    Extract service name and username from a profile URL.
+    Returns (service_key, username) or None if not recognized.
+    """
+    url_lower = url.lower()
+    
+    for key, service in SERVICES.items():
+        profile_template = service.get("profile_url", "")
+        if not profile_template:
+            continue
+        
+        # Extract domain from template
+        # e.g., "https://github.com/{username}" -> "github.com"
+        try:
+            from urllib.parse import urlparse
+            template_domain = urlparse(profile_template).netloc.replace("www.", "")
+            url_domain = urlparse(url).netloc.replace("www.", "")
+            
+            if template_domain and template_domain in url_domain:
+                # Try to extract username
+                # Replace {username} with a capture pattern
+                username = extract_username_from_url(url, profile_template)
+                if username:
+                    return (key, username)
+        except:
+            continue
+    
+    return None
+
+def extract_username_from_url(url: str, template: str) -> Optional[str]:
+    """Extract username from a URL given its template pattern."""
+    import re
+    
+    # Convert template to regex: https://github.com/{username} -> https://github.com/(.+)
+    # Escape special chars, then replace {username}
+    pattern = re.escape(template).replace(r"\{username\}", r"([^/?#]+)")
+    pattern = pattern.replace("https\\:", "https?\\:")  # Allow http or https
+    pattern = pattern.replace("www\\.", "(www\\.)?")  # Optional www
+    
+    match = re.match(pattern, url, re.IGNORECASE)
+    if match:
+        return match.group(match.lastindex) if match.lastindex else None
+    
+    # Fallback: try to get last path component
+    try:
+        from urllib.parse import urlparse
+        path = urlparse(url).path.strip("/")
+        if path:
+            # Handle @ prefix (twitter, tiktok, youtube, etc.)
+            parts = path.split("/")
+            username = parts[-1] if parts else path
+            return username.lstrip("@")
+    except:
+        pass
+    
+    return None
+
+def get_photo_url(service: str, username: str) -> Optional[str]:
+    """
+    Get direct photo URL for a service/username if available.
+    Returns the URL template with {username} replaced, or None if not available.
+    """
+    svc = get_service(service)
+    if not svc:
+        return None
+    
+    photo_url = svc.get("photo_url")
+    if photo_url:
+        return photo_url.replace("{username}", username)
+    
+    return None
+
+def get_photo_api(service: str, username: str) -> Optional[str]:
+    """
+    Get API endpoint to fetch photo URL for a service/username.
+    Returns the API URL with {username} replaced, or None if not available.
+    """
+    svc = get_service(service)
+    if not svc:
+        return None
+    
+    photo_api = svc.get("photo_api")
+    if photo_api:
+        return photo_api.replace("{username}", username)
+    
+    return None
+
+def get_profile_url(service: str, username: str) -> Optional[str]:
+    """Get profile URL for a service/username."""
+    svc = get_service(service)
+    if not svc:
+        return None
+    
+    profile_url = svc.get("profile_url")
+    if profile_url:
+        return profile_url.replace("{username}", username)
+    
+    return None
+
+def is_apple_native(service: str) -> bool:
+    """Check if a service is Apple-native (can use `social add`)."""
+    svc = get_service(service)
+    return svc.get("apple_native", False) if svc else False
+
+def list_services_with_photos() -> list[str]:
+    """List all services that have photo URL or API support."""
+    return [k for k, v in SERVICES.items() 
+            if v.get("photo_url") or v.get("photo_api")]
 
 def get_service_info(service: str) -> dict:
-    """Get service info by name (case-insensitive)."""
-    return SOCIAL_SERVICES.get(service.lower(), {})
+    """Get service info by name (case-insensitive). Returns legacy format for compatibility."""
+    svc = SERVICES.get(service.lower())
+    if not svc:
+        return {}
+    # Return legacy format
+    return {"name": svc["name"], "url": svc["profile_url"].replace("{username}", "")}
 
 def normalize_service(service: str) -> str:
     """Normalize service name to proper case (instagram -> Instagram)."""
-    info = get_service_info(service)
-    return info.get("name", service.capitalize())
+    svc = SERVICES.get(service.lower())
+    return svc["name"] if svc else service.capitalize()
 
 def get_service_url_template(service: str) -> str:
-    """Get URL template for a service."""
-    info = get_service_info(service)
-    return info.get("url", "")
+    """Get URL template for a service (without {username} placeholder)."""
+    svc = SERVICES.get(service.lower())
+    if not svc:
+        return ""
+    return svc["profile_url"].replace("{username}", "")
 
 def get_service_domain(service: str) -> str:
-    """Extract domain from URL template."""
-    url = get_service_url_template(service)
+    """Extract domain from service profile URL."""
+    svc = SERVICES.get(service.lower())
+    if not svc:
+        return ""
+    url = svc.get("profile_url", "")
     if not url:
         return ""
-    # Extract domain from URL like "https://www.instagram.com/" -> "instagram.com"
     try:
         from urllib.parse import urlparse
         parsed = urlparse(url)
         domain = parsed.netloc
-        # Remove www. prefix if present
         if domain.startswith("www."):
             domain = domain[4:]
         return domain
@@ -174,18 +416,14 @@ def query_contacts(sql: str, params: tuple = ()) -> list[dict]:
 
 def search_by_name(query: str) -> list[dict]:
     """Search contacts by name or organization."""
-    sql = """
-        SELECT DISTINCT
-            r.ZUNIQUEID as id,
-            r.ZFIRSTNAME as firstName,
-            r.ZLASTNAME as lastName,
-            r.ZORGANIZATION as organization,
-            r.ZJOBTITLE as jobTitle
+    select_fields = sql_select(["id", "firstName", "lastName", "organization", "jobTitle"])
+    sql = f"""
+        SELECT DISTINCT {select_fields}
         FROM ZABCDRECORD r
-        WHERE r.ZFIRSTNAME LIKE ? 
-           OR r.ZLASTNAME LIKE ?
-           OR r.ZORGANIZATION LIKE ?
-           OR (r.ZFIRSTNAME || ' ' || r.ZLASTNAME) LIKE ?
+        WHERE r.{sql_column("firstName")} LIKE ? 
+           OR r.{sql_column("lastName")} LIKE ?
+           OR r.{sql_column("organization")} LIKE ?
+           OR (r.{sql_column("firstName")} || ' ' || r.{sql_column("lastName")}) LIKE ?
         LIMIT 50
     """
     pattern = f"%{query}%"
@@ -195,26 +433,159 @@ def search_by_phone(digits: str) -> list[dict]:
     """Search contacts by phone number (last 4+ digits)."""
     # Use last 4 digits for indexed lookup
     last_four = digits[-4:] if len(digits) >= 4 else digits
-    sql = """
-        SELECT DISTINCT
-            r.ZUNIQUEID as id,
-            r.ZFIRSTNAME as firstName,
-            r.ZLASTNAME as lastName,
-            r.ZORGANIZATION as organization,
-            p.ZFULLNUMBER as phone
+    select_fields = sql_select(["id", "firstName", "lastName", "organization"])
+    phone_table = SCHEMA_RELATIONS["phones"]["table"]
+    phone_col = SCHEMA_RELATIONS["phones"]["fields"]["number"]
+    sql = f"""
+        SELECT DISTINCT {select_fields}, p.{phone_col} as phone
         FROM ZABCDRECORD r
-        JOIN ZABCDPHONENUMBER p ON p.ZOWNER = r.Z_PK
+        JOIN {phone_table} p ON p.ZOWNER = r.Z_PK
         WHERE p.ZLASTFOURDIGITS = ?
         LIMIT 20
     """
     return query_contacts(sql, (last_four,))
 
+def translate_where(where_clause: str) -> str:
+    """Translate our field names to SQLite column names in a WHERE clause.
+    
+    Also supports virtual fields:
+        - has_photo: true if contact has any photo data (embedded OR reference)
+        - no_photo: true if contact has no photo at all (both fields NULL)
+    """
+    import re
+    result = where_clause
+    
+    # Handle virtual "has_photo" and "no_photo" convenience fields FIRST
+    # These expand to compound conditions before field translation
+    # Any data (even 38-byte references) counts as having a photo
+    result = re.sub(
+        r'\bhas_photo\s*=\s*true\b',
+        '(photo IS NOT NULL OR thumbnail IS NOT NULL)',
+        result, flags=re.IGNORECASE
+    )
+    result = re.sub(
+        r'\bhas_photo\s*=\s*false\b',
+        '(photo IS NULL AND thumbnail IS NULL)',
+        result, flags=re.IGNORECASE
+    )
+    result = re.sub(
+        r'\bno_photo\s*=\s*true\b',
+        '(photo IS NULL AND thumbnail IS NULL)',
+        result, flags=re.IGNORECASE
+    )
+    
+    # Translate main SCHEMA fields (e.g., photo → r.ZIMAGEDATA)
+    for field, mapping in SCHEMA.items():
+        result = re.sub(rf'\b{field}\b', f'r.{mapping["sql"]}', result, flags=re.IGNORECASE)
+    
+    # Translate SCHEMA_RELATIONS fields (e.g., url → u.ZURL)
+    # These need special handling for table aliases
+    for relation, config in SCHEMA_RELATIONS.items():
+        for field_name, sql_col in config["fields"].items():
+            # Use table alias: phones→p, emails→e, urls→u, socials→s
+            alias = relation[0]  # First letter
+            result = re.sub(rf'\b{field_name}\b', f'{alias}.{sql_col}', result, flags=re.IGNORECASE)
+    
+    return result
+
+def search_where(where_clause: str, limit: int = 50) -> list[dict]:
+    """
+    Search contacts with custom WHERE clause using our field names.
+    
+    Examples:
+        search_where("photo IS NULL")
+        search_where("firstName LIKE 'J%' AND organization IS NOT NULL")
+        search_where("photo IS NULL AND url LIKE '%instagram%'")
+    """
+    select_fields = sql_select(["id", "firstName", "lastName", "organization", "jobTitle"])
+    translated_where = translate_where(where_clause)
+    where_lower = where_clause.lower()
+    
+    # Build JOINs based on which relation fields are referenced
+    joins = []
+    if "url" in where_lower:
+        joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["urls"]["table"]} u ON u.ZOWNER = r.Z_PK')
+    if "phone" in where_lower or "number" in where_lower:
+        joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["phones"]["table"]} p ON p.ZOWNER = r.Z_PK')
+    if "email" in where_lower or "address" in where_lower:
+        joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["emails"]["table"]} e ON e.ZOWNER = r.Z_PK')
+    
+    join_clause = "\n            ".join(joins) if joins else ""
+    
+    sql = f"""
+        SELECT DISTINCT {select_fields}
+        FROM ZABCDRECORD r
+        {join_clause}
+        WHERE {translated_where}
+        LIMIT {limit}
+    """
+    
+    return query_contacts(sql, ())
+
+def get_photo_info(contact_id: str) -> list[dict]:
+    """Get photo information from SQLite.
+    
+    Returns array of photo objects, each with:
+        - type: "image" or "thumbnail"
+        - storage: "embedded" or "reference"
+        - size: bytes
+    """
+    # Ensure :ABPerson suffix is present (SQLite stores full ID)
+    if not contact_id.endswith(":ABPerson"):
+        contact_id = contact_id + ":ABPerson"
+    
+    for db_path in get_contact_databases():
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT 
+                    length(ZIMAGEDATA) as image_size,
+                    length(ZTHUMBNAILIMAGEDATA) as thumb_size
+                FROM ZABCDRECORD 
+                WHERE ZUNIQUEID = ?
+            """, (contact_id,))
+            
+            row = cursor.fetchone()
+            conn.close()
+            
+            if not row or (row[0] is None and row[1] is None):
+                continue
+            
+            image_size, thumb_size = row
+            photos = []
+            
+            # Classify image
+            if image_size:
+                photos.append({
+                    "type": "image",
+                    "storage": "reference" if image_size < 100 else "embedded",
+                    "size": image_size
+                })
+            
+            # Classify thumbnail
+            if thumb_size:
+                photos.append({
+                    "type": "thumbnail",
+                    "storage": "reference" if thumb_size < 100 else "embedded",
+                    "size": thumb_size
+                })
+            
+            return photos
+        except sqlite3.Error:
+            continue
+    
+    return []
+
+
 def get_contact_details(contact_id: str) -> Optional[dict]:
     """Get full contact details by ID using AppleScript (ensures consistency after writes)."""
     # First get name from SQLite (fast lookup to find the contact)
-    sql = """
-        SELECT r.ZFIRSTNAME as firstName, r.ZLASTNAME as lastName
-        FROM ZABCDRECORD r WHERE r.ZUNIQUEID = ?
+    select_fields = sql_select(["firstName", "lastName"])
+    sql = f"""
+        SELECT {select_fields}
+        FROM ZABCDRECORD r WHERE r.{sql_column("id")} = ?
     """
     results = query_contacts(sql, (contact_id,))
     if not results:
@@ -339,6 +710,9 @@ def get_contact_details(contact_id: str) -> Optional[dict]:
         else:
             contact[key] = value
     
+    # Add photo information from SQLite
+    contact["photos"] = get_photo_info(contact_id)
+    
     return contact
 
 # =============================================================================
@@ -438,6 +812,8 @@ def create_contact_applescript(contact: Contact) -> tuple[bool, str]:
     for phone in contact.phones:
         label = phone.label if isinstance(phone, Phone) else phone.get("label", "mobile")
         number = phone.number if isinstance(phone, Phone) else phone.get("number", "")
+        # Normalize phone number to include country code
+        number = normalize_phone(number)
         phone_cmds += f'''
             make new phone at end of phones of newPerson with properties {{label:"{label}", value:"{escape_applescript(number)}"}}
         '''
@@ -524,11 +900,14 @@ def add_phone_applescript(contact_id: str, phone: Phone) -> tuple[bool, str]:
     if not contact:
         return False, "Contact not found"
     
+    # Normalize phone number to include country code
+    normalized_number = normalize_phone(phone.number)
+    
     script = f'''
         tell application "Contacts"
             try
                 set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
-                make new phone at end of phones of thePerson with properties {{label:"{phone.label}", value:"{escape_applescript(phone.number)}"}}
+                make new phone at end of phones of thePerson with properties {{label:"{phone.label}", value:"{escape_applescript(normalized_number)}"}}
                 save
                 return "success"
             on error errMsg
@@ -726,14 +1105,151 @@ def remove_social_applescript(contact_id: str, service: str) -> tuple[bool, str]
     return run_applescript(script)
 
 # =============================================================================
-# Fix Command (Social Profile Cleanup)
+# Photo Functions
 # =============================================================================
 
-def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
-    """Fix corrupted social profiles for a contact."""
+def set_photo_from_file(contact_id: str, file_path: str) -> tuple[bool, str]:
+    """Set contact photo from a local image file."""
     contact = get_contact_details(contact_id)
     if not contact:
         return False, "Contact not found"
+    
+    if not os.path.exists(file_path):
+        return False, f"File not found: {file_path}"
+    
+    script = f'''
+        tell application "Contacts"
+            try
+                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
+                set imagePath to POSIX file "{escape_applescript(file_path)}"
+                set imageData to read imagePath as picture
+                set image of thePerson to imageData
+                save
+                return "success"
+            on error errMsg
+                return errMsg
+            end try
+        end tell
+    '''
+    return run_applescript(script)
+
+def set_photo_from_url(contact_id: str, url: str) -> tuple[bool, str]:
+    """Download image from URL and set as contact photo."""
+    import tempfile
+    import urllib.request
+    
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found"
+    
+    # Determine file extension from URL
+    ext = ".jpg"
+    if ".png" in url.lower():
+        ext = ".png"
+    elif ".gif" in url.lower():
+        ext = ".gif"
+    
+    # Download to temp file
+    try:
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+            tmp_path = tmp.name
+        
+        urllib.request.urlretrieve(url, tmp_path)
+        
+        # Set the photo
+        success, result = set_photo_from_file(contact_id, tmp_path)
+        
+        # Clean up temp file
+        os.unlink(tmp_path)
+        
+        return success, result
+    except Exception as e:
+        return False, f"Failed to download image: {e}"
+
+def clear_photo(contact_id: str) -> tuple[bool, str]:
+    """Remove photo from contact."""
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found"
+    
+    script = f'''
+        tell application "Contacts"
+            try
+                set thePerson to first person whose first name is "{escape_applescript(contact.get('firstName', ''))}" and last name is "{escape_applescript(contact.get('lastName', ''))}"
+                set image of thePerson to missing value
+                save
+                return "success"
+            on error errMsg
+                return errMsg
+            end try
+        end tell
+    '''
+    return run_applescript(script)
+
+# =============================================================================
+# Fix Command (Social Profile Cleanup)
+# =============================================================================
+
+def migrate_urls_to_socials(contact_id: str) -> list[str]:
+    """
+    Scan contact's URLs for recognized social profiles and migrate them.
+    Returns list of services that were migrated.
+    """
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return []
+    
+    migrated = []
+    urls_to_remove = []
+    
+    for url_entry in contact.get("urls", []):
+        url = url_entry.get("url", "")
+        if not url:
+            continue
+        
+        # Check if this URL matches a known social service
+        result = get_service_from_url(url)
+        if result:
+            service_key, username = result
+            service_info = get_service(service_key)
+            
+            if service_info and username:
+                # Check if this social already exists
+                existing_socials = [s.get("service", "").lower() for s in contact.get("socials", [])]
+                service_name = service_info["name"]
+                
+                if service_name.lower() not in existing_socials:
+                    # Add as social profile
+                    social = Social(service=service_key, username=username)
+                    success, _ = add_social_applescript(contact_id, social)
+                    
+                    if success:
+                        migrated.append(service_name)
+                        urls_to_remove.append(url)
+    
+    # Remove migrated URLs
+    for url in urls_to_remove:
+        remove_url_applescript(contact_id, url)
+    
+    return migrated
+
+
+def fix_contact_socials(contact_id: str) -> tuple[bool, str, list[str]]:
+    """Fix corrupted social profiles and migrate social URLs for a contact.
+    
+    Returns (success, message, migrated_services).
+    """
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found", []
+    
+    # First, migrate any social URLs to proper social profiles
+    migrated = migrate_urls_to_socials(contact_id)
+    
+    # Re-fetch contact after migration
+    contact = get_contact_details(contact_id)
+    if not contact:
+        return False, "Contact not found", []
     
     first = contact.get("firstName", "")
     last = contact.get("lastName", "")
@@ -911,7 +1427,8 @@ def fix_contact_socials(contact_id: str) -> tuple[bool, str]:
             end try
         end tell
     '''
-    return run_applescript(script)
+    success, result = run_applescript(script)
+    return success, result, migrated
 
 
 # =============================================================================
@@ -933,6 +1450,7 @@ def main():
     search_parser = subparsers.add_parser("search", help="Search contacts")
     search_parser.add_argument("query", nargs="?", help="Name to search for")
     search_parser.add_argument("--phone", help="Search by phone number")
+    search_parser.add_argument("--where", help="Custom WHERE clause using field names (e.g., 'photo IS NULL')")
     
     # get
     get_parser = subparsers.add_parser("get", help="Get contact by ID")
@@ -1022,16 +1540,29 @@ def main():
     social_remove.add_argument("id", help="Contact ID")
     social_remove.add_argument("service", help="Service name")
     
+    # photo subcommands
+    photo_parser = subparsers.add_parser("photo", help="Photo operations")
+    photo_sub = photo_parser.add_subparsers(dest="action", required=True)
+    
+    photo_set = photo_sub.add_parser("set", help="Set photo from URL or file")
+    photo_set.add_argument("id", help="Contact ID")
+    photo_set.add_argument("source", help="Image URL or local file path")
+    
+    photo_clear = photo_sub.add_parser("clear", help="Remove photo")
+    photo_clear.add_argument("id", help="Contact ID")
+    
     args = parser.parse_args()
     
     # Execute command
     if args.command == "search":
         if args.phone:
             results = search_by_phone(args.phone)
+        elif args.where:
+            results = search_where(args.where)
         elif args.query:
             results = search_by_name(args.query)
         else:
-            parser.error("Provide a query or --phone")
+            parser.error("Provide a query, --phone, or --where")
         output_json({"count": len(results), "contacts": results})
     
     elif args.command == "get":
@@ -1095,9 +1626,12 @@ def main():
             sys.exit(1)
     
     elif args.command == "fix":
-        success, result = fix_contact_socials(args.id)
+        success, result, migrated = fix_contact_socials(args.id)
         if success:
-            output_json({"success": True, "message": "Social profiles fixed"})
+            msg = "Social profiles fixed"
+            if migrated:
+                msg += f". Migrated URLs to socials: {', '.join(migrated)}"
+            output_json({"success": True, "message": msg, "migrated": migrated})
         else:
             output_json({"success": False, "error": result})
             sys.exit(1)
@@ -1150,6 +1684,24 @@ def main():
         
         if success:
             output_json({"success": True, "message": f"Social profile {'removed' if args.action == 'remove' else 'added'}"})
+        else:
+            output_json({"success": False, "error": result})
+            sys.exit(1)
+    
+    elif args.command == "photo":
+        if args.action == "set":
+            # Check if source is URL or file path
+            source = args.source
+            if source.startswith("http://") or source.startswith("https://"):
+                success, result = set_photo_from_url(args.id, source)
+            else:
+                # Treat as file path
+                success, result = set_photo_from_file(args.id, source)
+        elif args.action == "clear":
+            success, result = clear_photo(args.id)
+        
+        if success:
+            output_json({"success": True, "message": f"Photo {'cleared' if args.action == 'clear' else 'set'}"})
         else:
             output_json({"success": False, "error": result})
             sys.exit(1)
