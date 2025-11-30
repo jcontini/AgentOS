@@ -512,10 +512,423 @@ def test_social_apple_official():
     print("✅ Apple-official social services test complete!")
     print("=" * 40 + "\n")
 
+def test_photo_operations():
+    """Test photo set/clear functionality."""
+    print("\n=== Photo Operations Test ===\n")
+    
+    TEST_FIRST = "_PHOTOTEST_"
+    TEST_LAST = "_DELETE_"
+    
+    # Create test contact
+    print("1. CREATE test contact")
+    result = run([
+        "create",
+        "--first", TEST_FIRST,
+        "--last", TEST_LAST,
+    ])
+    assert result.get("success"), f"Create failed: {result}"
+    
+    # Get contact ID
+    search_result = run(["search", f"{TEST_FIRST} {TEST_LAST}"])
+    contact_id = search_result["contacts"][0]["id"]
+    print(f"    ✓ Created: {contact_id[:20]}...")
+    
+    # Set photo from URL (using a known public avatar)
+    print("\n2. SET photo from URL")
+    # Using GitHub's default avatar as a reliable test image
+    test_url = "https://avatars.githubusercontent.com/u/167932?v=4"
+    result = run(["photo", "set", contact_id, test_url])
+    assert result.get("success"), f"Set photo failed: {result}"
+    print(f"    ✓ Set photo from URL")
+    
+    # Verify photo exists via AppleScript
+    print("\n3. VERIFY photo exists")
+    verify_script = f'''
+        tell application "Contacts"
+            set p to first person whose first name is "{TEST_FIRST}"
+            if image of p is not missing value then
+                return "has_image"
+            else
+                return "no_image"
+            end if
+        end tell
+    '''
+    photo_status = run_applescript(verify_script)
+    assert photo_status == "has_image", f"Photo not set: {photo_status}"
+    print("    ✓ Photo exists on contact")
+    
+    # Clear photo
+    print("\n4. CLEAR photo")
+    result = run(["photo", "clear", contact_id])
+    assert result.get("success"), f"Clear photo failed: {result}"
+    print("    ✓ Cleared photo")
+    
+    # Verify photo cleared
+    print("\n5. VERIFY photo cleared")
+    photo_status = run_applescript(verify_script)
+    assert photo_status == "no_image", f"Photo not cleared: {photo_status}"
+    print("    ✓ Photo cleared successfully")
+    
+    # Test setting from local file
+    print("\n6. SET photo from local file")
+    import tempfile
+    import urllib.request
+    
+    # Download test image to temp file
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+        tmp_path = tmp.name
+    urllib.request.urlretrieve(test_url, tmp_path)
+    
+    result = run(["photo", "set", contact_id, tmp_path])
+    assert result.get("success"), f"Set photo from file failed: {result}"
+    print(f"    ✓ Set photo from local file")
+    
+    # Verify
+    photo_status = run_applescript(verify_script)
+    assert photo_status == "has_image", f"Photo not set from file: {photo_status}"
+    print("    ✓ Photo set from local file verified")
+    
+    # Cleanup temp file
+    import os
+    os.unlink(tmp_path)
+    
+    # Cleanup contact
+    print("\n7. CLEANUP")
+    cleanup_script = f'''
+        tell application "Contacts"
+            try
+                delete (every person whose first name is "{TEST_FIRST}" and last name is "{TEST_LAST}")
+                save
+                return "deleted"
+            on error
+                return "not found"
+            end try
+        end tell
+    '''
+    subprocess.run(["osascript", "-e", cleanup_script], capture_output=True)
+    print("    ✓ Deleted test contact")
+    
+    print("\n" + "=" * 40)
+    print("✅ Photo operations test complete!")
+    print("=" * 40 + "\n")
+
+def test_phone_normalization():
+    """Test phone number normalization with country codes."""
+    print("\n=== Phone Normalization Test ===\n")
+    
+    # Import the normalize function
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from contacts import normalize_phone
+    
+    print("1. TEST normalize_phone function")
+    
+    test_cases = [
+        # (input, expected, description)
+        ("5551234567", "+15551234567", "10-digit US number"),
+        ("15551234567", "+15551234567", "11-digit with leading 1"),
+        ("+15551234567", "+15551234567", "Already has +1"),
+        ("+44 7911 123456", "+44 7911 123456", "UK number (keep as-is)"),
+        ("(555) 123-4567", "+15551234567", "Formatted US number"),
+        ("555-123-4567", "+15551234567", "Dashed US number"),
+        ("555.123.4567", "+15551234567", "Dotted US number"),
+        ("123", "123", "Short number (extension)"),
+        ("+1 (555) 123-4567", "+1 (555) 123-4567", "Already has + prefix"),
+        ("919876543210", "+919876543210", "Long number (Indian)"),
+    ]
+    
+    all_passed = True
+    for input_num, expected, description in test_cases:
+        result = normalize_phone(input_num)
+        status = "✓" if result == expected else "✗"
+        if result != expected:
+            all_passed = False
+            print(f"    {status} {description}: '{input_num}' → '{result}' (expected '{expected}')")
+        else:
+            print(f"    {status} {description}: '{input_num}' → '{result}'")
+    
+    assert all_passed, "Some phone normalization tests failed"
+    
+    print("\n2. TEST phone normalization in contact creation")
+    
+    TEST_FIRST = "_PHONETEST_"
+    TEST_LAST = "_DELETE_"
+    
+    # Create contact with unnormalized phone
+    result = run([
+        "create",
+        "--first", TEST_FIRST,
+        "--last", TEST_LAST,
+        "--phone", "5559876543",  # Should become +15559876543
+    ])
+    assert result.get("success"), f"Create failed: {result}"
+    
+    # Get contact and check phone
+    search_result = run(["search", f"{TEST_FIRST} {TEST_LAST}"])
+    contact_id = search_result["contacts"][0]["id"]
+    
+    details = run(["get", contact_id])
+    phones = details.get("phones", [])
+    assert len(phones) >= 1, "No phones found"
+    
+    # The phone should be normalized
+    phone_number = phones[0].get("number", "")
+    assert phone_number.startswith("+1"), f"Phone not normalized: {phone_number}"
+    print(f"    ✓ Created phone normalized to: {phone_number}")
+    
+    print("\n3. TEST phone normalization in phone add")
+    result = run(["phone", "add", contact_id, "(555) 111-2222", "work"])
+    assert result.get("success"), f"Add phone failed: {result}"
+    
+    details = run(["get", contact_id])
+    phones = details.get("phones", [])
+    work_phones = [p for p in phones if p.get("label") == "work"]
+    assert len(work_phones) >= 1, "Work phone not found"
+    
+    work_number = work_phones[0].get("number", "")
+    assert "+1" in work_number or work_number.startswith("+"), f"Work phone not normalized: {work_number}"
+    print(f"    ✓ Added phone normalized to: {work_number}")
+    
+    # Cleanup
+    print("\n4. CLEANUP")
+    cleanup_script = f'''
+        tell application "Contacts"
+            try
+                delete (every person whose first name is "{TEST_FIRST}" and last name is "{TEST_LAST}")
+                save
+                return "deleted"
+            on error
+                return "not found"
+            end try
+        end tell
+    '''
+    subprocess.run(["osascript", "-e", cleanup_script], capture_output=True)
+    print("    ✓ Deleted test contact")
+    
+    print("\n" + "=" * 40)
+    print("✅ Phone normalization test complete!")
+    print("=" * 40 + "\n")
+
+def test_unified_services():
+    """Test the unified SERVICES registry and helper functions."""
+    print("\n=== Unified Services Test ===\n")
+    
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from contacts import (
+        SERVICES, get_service, get_photo_url, get_photo_api, 
+        get_profile_url, is_apple_native, list_services_with_photos,
+        get_service_from_url, extract_username_from_url, normalize_service
+    )
+    
+    print("1. TEST SERVICES registry structure")
+    assert len(SERVICES) > 20, f"Expected 20+ services, got {len(SERVICES)}"
+    print(f"    ✓ {len(SERVICES)} services registered")
+    
+    # Verify all services have required fields (name, profile_url)
+    # Optional fields: photo_url, photo_api, apple_native (defaults to False)
+    required_fields = ["name", "profile_url"]
+    for key, service in SERVICES.items():
+        for field in required_fields:
+            assert field in service, f"Service '{key}' missing required field '{field}'"
+    print("    ✓ All services have required fields (name, profile_url)")
+    
+    print("\n2. TEST get_service function")
+    github = get_service("github")
+    assert github is not None, "GitHub service not found"
+    assert github["name"] == "GitHub", f"Wrong name: {github['name']}"
+    assert "github.com" in github["profile_url"], "Wrong profile URL"
+    print("    ✓ get_service('github') works")
+    
+    # Case insensitive
+    github2 = get_service("GitHub")
+    assert github2 == github, "get_service should be case-insensitive"
+    print("    ✓ Case insensitive lookup works")
+    
+    print("\n3. TEST is_apple_native function")
+    assert is_apple_native("twitter") == True, "Twitter should be Apple-native"
+    assert is_apple_native("linkedin") == True, "LinkedIn should be Apple-native"
+    assert is_apple_native("github") == False, "GitHub should NOT be Apple-native"
+    assert is_apple_native("instagram") == False, "Instagram should NOT be Apple-native"
+    print("    ✓ Apple-native detection works")
+    
+    print("\n4. TEST get_profile_url function")
+    test_cases = [
+        ("github", "jcontini", "https://github.com/jcontini"),
+        ("twitter", "jcontini", "https://twitter.com/jcontini"),
+        ("linkedin", "jcontini", "https://www.linkedin.com/in/jcontini"),
+        ("instagram", "jcontini", "https://www.instagram.com/jcontini"),
+        ("youtube", "jcontini", "https://www.youtube.com/@jcontini"),
+        ("tiktok", "jcontini", "https://www.tiktok.com/@jcontini"),
+    ]
+    
+    for service, username, expected in test_cases:
+        result = get_profile_url(service, username)
+        assert result == expected, f"get_profile_url('{service}', '{username}') = '{result}', expected '{expected}'"
+        print(f"    ✓ {service}: {result}")
+    
+    print("\n5. TEST get_photo_url function")
+    photo_test_cases = [
+        ("github", "jcontini", "https://github.com/jcontini.png"),
+        ("facebook", "jcontini", "https://graph.facebook.com/jcontini/picture?type=large"),
+        ("keybase", "jcontini", "https://keybase.io/jcontini/photo.png"),
+        ("linkedin", "jcontini", None),  # No direct photo URL
+        ("instagram", "jcontini", None),  # No direct photo URL
+    ]
+    
+    for service, username, expected in photo_test_cases:
+        result = get_photo_url(service, username)
+        assert result == expected, f"get_photo_url('{service}', '{username}') = '{result}', expected '{expected}'"
+        status = "✓" if expected else "✓ (None - requires auth)"
+        print(f"    {status} {service}: {result}")
+    
+    print("\n6. TEST get_photo_api function")
+    api_test_cases = [
+        ("github", "jcontini", "https://api.github.com/users/jcontini"),
+        ("bluesky", "jcontini", "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=jcontini"),
+        ("twitter", "jcontini", None),  # No public API
+    ]
+    
+    for service, username, expected in api_test_cases:
+        result = get_photo_api(service, username)
+        assert result == expected, f"get_photo_api('{service}', '{username}') = '{result}', expected '{expected}'"
+        status = "✓" if expected else "✓ (None - no public API)"
+        print(f"    {status} {service}: {result}")
+    
+    print("\n7. TEST list_services_with_photos")
+    photo_services = list_services_with_photos()
+    assert "github" in photo_services, "GitHub should have photo support"
+    assert "facebook" in photo_services, "Facebook should have photo support"
+    assert "keybase" in photo_services, "Keybase should have photo support"
+    print(f"    ✓ {len(photo_services)} services with photo support: {', '.join(photo_services)}")
+    
+    print("\n8. TEST normalize_service function")
+    normalize_cases = [
+        ("github", "GitHub"),
+        ("GITHUB", "GitHub"),
+        ("twitter", "Twitter"),
+        ("linkedin", "LinkedIn"),
+        ("unknown_service", "Unknown_service"),  # Falls back to capitalize
+    ]
+    
+    for input_name, expected in normalize_cases:
+        result = normalize_service(input_name)
+        assert result == expected, f"normalize_service('{input_name}') = '{result}', expected '{expected}'"
+        print(f"    ✓ '{input_name}' → '{result}'")
+    
+    print("\n9. TEST extract_username_from_url function")
+    url_test_cases = [
+        ("https://github.com/jcontini", "https://github.com/{username}", "jcontini"),
+        ("https://www.linkedin.com/in/joe-contini", "https://www.linkedin.com/in/{username}", "joe-contini"),
+        ("https://twitter.com/jcontini", "https://twitter.com/{username}", "jcontini"),
+        ("https://www.instagram.com/jcontini/", "https://www.instagram.com/{username}", "jcontini"),
+        ("https://www.youtube.com/@jcontini", "https://www.youtube.com/@{username}", "jcontini"),
+    ]
+    
+    for url, template, expected in url_test_cases:
+        result = extract_username_from_url(url, template)
+        assert result == expected, f"extract_username_from_url('{url}') = '{result}', expected '{expected}'"
+        print(f"    ✓ {url} → '{result}'")
+    
+    print("\n10. TEST get_service_from_url function")
+    service_url_cases = [
+        ("https://github.com/jcontini", ("github", "jcontini")),
+        ("https://www.linkedin.com/in/joe-contini", ("linkedin", "joe-contini")),
+        ("https://twitter.com/testuser", ("twitter", "testuser")),
+        ("https://example.com/random", None),  # Unknown service
+    ]
+    
+    for url, expected in service_url_cases:
+        result = get_service_from_url(url)
+        if expected is None:
+            assert result is None, f"get_service_from_url('{url}') should be None, got {result}"
+            print(f"    ✓ {url} → None (unknown)")
+        else:
+            assert result is not None, f"get_service_from_url('{url}') should not be None"
+            assert result[0] == expected[0], f"Wrong service: {result[0]} != {expected[0]}"
+            assert result[1] == expected[1], f"Wrong username: {result[1]} != {expected[1]}"
+            print(f"    ✓ {url} → {result}")
+    
+    print("\n" + "=" * 40)
+    print("✅ Unified services test complete!")
+    print("=" * 40 + "\n")
+
+def test_photo_from_service_url():
+    """Test getting photo URLs from various service profile URLs."""
+    print("\n=== Photo from Service URL Test ===\n")
+    
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from contacts import get_service_from_url, get_photo_url, get_photo_api
+    
+    print("1. TEST photo URL extraction workflow")
+    
+    # Simulate: contact has GitHub URL, we want to get their photo
+    github_url = "https://github.com/jcontini"
+    
+    # Step 1: Identify service and username from URL
+    result = get_service_from_url(github_url)
+    assert result is not None, "Should recognize GitHub URL"
+    service, username = result
+    print(f"    ✓ Detected: {service}/{username} from {github_url}")
+    
+    # Step 2: Get photo URL
+    photo_url = get_photo_url(service, username)
+    assert photo_url is not None, "GitHub should have photo URL"
+    assert "jcontini" in photo_url, "Photo URL should contain username"
+    print(f"    ✓ Photo URL: {photo_url}")
+    
+    # Step 3: Alternative - Get photo API
+    photo_api = get_photo_api(service, username)
+    assert photo_api is not None, "GitHub should have photo API"
+    assert "jcontini" in photo_api, "Photo API should contain username"
+    print(f"    ✓ Photo API: {photo_api}")
+    
+    print("\n2. TEST services without photo support")
+    linkedin_url = "https://www.linkedin.com/in/jcontini"
+    result = get_service_from_url(linkedin_url)
+    assert result is not None, "Should recognize LinkedIn URL"
+    service, username = result
+    
+    photo_url = get_photo_url(service, username)
+    assert photo_url is None, "LinkedIn should NOT have direct photo URL (requires auth)"
+    print(f"    ✓ {service} correctly returns None for photo URL (auth required)")
+    
+    print("\n3. TEST full workflow: URL → photo")
+    test_urls = [
+        ("https://github.com/torvalds", True),
+        ("https://keybase.io/max", True),
+        ("https://facebook.com/zuck", True),
+        ("https://www.linkedin.com/in/satyanadella", False),  # No public photo
+        ("https://www.instagram.com/instagram", False),  # No public photo
+    ]
+    
+    for url, should_have_photo in test_urls:
+        result = get_service_from_url(url)
+        if result:
+            service, username = result
+            photo = get_photo_url(service, username)
+            has_photo = photo is not None
+            status = "✓" if has_photo == should_have_photo else "✗"
+            print(f"    {status} {service}/{username}: photo={'Yes' if has_photo else 'No (auth required)'}")
+        else:
+            print(f"    ⚠ Could not parse: {url}")
+    
+    print("\n" + "=" * 40)
+    print("✅ Photo from service URL test complete!")
+    print("=" * 40 + "\n")
+
 if __name__ == "__main__":
     test_crud_lifecycle()
     test_url_operations()
     test_social_apple_official()
+    test_photo_operations()
+    test_phone_normalization()
+    test_unified_services()
+    test_photo_from_service_url()
     test_fix_scenarios()
     
     print("\n" + "=" * 50)

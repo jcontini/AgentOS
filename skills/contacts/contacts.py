@@ -509,6 +509,8 @@ def search_where(where_clause: str, limit: int = 50) -> list[dict]:
         joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["phones"]["table"]} p ON p.ZOWNER = r.Z_PK')
     if "email" in where_lower or "address" in where_lower:
         joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["emails"]["table"]} e ON e.ZOWNER = r.Z_PK')
+    if "service" in where_lower or "username" in where_lower:
+        joins.append(f'LEFT JOIN {SCHEMA_RELATIONS["socials"]["table"]} s ON s.ZOWNER = r.Z_PK')
     
     join_clause = "\n            ".join(joins) if joins else ""
     
