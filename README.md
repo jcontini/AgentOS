@@ -1,17 +1,6 @@
-# AgentOS: AI Agent Operating System
+# AgentOS
 
 Supercharge your AI assistant with real-world skills via terminal access.
-
-## Getting Started
-
-Paste this into your AI chat ([Cursor](https://cursor.com/) agent, or any AI with terminal access):
-
-```
-Clone AgentOS, read the README, and guide me through setup:
-git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
-```
-
-That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions](#manual-setup))
 
 ## Available Skills
 
@@ -41,6 +30,17 @@ That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions]
 | <img src="https://cdn.simpleicons.org/youtube" width="18" height="18" style="vertical-align:text-bottom"> [YouTube](skills/youtube/README.md) | Video transcription |
 | ✈️ [Flights](skills/flights/README.md) | Search & compare flights |
 | <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="18" height="18" style="vertical-align:text-bottom"> [Enrich](skills/enrich/README.md) | Email/phone/domain lookup |
+
+## Automated Setup (AI-Assisted)
+
+Paste this into your AI chat ([Cursor](https://cursor.com/) agent, or any AI with terminal access):
+
+```
+Clone AgentOS, read the README, and guide me through setup:
+git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
+```
+
+That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions](#manual-setup))
 
 ## Manual Setup
 
