@@ -15,24 +15,32 @@ That's it. The AI handles the rest. (Prefer manual setup? [Jump to instructions]
 
 ## Available Skills
 
-| Skill | Example |
-|-------|---------|
-| <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="24" height="24" style="vertical-align:text-bottom"> [Apple Calendar](skills/calendar/README.md) | "What's on my calendar today?" |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="24" height="24" style="vertical-align:text-bottom"> [Apple Contacts](skills/contacts/README.md) | "Add contact for John Doe", "Search contacts" |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="24" height="24" style="vertical-align:text-bottom"> [iMessages](skills/imessages/README.md) | "Read my recent messages from Mom" |
-| <img src="https://img.icons8.com/fluency/48/gmail.png" width="24" height="24" style="vertical-align:text-bottom"> [Gmail](skills/google-workspace/README.md) | "Show me my unread emails", "Create a draft email" |
-| <img src="https://img.icons8.com/fluency/48/google-drive.png" width="24" height="24" style="vertical-align:text-bottom"> [Google Drive](skills/google-workspace/README.md) | "Find my meeting notes doc", "Read my Google Doc" |
-| <img src="https://cdn.simpleicons.org/todoist" width="24" height="24" style="vertical-align:text-bottom"> [Todoist](skills/todoist/README.md) | "Add 'buy groceries' to my todo list" |
-| <img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=64" width="24" height="24" style="vertical-align:text-bottom"> [ExaSearch](skills/search/README.md) | "Search for the latest news on AI" |
-| <img src="https://www.google.com/s2/favicons?domain=firecrawl.dev&sz=64" width="24" height="24" style="vertical-align:text-bottom"> [Firecrawl Extract](skills/extract/README.md) | "Read this URL and summarize it" |
-| <img src="https://cdn.simpleicons.org/youtube" width="24" height="24" style="vertical-align:text-bottom"> [YouTube](skills/youtube/README.md) | "Transcribe this YouTube video" |
-| ✈️ [Flights](skills/flights/README.md) | "Search for flights to Tokyo next month" |
-| <img src="https://cdn.simpleicons.org/linear" width="24" height="24" style="vertical-align:text-bottom"> [Linear](skills/linear/README.md) | "What are my Linear tasks this week?" |
-| <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="24" height="24" style="vertical-align:text-bottom"> [Enrich](skills/enrich/README.md) | "Look up info on john@company.com" |
-| <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="24" height="24" style="vertical-align:text-bottom"> [GitHub](skills/github/README.md) | "Create an issue for this bug" |
-| <img src="https://raindrop.io/favicon.ico" width="24" height="24" style="vertical-align:text-bottom"> [Raindrop](skills/raindrop/README.md) | "Save this URL to my bookmarks", "Create a collection" |
+### <img src="https://lkcomputers.com/wp-content/uploads/2015/02/Apple-Glass-Logo.png" width="28" height="28" style="vertical-align:text-bottom"> macOS Native
+*Direct access to local apps*
 
-*Calendar, iMessages, and Contacts are macOS only. Everything else works cross-platform.*
+| Skill | What it does |
+|-------|--------------|
+| <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="18" height="18" style="vertical-align:text-bottom"> [Calendar](skills/calendar/README.md) | Read & manage calendar events |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="18" height="18" style="vertical-align:text-bottom"> [Contacts](skills/contacts/README.md) | Search, read & manage contacts |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="18" height="18" style="vertical-align:text-bottom"> [iMessages](skills/imessages/README.md) | Read messages & conversations |
+| <img src="https://www.google.com/s2/favicons?domain=copilot.money&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Copilot Money](skills/copilot/README.md) | Balances, transactions, net worth |
+
+### ☁️ Cloud APIs
+*Requires internet & API keys*
+
+| Skill | What it does |
+|-------|--------------|
+| <img src="https://img.icons8.com/fluency/48/gmail.png" width="18" height="18" style="vertical-align:text-bottom"> [Gmail](skills/google-workspace/README.md) | Read emails, search, draft messages |
+| <img src="https://img.icons8.com/fluency/48/google-drive.png" width="18" height="18" style="vertical-align:text-bottom"> [Google Drive](skills/google-workspace/README.md) | List, search & read files |
+| <img src="https://cdn.simpleicons.org/todoist" width="18" height="18" style="vertical-align:text-bottom"> [Todoist](skills/todoist/README.md) | Personal task management |
+| <img src="https://cdn.simpleicons.org/linear" width="18" height="18" style="vertical-align:text-bottom"> [Linear](skills/linear/README.md) | Work project & issue tracking |
+| <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="18" height="18" style="vertical-align:text-bottom"> [GitHub](skills/github/README.md) | Issues, PRs, repo management |
+| <img src="https://raindrop.io/favicon.ico" width="18" height="18" style="vertical-align:text-bottom"> [Raindrop](skills/raindrop/README.md) | Bookmark management |
+| <img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [ExaSearch](skills/search/README.md) | Semantic web search |
+| <img src="https://www.google.com/s2/favicons?domain=firecrawl.dev&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Firecrawl](skills/extract/README.md) | Extract content from URLs |
+| <img src="https://cdn.simpleicons.org/youtube" width="18" height="18" style="vertical-align:text-bottom"> [YouTube](skills/youtube/README.md) | Video transcription |
+| ✈️ [Flights](skills/flights/README.md) | Search & compare flights |
+| <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="18" height="18" style="vertical-align:text-bottom"> [Enrich](skills/enrich/README.md) | Email/phone/domain lookup |
 
 ## Manual Setup
 
