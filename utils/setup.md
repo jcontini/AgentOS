@@ -36,13 +36,15 @@ First, check if boot.md is in your system prompt. If you naturally know about Ag
 
 **For Cursor users:**
 
-First, get the exact path and generate the line for them:
+First, generate the system prompt with the correct path:
 ```bash
-echo "CRITICAL: Do not respond until you have read $(pwd)/boot.md. Any response before reading this file is a failure."
+echo "AGENTOS_ROOT=$(pwd)
+
+STOP. Before responding, read \$AGENTOS_ROOT/boot.md (try: cat command, or any file reading tool)."
 ```
 
 Then guide them:
-> "Here's the exact line to add. Copy this:
+> "Here's your system prompt. Copy this:
 > 
 > `[paste the output from above]`
 >

@@ -9,6 +9,7 @@
 - [**Firecrawl Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
 - [**Linear**](skills/linear/README.md) - Work project management
 - [**Todoist**](skills/todoist/README.md) - Personal task management
+- [**Copilot Money**](skills/copilot/README.md) - Personal finance, balances, transactions (macOS)
 - [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
 - [**Google Drive**](skills/google-workspace/README.md) - List files, search files, read file content
 - [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS)
@@ -50,6 +51,8 @@ Have specific URLs to read/extract content from?
 | Scrape JS-heavy site (Notion, React) | `extract/` | Firecrawl |
 
 **⚠️ Always surface API errors to the user** - credit exhaustion (402), rate limits (429), auth failures (401). Don't silently fail.
+
+**When an API fails due to credits/limits:** Tell the user and ask if you should try an alternative. Many skills have fallbacks (e.g., Exa → Firecrawl for search). Don't assume - ask.
 
 ## Terminal Usage & Best Practices
 

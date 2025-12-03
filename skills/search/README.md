@@ -93,7 +93,7 @@ echo "$RESPONSE" | jq -e '.error' && echo "⚠️ API Error: $(echo $RESPONSE | 
 
 **Common errors:**
 - `401 Unauthorized` - Invalid API key, check `EXA_API_KEY`
-- `402 Payment Required` - Credits exhausted, need to add credits at exa.ai
+- `402 Payment Required` - Credits exhausted → **Use Firecrawl fallback below**
 - `429 Too Many Requests` - Rate limited, wait and retry
 - `500 Server Error` - Exa service issue, try again later
 
@@ -101,6 +101,31 @@ echo "$RESPONSE" | jq -e '.error' && echo "⚠️ API Error: $(echo $RESPONSE | 
 1. Try different search type (`neural` vs `keyword`)
 2. Rephrase query with more context
 3. Use `includeDomains` to target known good sources
+
+## Firecrawl Search (Fallback)
+
+When Exa credits are exhausted (402 error), use Firecrawl search as fallback:
+
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+curl -s -X POST "https://api.firecrawl.dev/v1/search" \
+  -H "Authorization: Bearer $FIRECRAWL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "search query",
+    "limit": 10
+  }' | jq .
+```
+
+**Firecrawl search parameters:**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `query` | Search query | required |
+| `limit` | Number of results | 10 |
+| `lang` | Language code (e.g., "en") | none |
+| `country` | Country code (e.g., "us") | none |
+
+**Cost:** ~$0.01/search (more expensive than Exa, use as fallback)
 
 ## When to Use This vs Extract
 

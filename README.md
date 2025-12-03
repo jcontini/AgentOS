@@ -44,10 +44,16 @@ If you prefer to set things up yourself:
    cd AgentOS
    ```
 
-2. **Add to your AI system prompt** (Cursor: Settings → "Rules for AI"):
+2. **Add to your AI system prompt:**
+
+   **Cursor** (Settings → Rules for AI), **Claude Desktop** (Settings → User Preferences), or **other LLM clients**:
    ```
-   CRITICAL: Do not respond until you have read /path/to/AgentOS/boot.md. Any response before reading this file is a failure.
+   AGENTOS_ROOT=/path/to/AgentOS
+
+   STOP. Before responding, read $AGENTOS_ROOT/boot.md (try: cat command, or any file reading tool).
    ```
+
+   Replace `/path/to/AgentOS` with your actual AgentOS installation path.
 
 3. **Create `.env`** with API keys you want:
    ```bash
