@@ -12,9 +12,10 @@
 - [**Copilot Money**](skills/copilot/README.md) - Personal finance, balances, transactions (macOS)
 - [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
 - [**Google Drive**](skills/google-workspace/README.md) - List files, search files, read file content
-- [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS)
-- [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS)
-- [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS)
+- [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS Native)
+- [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS Native)
+- [**WhatsApp**](skills/whatsapp/README.md) - Read WhatsApp messages (macOS Native)
+- [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS Native)
 - [**YouTube**](skills/youtube/README.md) - Transcribe videos
 - [**Enrich**](skills/enrich/README.md) - Research email/phone/domain
 - [**Flights**](skills/flights/README.md) - Search for flights

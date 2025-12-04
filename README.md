@@ -12,6 +12,7 @@ Supercharge your AI assistant with real-world skills via terminal access.
 | <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="18" height="18" style="vertical-align:text-bottom"> [Calendar](skills/calendar/README.md) | Read & manage calendar events |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="18" height="18" style="vertical-align:text-bottom"> [Contacts](skills/contacts/README.md) | Search, read & manage contacts |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="18" height="18" style="vertical-align:text-bottom"> [iMessages](skills/imessages/README.md) | Read messages & conversations |
+| <img src="https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [WhatsApp](skills/whatsapp/README.md) | Read WhatsApp messages & conversations |
 | <img src="https://www.google.com/s2/favicons?domain=copilot.money&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Copilot Money](skills/copilot/README.md) | Balances, transactions, net worth |
 
 ### ☁️ Cloud APIs
