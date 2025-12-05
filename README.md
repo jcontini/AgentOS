@@ -2,6 +2,50 @@
 
 Supercharge your AI assistant with real-world skills via terminal access.
 
+## How It Works
+
+```mermaid
+flowchart LR
+    subgraph You
+        U[User Request]
+    end
+    
+    subgraph AI["AI Assistant"]
+        B[boot.md]
+        S[skills.yaml]
+    end
+    
+    subgraph Types
+        A[Actions]
+        C[Connections]
+    end
+    
+    subgraph Skills
+        E[exa]
+        F[firecrawl]
+        G[gmail]
+        L[linear]
+        M[more...]
+    end
+    
+    U --> B
+    B --> S
+    S --> A
+    S --> C
+    A --> |search| E
+    A --> |extract| E
+    A --> |extract fallback| F
+    C --> |email| G
+    C --> |work-tasks| L
+    C --> |...| M
+```
+
+**Skills** are services you connect to. They come in two types:
+- **Actions** — stateless verbs (search, extract, transcribe)
+- **Connections** — your data (email, calendar, crm, tasks)
+
+The AI reads `skills.yaml` to find which skill handles each request, with fallbacks when needed.
+
 ## Available Skills
 
 ### <img src="https://lkcomputers.com/wp-content/uploads/2015/02/Apple-Glass-Logo.png" width="28" height="28" style="vertical-align:text-bottom"> macOS Native
@@ -9,8 +53,8 @@ Supercharge your AI assistant with real-world skills via terminal access.
 
 | Skill | What it does |
 |-------|--------------|
-| <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="18" height="18" style="vertical-align:text-bottom"> [Calendar](skills/calendar/README.md) | Read & manage calendar events |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="18" height="18" style="vertical-align:text-bottom"> [Contacts](skills/contacts/README.md) | Search, read & manage contacts |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="18" height="18" style="vertical-align:text-bottom"> [Calendar](skills/apple-calendar/README.md) | Read & manage calendar events |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="18" height="18" style="vertical-align:text-bottom"> [Contacts](skills/apple-contacts/README.md) | Search, read & manage contacts |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="18" height="18" style="vertical-align:text-bottom"> [iMessages](skills/imessages/README.md) | Read messages & conversations |
 | <img src="https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [WhatsApp](skills/whatsapp/README.md) | Read WhatsApp messages & conversations |
 | <img src="https://www.google.com/s2/favicons?domain=copilot.money&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Copilot Money](skills/copilot/README.md) | Balances, transactions, net worth |
@@ -20,17 +64,17 @@ Supercharge your AI assistant with real-world skills via terminal access.
 
 | Skill | What it does |
 |-------|--------------|
-| <img src="https://img.icons8.com/fluency/48/gmail.png" width="18" height="18" style="vertical-align:text-bottom"> [Gmail](skills/google-workspace/README.md) | Read emails, search, draft messages |
-| <img src="https://img.icons8.com/fluency/48/google-drive.png" width="18" height="18" style="vertical-align:text-bottom"> [Google Drive](skills/google-workspace/README.md) | List, search & read files |
+| <img src="https://img.icons8.com/fluency/48/gmail.png" width="18" height="18" style="vertical-align:text-bottom"> [Gmail](skills/gmail/README.md) | Read emails, search, draft messages |
+| <img src="https://img.icons8.com/fluency/48/google-drive.png" width="18" height="18" style="vertical-align:text-bottom"> [Google Drive](skills/google-drive/README.md) | List, search & read files |
 | <img src="https://cdn.simpleicons.org/todoist" width="18" height="18" style="vertical-align:text-bottom"> [Todoist](skills/todoist/README.md) | Personal task management |
 | <img src="https://cdn.simpleicons.org/linear" width="18" height="18" style="vertical-align:text-bottom"> [Linear](skills/linear/README.md) | Work project & issue tracking |
 | <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="18" height="18" style="vertical-align:text-bottom"> [GitHub](skills/github/README.md) | Issues, PRs, repo management |
 | <img src="https://raindrop.io/favicon.ico" width="18" height="18" style="vertical-align:text-bottom"> [Raindrop](skills/raindrop/README.md) | Bookmark management |
-| <img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [ExaSearch](skills/search/README.md) | Semantic web search |
-| <img src="https://www.google.com/s2/favicons?domain=firecrawl.dev&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Firecrawl](skills/extract/README.md) | Extract content from URLs |
+| <img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Exa](skills/exa/README.md) | Semantic web search & extraction |
+| <img src="https://www.google.com/s2/favicons?domain=firecrawl.dev&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Firecrawl](skills/firecrawl/README.md) | Extract content from JS-heavy URLs |
 | <img src="https://cdn.simpleicons.org/youtube" width="18" height="18" style="vertical-align:text-bottom"> [YouTube](skills/youtube/README.md) | Video transcription |
-| ✈️ [Flights](skills/flights/README.md) | Search & compare flights |
-| <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="18" height="18" style="vertical-align:text-bottom"> [Enrich](skills/enrich/README.md) | Email/phone/domain lookup |
+| ✈️ [Flights](skills/google-flights/README.md) | Search & compare flights |
+| <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="18" height="18" style="vertical-align:text-bottom"> [Enrich](skills/enrich-so/README.md) | Email/phone/domain lookup |
 | <img src="https://www.google.com/s2/favicons?domain=apollo.io&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Apollo CRM](skills/apollo/README.md) | Accounts, contacts, deals, sequences |
 
 ## Automated Setup (AI-Assisted)
@@ -86,29 +130,21 @@ If you prefer to set things up yourself:
 
 ## Repository Structure
 
-AgentOS follows a clear separation between public/reusable skills and user-specific content:
-
-- **`skills/`** - Public, reusable skills with documentation and scripts. These are part of the open-source repository.
-  - Each skill can be a simple markdown file or a folder with `README.md` and supporting files
-  - Examples: Calendar, Flights, Linear, Web Search
-
-- **`utils/`** - Utility scripts used across skills (e.g., timezone conversion)
-  - See `utils/README.md` for documentation on available utilities
-
-- **`user/`** - User-specific content (gitignored, not shared publicly)
-  - **`user/skills/`** - User-specific skills that mirror the `skills/` structure (e.g., personal automation scripts)
-  - **`user/skills-data/`** - Generated data from skills (e.g., flight search results, cached API responses)
-  - **`user/profile.md`** - User preferences, workflows, and context for the AI
-  - **`user/reports/`** - User-generated reports and analysis
-
-- **`.env`** - API keys and user preferences (gitignored)
+- **`skills/`** - Skill documentation and scripts. Each skill has its own folder with `README.md`.
+- **`skills.yaml`** - Routing table mapping actions/connections to skills.
+- **`utils/`** - Utility scripts (timezone, setup guides)
+- **`user/`** - User-specific content (gitignored)
+  - **`user/skills-data/`** - Generated data from skills
+  - **`user/profile.md`** - User preferences and context
+  - **`user/reports/`** - User-generated reports
+- **`.env`** - API keys (gitignored)
 
 ## Philosophy
 
 AgentOS is designed with speed and simplicity in mind:
 - **Terminal-first**: All operations use terminal commands and direct API calls (no MCP overhead)
 - **Self-contained**: Each skill includes everything needed to use it
-- **Extensible**: Easy to add new skills or modify existing ones (see `utils/creating-skills.md`)
+- **Extensible**: Easy to add new skills (see `utils/creating-skills.md`)
 - **User-specific**: Personal preferences and secrets stay in `user/` folder
 - **Optimized for speed**: Chain commands, batch API calls, and minimize latency
 

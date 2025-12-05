@@ -1,0 +1,26 @@
+# Skills Routing Table
+# Skills listed in preference order (first = default, rest = fallbacks)
+#
+# Actions: stateless verbs (search, extract, transcribe)
+# Connections: stateful data access (email, crm, calendar)
+
+actions:
+  search:          [exa]                    # Semantic web search, discover URLs
+  extract:         [exa, firecrawl]         # Extract content from URLs (firecrawl for JS-heavy sites)
+  transcribe:      [youtube]                # Video transcripts
+  enrich:          [enrich-so]              # Research email, phone, domain, company
+  check-domain:    [whoapi]                 # Check domain name availability
+  search-flights:  [google-flights]         # Search for flights
+
+connections:
+  crm:             [apollo]                 # Deals, contacts, companies, sequences
+  email:           [gmail]                  # Read, search, draft emails
+  files:           [google-drive]           # Cloud file storage
+  work-tasks:      [linear]                 # Work project management, issues
+  personal-tasks:  [todoist]                # Personal task management
+  calendar:        [apple-calendar]         # Read and manage calendar events
+  contacts:        [apple-contacts]         # Read and manage contacts
+  messages:        [imessages, whatsapp]    # Read messages and conversations
+  bookmarks:       [raindrop]               # Manage bookmarks and collections
+  code:            [github]                 # Repos, issues, PRs
+  finance:         [copilot]                # Personal finance, balances, transactions

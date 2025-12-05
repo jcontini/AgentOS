@@ -3,7 +3,7 @@
 ## Intention: Read iMessages/SMS messages from macOS Messages app
 
 **Required Skills:**
-- [Contacts](skills/contacts/README.md) - For resolving phone numbers to contact names
+- [Contacts](skills/apple-contacts/README.md) - For resolving phone numbers to contact names
 
 **✅ PRIMARY METHOD: SQLite Direct Access** (fast, milliseconds)
 
@@ -316,5 +316,5 @@ LIMIT 10;
 - Email addresses are used for iMessage-only contacts
 - Group chats may have phone number as identifier if no display_name is set
 - Empty `text` field often indicates attachments, reactions, or system messages
-- Use `skills/contacts/README.md` to resolve phone numbers to contact names
+- Use `skills/apple-contacts/README.md` to resolve phone numbers to contact names
 

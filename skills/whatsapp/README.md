@@ -3,7 +3,7 @@
 ## Intention: Read WhatsApp messages from macOS WhatsApp app
 
 **Required Skills:**
-- [Contacts](skills/contacts/README.md) - For resolving phone numbers to contact names
+- [Contacts](skills/apple-contacts/README.md) - For resolving phone numbers to contact names
 
 **✅ PRIMARY METHOD: SQLite Direct Access** (fast, milliseconds)
 
@@ -345,6 +345,6 @@ Common `ZMESSAGESTATUS` values:
 - Group chats have `ZSESSIONTYPE = 1`
 - Individual chats have `ZSESSIONTYPE = 0`
 - Empty `ZTEXT` field often indicates attachments, media, or system messages
-- Use `skills/contacts/README.md` to resolve phone numbers to contact names
+- Use `skills/apple-contacts/README.md` to resolve phone numbers to contact names
 - WhatsApp uses seconds (not nanoseconds) since macOS epoch, unlike iMessage
 

@@ -381,7 +381,7 @@ If you receive a `429 Too Many Requests` error, wait before retrying.
 
 ### Note
 
-For detailed API documentation, use search (see `skills/search/README.md`) to find Apollo API docs or visit https://docs.apollo.io
+For detailed API documentation, use search (see `skills/exa/README.md`) to find Apollo API docs or visit https://docs.apollo.io
 
 
 

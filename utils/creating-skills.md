@@ -4,6 +4,14 @@
 
 When creating new skills in `skills/`, follow these patterns and best practices.
 
+## Concepts
+
+| Term | What it is |
+|------|-----------|
+| **Skill** | A service you connect to (Exa, Gmail, Linear, Apollo) |
+| **Action** | A type of skill — stateless verbs (search, extract) |
+| **Connection** | A type of skill — your data (email, crm, calendar) |
+
 ## TLDR: Which Approach?
 
 ```mermaid
@@ -13,7 +21,7 @@ flowchart LR
     C -->|Yes| B
     C -->|No| D[Pure Docs]
     
-    B --> E["README + script<br/>e.g. contacts, calendar"]
+    B --> E["README + script<br/>e.g. apple-contacts, apple-calendar"]
     D --> F["README only<br/>e.g. todoist, linear, copilot"]
     
     style D fill:#2d5a27
@@ -22,7 +30,7 @@ flowchart LR
     style E fill:#8b4513
 ```
 
-See [Skill Architecture](#skill-architecture) for details, [Context Optimization](#context-optimization) for README guidelines.
+See [Skill Architecture](#skill-architecture) for details.
 
 ## Skill Architecture
 
@@ -31,7 +39,7 @@ Choose the right approach based on complexity:
 | Approach | When to Use | Examples |
 |----------|-------------|----------|
 | **Pure docs** | Straightforward APIs/queries, read-only, AI can compose | Todoist, Linear, Copilot |
-| **CLI wrapper** | Complex logic, validation, writes, multiple backends | Contacts |
+| **CLI wrapper** | Complex logic, validation, writes, multiple backends | Apple Contacts |
 
 ### Pure Docs (Preferred)
 
@@ -47,11 +55,6 @@ README only — no wrapper script. AI reads docs and composes commands directly.
 - Schema/API reference (fields, types, not full specs)
 - 3-5 essential query patterns
 - Notes on conventions (date formats, field meanings)
-
-**README omits:**
-- Exhaustive examples (AI can compose variations)
-- Full API specs (AI can look up if needed)
-- Verbose explanations
 
 ### CLI Wrapper
 
@@ -87,15 +90,32 @@ README + script. Script encapsulates complex logic.
   - **Direct tools** — SQLite, jq — use directly in README examples
 - **No user-specific content** — Use generic examples (`user@example.com`). User data belongs in `user/` or `.env`.
 
+## Adding a New Skill
+
+1. Create folder: `skills/{skill-name}/`
+2. Add `README.md` with:
+   - What it provides (action and/or connection)
+   - Auth setup
+   - Usage examples
+3. Add scripts if needed
+4. Register in `skills.yaml`:
+   ```yaml
+   actions:
+     your-action: [your-skill]
+   # or
+   connections:
+     your-connection: [your-skill]
+   ```
+
 ## Output Format
 
-- **JSON for AI consumption** — Output JSON to stdout. AI parses; user doesn't need formatted output.
-- **Technical error messages** — Include details for debugging. AI handles errors.
+- **JSON for AI consumption** — Output JSON to stdout
+- **Technical error messages** — Include details for debugging
 
 ## Environment Variables & Secrets
 
 - **API keys → `.env`** — Store in `$PROJECT_ROOT/.env`, never hardcode
-- **Skill-specific files → `user/skills-data/`** — Service account keys, certs, cached data go in `user/skills-data/SKILL_NAME/` (folder name matches skill folder)
+- **Skill-specific files → `user/skills-data/`** — Service account keys, certs, cached data go in `user/skills-data/{skill-name}/`
 - **Document required vars** — List env vars needed in README
 - **Bash pattern:** `set -a && source "$PROJECT_ROOT/.env" && set +a && command`
 - **Never commit secrets** — `.env` and `user/` are gitignored
@@ -107,11 +127,10 @@ README + script. Script encapsulates complex logic.
 | Pure docs (REST API) | `skills/todoist/` | README with curl examples |
 | Pure docs (GraphQL) | `skills/linear/` | README with query patterns |
 | Pure docs (SQLite) | `skills/copilot/` | README with sqlite3 examples |
-| CLI wrapper (Python) | `skills/contacts/` | README + `contacts.py` |
-| CLI wrapper (Swift) | `skills/calendar/` | README + `.swift` files |
-| CLI wrapper (Bash) | `skills/enrich/` | README + `enrich.sh` |
+| CLI wrapper (Python) | `skills/apple-contacts/` | README + `contacts.py` |
+| CLI wrapper (Swift) | `skills/apple-calendar/` | README + `.swift` files |
+| CLI wrapper (Bash) | `skills/enrich-so/` | README + `enrich.sh` |
 
 ## See Also
 
 - **Terminal Usage** — See `boot.md` for command patterns
-- **Creating Reports** — See `boot.md` for `user/reports/` patterns

@@ -99,7 +99,7 @@ Don't set up everything. Ask what they want, and explain what each enables:
 
 ## 5. Set Up Each Skill They Want
 
-For each skill they choose, read that skill's README (e.g., `skills/linear/README.md`) to get the current setup instructions. Don't hardcode them here.
+For each skill they choose, read the skill's README (e.g., `skills/linear/README.md`) to get the current setup instructions. Don't hardcode them here.
 
 **API Key locations:**
 | Skill | Get key from |
@@ -108,7 +108,7 @@ For each skill they choose, read that skill's README (e.g., `skills/linear/READM
 | Linear | Linear → Settings → API → Personal API Keys |
 | Todoist | Todoist → Settings → Integrations → Developer |
 | Flights | https://serpapi.com → API Key |
-| Google Workspace | Complex - follow `skills/google-workspace/README.md` |
+| Gmail | Complex - follow `skills/gmail/README.md` |
 
 As they give you keys, build the `.env` file:
 ```bash
