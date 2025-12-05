@@ -46,10 +46,12 @@ That's it. The AI handles the rest.
 
 ## How It Works
 
+**Setup:** The AI walks you through it conversationally — asks what skills you want, helps you grab API keys, and creates a profile about you so it has context. Takes 5-10 minutes.
+
+**After setup:**
 1. You ask your AI to do something ("check my email", "search for X")
-2. The AI reads `boot.md` to see what skills are available
-3. It picks the right skill and runs it via terminal
-4. Your API keys and personal data stay local — never sent to us
+2. The AI picks the right skill and runs it via terminal
+3. Your API keys and personal data stay local — never sent to us
 
 ## License
 
