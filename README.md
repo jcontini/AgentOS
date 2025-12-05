@@ -44,19 +44,12 @@ git clone https://github.com/jcontini/AgentOS.git && cat AgentOS/README.md
 
 That's it. The AI handles the rest.
 
-## Repository Structure
+## How It Works
 
-```
-agentOS/
-├── skills/           # Skill docs & scripts (exa, gmail, linear, etc.)
-├── skills.yaml       # Routes actions/connections → skills
-├── boot.md           # AI reads this first
-├── utils/            # Timezone, setup guides
-└── user/             # Your data (gitignored)
-    ├── profile.md    # About you
-    ├── skills-data/  # Cached data
-    └── reports/      # Generated reports
-```
+1. You ask your AI to do something ("check my email", "search for X")
+2. The AI reads `boot.md` to see what skills are available
+3. It picks the right skill and runs it via terminal
+4. Your API keys and personal data stay local — never sent to us
 
 ## License
 
