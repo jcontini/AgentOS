@@ -31,6 +31,7 @@ Supercharge your AI assistant with real-world skills via terminal access.
 | <img src="https://cdn.simpleicons.org/youtube" width="18" height="18" style="vertical-align:text-bottom"> [YouTube](skills/youtube/README.md) | Video transcription |
 | ✈️ [Flights](skills/flights/README.md) | Search & compare flights |
 | <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="18" height="18" style="vertical-align:text-bottom"> [Enrich](skills/enrich/README.md) | Email/phone/domain lookup |
+| <img src="https://www.google.com/s2/favicons?domain=apollo.io&sz=64" width="18" height="18" style="vertical-align:text-bottom"> [Apollo CRM](skills/apollo/README.md) | Accounts, contacts, deals, sequences |
 
 ## Automated Setup (AI-Assisted)
 

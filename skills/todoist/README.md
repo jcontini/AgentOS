@@ -11,6 +11,7 @@ When the user mentions adding a task, creating a task, getting tasks, completing
 When creating tasks on behalf of the user:
 1. **Default due date:** If user doesn't specify a date, set `"due_string": "today"`
 2. **AI label:** Always include `"labels": ["AI"]` so user knows the task was created by AI
+3. **Project assignment:** If user specifies a project, include `"project_id"` at creation time since it cannot be updated later (must delete/recreate to change)
 
 **Example (AI-created task):**
 ```bash
@@ -23,6 +24,22 @@ curl -s -X POST "https://api.todoist.com/rest/v2/tasks" \
     "due_string": "today",
     "labels": ["AI"]
   }' | jq .
+```
+
+**Example (AI-created task with project and priority):**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+PROJECT_ID="YOUR_PROJECT_ID" && \
+curl -s -X POST "https://api.todoist.com/rest/v2/tasks" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"content\": \"Task content here\",
+    \"project_id\": $PROJECT_ID,
+    \"priority\": 4,
+    \"due_string\": \"today\",
+    \"labels\": [\"AI\"]
+  }" | jq .
 ```
 
 ### Todoist API Integration
@@ -219,6 +236,46 @@ curl -s -X POST "https://api.todoist.com/rest/v2/tasks/$TASK_ID" \
   }' | jq .
 ```
 
+**Move task to different project (workaround):**
+**⚠️ Important:** The Todoist REST API v2 does NOT support updating `project_id` via POST. This has been confirmed through testing - attempting to update `project_id` returns the task unchanged. To move a task to a different project, you must delete and recreate it.
+
+**Step 1: Get task details:**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+TASK_ID="YOUR_TASK_ID" && \
+curl -s -X GET "https://api.todoist.com/rest/v2/tasks/$TASK_ID" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN" | jq .
+```
+
+**Step 2: Delete old task and recreate in new project:**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+OLD_TASK_ID="YOUR_TASK_ID" && \
+NEW_PROJECT_ID="TARGET_PROJECT_ID" && \
+# Get task details first
+TASK_DATA=$(curl -s -X GET "https://api.todoist.com/rest/v2/tasks/$OLD_TASK_ID" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN") && \
+# Extract due date (prefer due.string, fallback to due.date)
+DUE_STRING=$(echo "$TASK_DATA" | jq -r 'if .due then (.due.string // .due.date) else null end') && \
+# Delete old task
+curl -s -X DELETE "https://api.todoist.com/rest/v2/tasks/$OLD_TASK_ID" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN" && \
+# Recreate with new project_id, preserving all other fields
+PAYLOAD=$(echo "$TASK_DATA" | jq --arg proj "$NEW_PROJECT_ID" --arg due "$DUE_STRING" '{
+  content: .content,
+  description: (.description // ""),
+  project_id: ($proj | tonumber),
+  priority: .priority,
+  label_ids: (.labels | map(.id))
+} + (if $due != "null" and $due != "" then {due_string: $due} else {} end)') && \
+curl -s -X POST "https://api.todoist.com/rest/v2/tasks" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD" | jq .
+```
+
+**Note:** When recreating, preserve all fields: `content`, `description`, `priority`, `due_string`/`due`, `label_ids`, `parent_id` (if subtask), etc. The script above handles due dates by preferring `due.string` (natural language like "tomorrow") and falling back to `due.date` (YYYY-MM-DD format).
+
 #### Complete a Task
 
 ```bash
@@ -294,6 +351,30 @@ curl -s -X POST "https://api.todoist.com/rest/v2/tasks/$TASK_ID" \
   }" | jq .
 ```
 
+### Task Links
+
+**Get task link (opens in native Todoist app):**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+TASK_ID="YOUR_TASK_ID" && \
+TASK_LINK="https://app.todoist.com/app/task/$TASK_ID" && \
+echo "$TASK_LINK"
+```
+
+**Example: Get task with link:**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+TASK_ID="YOUR_TASK_ID" && \
+TASK=$(curl -s -X GET "https://api.todoist.com/rest/v2/tasks/$TASK_ID" \
+  -H "Authorization: Bearer $TODOIST_API_TOKEN") && \
+CONTENT=$(echo "$TASK" | jq -r '.content') && \
+LINK=$(echo "$TASK" | jq -r '.url') && \
+echo "Task: $CONTENT" && \
+echo "Link: $LINK"
+```
+
+**Note:** The API `url` field returns `https://app.todoist.com/app/task/{id}` format. While Todoist shows a deprecation warning, this format currently works and opens in the native app. Todoist's "Copy link" feature generates slug-based URLs (`task-name-hash`), but the numeric ID format from the API works for programmatic linking.
+
 ### Subtasks
 
 **Important:** When retrieving a task, always check for subtasks by querying tasks with `parent_id` matching the task ID.
@@ -367,6 +448,9 @@ curl -s -X GET "https://api.todoist.com/rest/v2/tasks/$TASK_ID" \
 4. **Error handling:** Check HTTP status codes and handle rate limits (429)
 5. **Task IDs:** Store task IDs when creating tasks for future updates/deletes
 6. **Parent vs subtask:** Filter by `parent_id == null` to get only parent tasks, or use `parent_id=TASK_ID` to get subtasks
+7. **Project assignment:** Always specify `project_id` when creating tasks if you know the target project. The API does NOT support updating `project_id` after creation - you must delete and recreate the task to move it.
+8. **Moving tasks:** When moving a task to a different project, fetch all task fields first, then delete and recreate with the new `project_id` to preserve all metadata (description, priority, due date, labels, etc.)
+9. **Task links:** The API `url` field returns `https://app.todoist.com/app/task/{id}` format. While Todoist shows a warning that this format will be deprecated, it currently still works and opens in the native app. Use the API's `url` field directly, or construct as: `https://app.todoist.com/app/task/${TASK_ID}`. Note: Todoist's "Copy link" feature generates a slug-based URL (`book-fl-dc-flight-6fQhp2xCJHwmvMMg`), but the numeric ID format from the API still works for native app deep linking.
 
 ### Rate Limits
 

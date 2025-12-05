@@ -4,6 +4,38 @@
 
 When the user mentions adding a task, creating a task, getting tasks, or anything related to team management, projects, or issues, use the Linear GraphQL API directly.
 
+## Quick Reference: Find and Update Issue
+
+**Find issue by identifier (most reliable method):**
+```bash
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ issues(first: 100) { nodes { id identifier title description } } }"}' | \
+jq '.data.issues.nodes[] | select(.identifier == "DEV-264")'
+```
+
+**Update issue description (use heredoc for complex JSON):**
+```bash
+ISSUE_ID="bbc2eeb4-0c85-4cd8-8a2b-e22c84fc28a3" && \
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-binary @- << EOF
+{
+  "query": "mutation(\$id: String!, \$input: IssueUpdateInput!) { issueUpdate(id: \$id, input: \$input) { success issue { identifier url } } }",
+  "variables": {
+    "id": "$ISSUE_ID",
+    "input": {
+      "description": "Your description here"
+    }
+  }
+}
+EOF
+```
+
 ### Linear API Integration
 
 Use the Linear GraphQL API endpoint: `https://api.linear.app/graphql`
@@ -12,12 +44,12 @@ Use the Linear GraphQL API endpoint: `https://api.linear.app/graphql`
 
 **Basic Query Pattern:**
 ```bash
-# Unconditional sourcing (simpler and more reliable - see boot.md)
+# Always use pagination (first: 100) to avoid missing issues
 set -a && source "$PROJECT_ROOT/.env" && set +a && \
 curl -s -X POST "https://api.linear.app/graphql" \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "{ issues { nodes { id title } } }"}' | jq .
+  -d '{"query": "{ issues(first: 100) { nodes { id identifier title } pageInfo { hasNextPage endCursor } } }"}' | jq .
 ```
 
 **Troubleshooting Auth Errors:**
@@ -27,13 +59,60 @@ curl -s -X POST "https://api.linear.app/graphql" \
 
 **Common Queries:**
 
-- **Get all issues:** `{ issues { nodes { id title description } } }`
-- **Get user's assigned issues:** `{ viewer { assignedIssues { nodes { id title } } } }`
-- **Get user's assigned issues due this week:** `{ viewer { assignedIssues(filter: { dueDate: { gte: "YYYY-MM-DD", lte: "YYYY-MM-DD" } }) { nodes { id identifier title description url priority state { name } dueDate assignee { name } team { name } } } } }`
-- **Get specific issue:** `{ issue(id: "ISSUE-ID") { id title description } }`
-- **Get team issues:** `{ team(id: "TEAM-ID") { issues { nodes { id title } } } }`
+**CRITICAL: Always use pagination when querying issues**
+
+Linear's default limit is 50 issues. Always use `first: 100` (or higher) to avoid missing issues. For large workspaces, check `hasNextPage` and use cursor-based pagination.
+
+- **Get all issues (with pagination):** `{ issues(first: 100) { nodes { id identifier title description } pageInfo { hasNextPage endCursor } } }`
+- **Get specific issue by identifier:** Use filter with pagination: `{ issues(first: 100, filter: { identifier: { eq: "DEV-320" } }) { nodes { id identifier title } } }`
+- **Get specific issue by ID:** `{ issue(id: "ISSUE-ID") { id identifier title description } }`
+- **Get user's assigned issues:** `{ viewer { assignedIssues(first: 100) { nodes { id title } pageInfo { hasNextPage } } } }`
+- **Get user's assigned issues due this week:** `{ viewer { assignedIssues(first: 100, filter: { dueDate: { gte: "YYYY-MM-DD", lte: "YYYY-MM-DD" } }) { nodes { id identifier title description url priority state { name } dueDate assignee { name } team { name } } } } }`
+- **Get team issues:** `{ team(id: "TEAM-ID") { issues(first: 100) { nodes { id title } pageInfo { hasNextPage } } } }`
+
+**Finding issues by identifier:**
+
+**RECOMMENDED: Query all issues and filter with jq (more reliable than GraphQL filters):**
+```bash
+# Get all issues with full details, then filter with jq
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ issues(first: 100) { nodes { id identifier title description } } }"}' | \
+jq '.data.issues.nodes[] | select(.identifier == "DEV-264")'
+```
+
+**Alternative: Use GraphQL filter (may be less reliable):**
+```bash
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "{ issues(first: 100, filter: { identifier: { eq: \"DEV-320\" } }) { nodes { id identifier title } } }"
+  }' | jq '.data.issues.nodes[0]'
+```
 
 **Date Filtering:** Use ISO format (YYYY-MM-DD) for date filters.
+
+**Pagination Best Practices:**
+
+**ALWAYS use `first: 100` (or higher) when querying issues.** Linear's default limit is 50 issues, so queries without pagination will miss issues beyond the first 50.
+
+- **Default behavior:** `{ issues { nodes { ... } } }` returns only 50 issues
+- **With pagination:** `{ issues(first: 100) { nodes { ... } pageInfo { hasNextPage endCursor } } }` returns up to 100 issues
+- **Check for more:** If `hasNextPage` is true, use `after: endCursor` to fetch the next page
+- **When searching:** Always combine filters with pagination: `{ issues(first: 100, filter: { ... }) { ... } }`
+
+**Example with pagination check:**
+```bash
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "{ issues(first: 100) { nodes { id identifier title } pageInfo { hasNextPage endCursor } } }"
+  }' | jq '{issues: .data.issues.nodes, hasMore: .data.issues.pageInfo.hasNextPage}'
+```
 
 **Calculate "This Week" Range (Cross-platform):**
 ```bash
@@ -62,7 +141,7 @@ curl -s -X POST "https://api.linear.app/graphql" \
 jq -r '.data.viewer.assignedIssues.nodes[] | "\(.identifier) | \(.title) | Due: \(.dueDate) | Status: \(.state.name) | Priority: \(.priority // "None") | Team: \(.team.name) | \(.url)"'
 ```
 
-**Note:** For detailed API documentation, use search (see `skills/search/README.md`) to find Linear API docs or visit https://linear.app/developers/graphql
+**Note:** For detailed API documentation, use web search (see `skills/search/README.md`) to find Linear API docs or visit https://linear.app/developers/graphql
 
 ### Issue Creation Best Practices
 
@@ -77,7 +156,111 @@ When creating Linear issues via the Linear API:
   start "https://linear.app/{workspace}/issue/{identifier}" 2>/dev/null || true
   ```
 
-**Note:** Project-specific reference IDs (user IDs, team IDs, label IDs) should be stored in project-specific rule files, not in this general skill file.
+**Note:** Project-specific reference IDs (user IDs, team IDs, label IDs, workspace name) should be stored in project-specific rule files, not in this general skill file.
+
+### Updating Issues Efficiently
+
+**CRITICAL: Use heredoc for complex JSON to avoid escaping issues**
+
+**Pattern: Find issue, then update in one flow:**
+```bash
+# Step 1: Find issue ID (query once, get full details)
+set -a && source "$PROJECT_ROOT/.env" && set +a && \
+ISSUE_DATA=$(curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ issues(first: 100) { nodes { id identifier title description } } }"}' | \
+jq -r '.data.issues.nodes[] | select(.identifier == "DEV-264")') && \
+ISSUE_ID=$(echo "$ISSUE_DATA" | jq -r '.id') && \
+
+# Step 2: Update issue using heredoc (avoids JSON escaping problems)
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  --data-binary @- << EOF
+{
+  "query": "mutation(\$id: String!, \$input: IssueUpdateInput!) { issueUpdate(id: \$id, input: \$input) { success issue { identifier url description } } }",
+  "variables": {
+    "id": "$ISSUE_ID",
+    "input": {
+      "description": "Updated description here"
+    }
+  }
+}
+EOF
+```
+
+**Key points:**
+- **Mutation format**: `mutation($id: String!, $input: IssueUpdateInput!)` - `id` and `input` are separate parameters
+- **Use heredoc**: `--data-binary @- << 'EOF'` avoids JSON escaping issues with newlines, quotes, etc.
+- **Query once**: Get all issues with full fields (id, identifier, title, description) in one call
+- **Filter with jq**: More reliable than GraphQL filters for finding specific issues
+- **Include url in response**: Always request `url` in mutation response to get the issue URL for opening
+
+### Issue Relations (Blocking Relationships)
+
+**CRITICAL: Understanding blocking relationships**
+
+When setting up blocking relationships, remember:
+- **"Issue A is blocked by Issue B"** means **Issue B blocks Issue A**
+- The relation is created from the blocker's perspective: `issueId` = the blocker, `relatedIssueId` = the blocked issue
+
+**Pattern:**
+- User says: "Issue DEV-391 is blocked by DEV-366"
+- Translation: DEV-366 blocks DEV-391
+- Create relation: `issueId` = DEV-366, `relatedIssueId` = DEV-391, `type` = "blocks"
+
+**Create blocking relationship:**
+```bash
+# Example: DEV-391 is blocked by DEV-366
+# First, get both issue IDs
+ISSUE_A_ID="73e9cf66-491a-4b7f-a4dc-2faf83ca50e5"  # DEV-391 (blocked issue)
+ISSUE_B_ID="9a5c4f6e-e078-4520-85f9-1c57187ee6fd"  # DEV-366 (blocker)
+
+# Create relation: Issue B blocks Issue A
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"query\": \"mutation(\$input: IssueRelationCreateInput!) { issueRelationCreate(input: \$input) { success issueRelation { id } } }\",
+    \"variables\": {
+      \"input\": {
+        \"issueId\": \"$ISSUE_B_ID\",
+        \"relatedIssueId\": \"$ISSUE_A_ID\",
+        \"type\": \"blocks\"
+      }
+    }
+  }"
+```
+
+**Delete blocking relationship:**
+```bash
+# Get relation ID first, then delete
+RELATION_ID="5a43f570-e3db-491c-aa86-09c6829ac98c"
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"query\": \"mutation(\$id: String!) { issueRelationDelete(id: \$id) { success } }\",
+    \"variables\": {\"id\": \"$RELATION_ID\"}
+  }"
+```
+
+**Query issue relations:**
+```bash
+# Check what blocks an issue (or what it blocks)
+curl -s -X POST "https://api.linear.app/graphql" \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "{ issue(id: \"ISSUE-ID\") { identifier title relations { nodes { type relatedIssue { identifier title } } } } }"
+  }'
+```
+
+**Common relation types:**
+- `blocks` - One issue blocks another
+- `duplicate` - One issue is a duplicate of another
+- `related` - Issues are related (general)
 
 ### Project Management
 
@@ -383,4 +566,3 @@ curl -s -X POST "https://api.linear.app/graphql" \
   -H "Content-Type: application/json" \
   -d '{"query": "{ viewer { id } }"}' | jq -r '.data.viewer.id'
 ```
-

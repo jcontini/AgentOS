@@ -5,22 +5,23 @@
 
 ## Available Skills
 
-- [**ExaSearch**](skills/search/README.md) - Semantic web search, discover URLs (Exa)
-- [**Firecrawl Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
-- [**Linear**](skills/linear/README.md) - Work project management
-- [**Todoist**](skills/todoist/README.md) - Personal task management
-- [**Copilot Money**](skills/copilot/README.md) - Personal finance, balances, transactions (macOS)
-- [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
-- [**Google Drive**](skills/google-workspace/README.md) - List files, search files, read file content
-- [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS Native)
-- [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS Native)
-- [**WhatsApp**](skills/whatsapp/README.md) - Read WhatsApp messages (macOS Native)
-- [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS Native)
-- [**YouTube**](skills/youtube/README.md) - Transcribe videos
-- [**Enrich**](skills/enrich/README.md) - Research email/phone/domain
-- [**Flights**](skills/flights/README.md) - Search for flights
-- [**GitHub**](skills/github/README.md) - Manage issues, PRs, repos
-- [**Raindrop**](skills/raindrop/README.md) - Manage bookmarks and collections
+- <img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=64" width="16" height="16" style="vertical-align:text-bottom"> [**ExaSearch**](skills/search/README.md) - Semantic web search, discover URLs (Exa)
+- <img src="https://www.google.com/s2/favicons?domain=firecrawl.dev&sz=64" width="16" height="16" style="vertical-align:text-bottom"> [**Firecrawl Extract**](skills/extract/README.md) - Extract content from URLs (Exa → Firecrawl fallback)
+- <img src="https://cdn.simpleicons.org/linear" width="16" height="16" style="vertical-align:text-bottom"> [**Linear**](skills/linear/README.md) - Work project management
+- <img src="https://cdn.simpleicons.org/todoist" width="16" height="16" style="vertical-align:text-bottom"> [**Todoist**](skills/todoist/README.md) - Personal task management
+- <img src="https://www.google.com/s2/favicons?domain=copilot.money&sz=64" width="16" height="16" style="vertical-align:text-bottom"> [**Copilot Money**](skills/copilot/README.md) - Personal finance, balances, transactions (macOS)
+- <img src="https://img.icons8.com/fluency/48/gmail.png" width="16" height="16" style="vertical-align:text-bottom"> [**Gmail**](skills/google-workspace/README.md) - Read emails, search messages, create drafts
+- <img src="https://img.icons8.com/fluency/48/google-drive.png" width="16" height="16" style="vertical-align:text-bottom"> [**Google Drive**](skills/google-workspace/README.md) - List files, search files, read file content
+- <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/MacOSCalendar.png" width="16" height="16" style="vertical-align:text-bottom"> [**Calendar**](skills/calendar/README.md) - Read/manage calendar (macOS Native)
+- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/IMessage_logo.svg/1200px-IMessage_logo.svg.png" width="16" height="16" style="vertical-align:text-bottom"> [**iMessages**](skills/imessages/README.md) - Read iMessages/SMS (macOS Native)
+- <img src="https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64" width="16" height="16" style="vertical-align:text-bottom"> [**WhatsApp**](skills/whatsapp/README.md) - Read WhatsApp messages (macOS Native)
+- <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Contacts_%28iOS%29.png" width="16" height="16" style="vertical-align:text-bottom"> [**Contacts**](skills/contacts/README.md) - Read/manage contacts (macOS Native)
+- <img src="https://cdn.simpleicons.org/youtube" width="16" height="16" style="vertical-align:text-bottom"> [**YouTube**](skills/youtube/README.md) - Transcribe videos
+- <img src="https://images.g2crowd.com/uploads/product/image/b0a53bb6a5db8829772a32d63c3d41b7/enrich-labs-enrich-so.png" width="16" height="16" style="vertical-align:text-bottom"> [**Enrich**](skills/enrich/README.md) - Research email/phone/domain
+- ✈️ [**Flights**](skills/flights/README.md) - Search for flights
+- <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="16" height="16" style="vertical-align:text-bottom"> [**GitHub**](skills/github/README.md) - Manage issues, PRs, repos
+- <img src="https://raindrop.io/favicon.ico" width="16" height="16" style="vertical-align:text-bottom"> [**Raindrop**](skills/raindrop/README.md) - Manage bookmarks and collections
+- <img src="https://www.google.com/s2/favicons?domain=apollo.io&sz=64" width="16" height="16" style="vertical-align:text-bottom"> [**Apollo CRM**](skills/apollo/README.md) - Read accounts, contacts, deals, sequences, tasks, calls
 
 **Utilities:**
 - [**Timezone**](utils/README.md) - Timezone conversion
@@ -54,6 +55,17 @@ Have specific URLs to read/extract content from?
 **⚠️ Always surface API errors to the user** - credit exhaustion (402), rate limits (429), auth failures (401). Don't silently fail.
 
 **When an API fails due to credits/limits:** Tell the user and ask if you should try an alternative. Many skills have fallbacks (e.g., Exa → Firecrawl for search). Don't assume - ask.
+
+## Browser Tool Usage
+
+**⚠️ CRITICAL: Do NOT use the browser tool unless the user explicitly asks you to.**
+
+**Preferred approach for web research:**
+1. **First:** Use [ExaSearch](skills/search/README.md) for semantic web search and finding information
+2. **Second:** Use [Firecrawl Extract](skills/extract/README.md) for extracting content from specific URLs (Exa first, Firecrawl as fallback)
+3. **Last resort only:** Browser tool - only if user explicitly requests it or if Exa/Firecrawl both fail and user needs interactive browsing
+
+**Why:** Exa and Firecrawl are faster, more reliable, and don't require interactive browser sessions. The browser tool should only be used when absolutely necessary (e.g., user explicitly asks to browse a site, or interactive actions are required that APIs cannot handle).
 
 ## Terminal Usage & Best Practices
 

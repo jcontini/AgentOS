@@ -21,7 +21,8 @@ curl -s -X POST "https://api.exa.ai/search" \
     "num_results": 5,
     "type": "auto",
     "contents": {
-      "text": true
+      "text": true,
+      "livecrawl": "always"
     }
   }' | jq .
 ```
@@ -39,6 +40,8 @@ curl -s -X POST "https://api.exa.ai/search" \
   }' | jq .
 ```
 
+**⚠️ IMPORTANT: Always use `contents.livecrawl: "always"` when extracting content** to get fresh results instead of cached content. The default for neural search is `"never"` (cached), so explicitly set this to ensure latest information.
+
 ## Search Types
 
 - `"auto"` - Let Exa choose (recommended)
@@ -53,11 +56,14 @@ curl -s -X POST "https://api.exa.ai/search" \
 | `num_results` | Number of results (1-100) | 10 |
 | `type` | Search type: `auto`, `neural`, `keyword` | `auto` |
 | `contents` | Include content extraction | omit for URLs only |
+| `contents.livecrawl` | Freshness: `"always"` (fresh), `"preferred"` (try fresh, fallback to cache), `"fallback"` (cache if available), `"never"` (cache only) | `"never"` for neural search (⚠️ use `"always"` for latest results) |
 | `includeDomains` | Limit to specific domains | none |
 | `excludeDomains` | Exclude specific domains | none |
 | `startPublishedDate` | Filter by publish date (ISO format) | none |
 
 ## Best Practices
+
+**⚠️ ALWAYS use `contents.livecrawl: "always"` when extracting content** to ensure you get the latest results instead of cached content. The default for neural search is cached (`"never"`), so explicitly set this parameter.
 
 **⚠️ Do NOT include time periods in queries** unless explicitly requested:
 ```bash
@@ -65,12 +71,15 @@ curl -s -X POST "https://api.exa.ai/search" \
 # ✅ GOOD: "best genealogists" - gets current results naturally
 ```
 
-**Use `contents` parameter for combined search + extraction** - same cost, one API call:
+**Use `contents` parameter for combined search + extraction** - same cost, one API call. **Always include `livecrawl: "always"` for fresh results:**
 ```json
 {
   "query": "italian citizenship by descent lawyers",
   "num_results": 5,
-  "contents": { "text": true }
+  "contents": {
+    "text": true,
+    "livecrawl": "always"
+  }
 }
 ```
 

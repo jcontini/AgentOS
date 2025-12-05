@@ -91,6 +91,7 @@ curl -s -X POST "https://api.exa.ai/contents" \
 - Single-page applications (SPAs)
 - Dynamic content requiring browser rendering
 - Getting 2-5x more content than Exa on complex pages
+- **Always fetches fresh content** - Firecrawl scrapes pages on-demand, so results are always current
 
 **Simple markdown extraction:**
 ```bash
@@ -102,6 +103,8 @@ curl -s -X POST "https://api.firecrawl.dev/v1/scrape" \
     "formats": ["markdown"]
   }' | jq -r '.data.markdown'
 ```
+
+**Note:** Firecrawl always fetches fresh content by default (no cache parameters needed). It scrapes pages on-demand, ensuring you get the latest version of the page.
 
 **With options:**
 ```bash
